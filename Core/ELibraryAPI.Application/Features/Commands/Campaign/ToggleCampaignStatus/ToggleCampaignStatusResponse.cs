@@ -1,0 +1,1 @@
+﻿public sealed record ToggleCampaignStatusResponse(Guid Id, bool IsActive);

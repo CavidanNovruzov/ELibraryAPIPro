@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="Core/ELibraryAPI.Application/ELibraryAPI.Application.csproj" Id="72cfc859-ead8-40d6-81e9-96695094ee7c" />
+    <Project Path="Core/ELibraryAPI.Domain/ELibraryAPI.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/ELibraryAPI.Infrastructure/ELibraryAPI.Infrastructure.csproj" Id="298419a0-bf71-4546-939b-ed701092d8de" />
+    <Project Path="Infrastructure/ELibraryAPI.Persistance/ELibraryAPI.Persistance.csproj" Id="eb4cf039-f343-47f1-88c6-909e08dd611c" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="Presentation/ELibraryAPI.API/ELibraryAPI.API.csproj" Id="529ffb83-3190-463f-bd4d-e5f94a3a5d22" />
+  </Folder>
+</Solution>

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  elibrary-api:
+    image: cavidan/elibraryapi:latest
+    container_name: elibrary_backend_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080" # localhost:5000/swagger
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      
+      # Mövcud redis-master konteynerinə Windows portu üzərindən keçid edirik:
+      - RedisSettings__Password=${REDIS_PASSWORD}
+
+      
+      - Jwt__SecretKey=${JWT_SECRET_KEY}
+      - Email__UserName=${SMTP_USER}
+      - Email__Password=${SMTP_PASSWORD}
+      - Email__FromEmail=${SMTP_USER}
+      - Email__FromName=E-Library Project Official
+      
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./uploads:/app/wwwroot/uploads
