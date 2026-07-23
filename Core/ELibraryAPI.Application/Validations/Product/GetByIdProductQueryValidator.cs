@@ -9,7 +9,7 @@ public sealed class GetByIdProductQueryValidator : AbstractValidator<GetByIdProd
     public GetByIdProductQueryValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Product ID is required.")
-            .NotEqual(Guid.Empty).WithMessage("Valid Product ID is required.");
+            .NotEmpty().WithMessage("Məhsul ID-si mütləqdir.")
+            .NotEqual(Guid.Empty).WithMessage("Düzgün Məhsul ID-si mütləqdir.");
     }
 }

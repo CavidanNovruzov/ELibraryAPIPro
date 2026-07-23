@@ -18,10 +18,10 @@ public class AssignRoleToUserCommandHandler : IRequestHandler<AssignRoleToUserCo
         var user = await _userManager.FindByIdAsync(request.UserId.ToString());
 
         if (user == null)
-            return Result.Failure("User not found.");
+            return Result.Failure("İstifadəçi tapılmadı.");
 
         if (await _userManager.IsInRoleAsync(user, request.RoleName))
-            return Result.Success("The user already has this role.");
+            return Result.Success("İstifadəçidə bu rol artıq mövcuddur.");
 
         var result = await _userManager.AddToRoleAsync(user, request.RoleName);
 

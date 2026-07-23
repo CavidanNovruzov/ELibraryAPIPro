@@ -9,27 +9,27 @@ public sealed class UpdateProfileCommandValidator : AbstractValidator<UpdateProf
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("UserId boş ola bilməz.");
+            .WithMessage("İstifadəçi ID-si boş ola bilməz.");
 
         RuleFor(x => x.FirstName)
             .NotEmpty()
-            .WithMessage("FirstName boş ola bilməz.")
+            .WithMessage("Ad boş ola bilməz.")
             .MaximumLength(50)
-            .WithMessage("FirstName maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Ad maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.LastName)
             .NotEmpty()
-            .WithMessage("LastName boş ola bilməz.")
+            .WithMessage("Soyad boş ola bilməz.")
             .MaximumLength(50)
-            .WithMessage("LastName maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Soyad maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.UserName)
             .NotEmpty()
-            .WithMessage("UserName boş ola bilməz.")
+            .WithMessage("İstifadəçi adı boş ola bilməz.")
             .MinimumLength(3)
-            .WithMessage("UserName minimum {MinLength} simvol olmalıdır.")
+            .WithMessage("İstifadəçi adı minimum {MinLength} simvol olmalıdır.")
             .MaximumLength(50)
-            .WithMessage("UserName maksimum {MaxLength} simvol ola bilər.")
+            .WithMessage("İstifadəçi adı maksimum {MaxLength} simvol ola bilər.")
             .Matches("^[a-zA-Z0-9._-]+$")
             .WithMessage("UserName yalnız hərflər, rəqəmlər, nöqtə, alt-xətt və defisdən ibarət ola bilər.");
     }

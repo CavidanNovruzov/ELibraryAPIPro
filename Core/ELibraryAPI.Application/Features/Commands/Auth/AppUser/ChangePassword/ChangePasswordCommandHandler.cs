@@ -16,7 +16,7 @@ public sealed class ChangePasswordCommandHandler : IRequestHandler<ChangePasswor
     {
         var user = await _userManager.FindByIdAsync(request.UserId.ToString());
         if (user == null)
-            return Result.Failure("User not found.");
+            return Result.Failure("İstifadəçi tapılmadı.");
 
         var result = await _userManager.ChangePasswordAsync(
             user, request.CurrentPassword, request.NewPassword);
@@ -24,6 +24,6 @@ public sealed class ChangePasswordCommandHandler : IRequestHandler<ChangePasswor
         if (!result.Succeeded)
             return Result.Failure(result.Errors.Select(e => e.Description).ToList());
 
-        return Result.Success("Password changed successfully.");
+        return Result.Success("Şifrə uğurla dəyişdirildi.");
     }
 }

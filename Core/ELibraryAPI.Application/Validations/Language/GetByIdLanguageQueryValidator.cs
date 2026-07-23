@@ -9,7 +9,7 @@ public sealed class GetByIdLanguageQueryValidator : AbstractValidator<GetByIdLan
     public GetByIdLanguageQueryValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty()
+            .NotEmpty().WithMessage("ID-si boş ola bilməz.")
             .NotEqual(Guid.Empty);
     }
 }

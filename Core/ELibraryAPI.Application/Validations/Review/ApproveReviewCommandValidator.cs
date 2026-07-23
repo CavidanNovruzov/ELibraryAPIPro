@@ -6,6 +6,6 @@ public sealed class ApproveReviewCommandValidator : AbstractValidator<ApproveRev
 {
     public ApproveReviewCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty().WithMessage("Review ID is required.");
+        RuleFor(x => x.Id).NotEmpty().WithMessage("Rəy ID-si mütləqdir.");
     }
 }

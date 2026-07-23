@@ -28,7 +28,7 @@ public sealed class CreateCoverTypeCommandHandler : IRequestHandler<CreateCoverT
 
         if (isNameExists)
         {
-            return Result<CreateCoverTypeCommandResponse>.Failure("This cover type already exists.");
+            return Result<CreateCoverTypeCommandResponse>.Failure("Bu üz qabığı növü artıq mövcuddur.");
         }
 
         var coverType = _mapper.Map<Domain.Entities.Concrete.CoverType>(request);
@@ -41,9 +41,9 @@ public sealed class CreateCoverTypeCommandHandler : IRequestHandler<CreateCoverT
         {
             return Result<CreateCoverTypeCommandResponse>.Success(
                 new CreateCoverTypeCommandResponse(coverType.Id),
-                "Cover type created successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<CreateCoverTypeCommandResponse>.Failure("An error occurred while creating the cover type.");
+        return Result<CreateCoverTypeCommandResponse>.Failure("Üz qabığı növü yaradılarkən xəta baş verdi.");
     }
 }

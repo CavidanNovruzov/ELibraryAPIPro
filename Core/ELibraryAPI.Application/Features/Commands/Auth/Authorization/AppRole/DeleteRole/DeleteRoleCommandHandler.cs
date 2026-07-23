@@ -15,12 +15,12 @@ namespace ELibraryAPI.Application.Features.Commands.Auth.Roles.AppRole.DeleteRol
             var writeRepository = _uow.WriteRepository<Domain.Entities.Concrete.Auth.AppRole, Guid>();
             var success = await _uow.ReadRepository<Domain.Entities.Concrete.Auth.AppRole, Guid>().ExistsAsync(r => r.Id == request.Id,false, ct);
 
-            if (!success) return Result.Failure("Role not found.");
+            if (!success) return Result.Failure("Rol tapılmadı.");
 
             await writeRepository.RemoveAsync(request.Id, ct);
             return await _uow.SaveAsync(ct) > 0
-                ? Result.Success("Role deleted successfully.")
-                : Result.Failure("An error occurred while deleting the role.");
+                ? Result.Success("Rol uğurla silindi.")
+                : Result.Failure("Rol silinərkən xəta baş verdi.");
         }
     }
 }

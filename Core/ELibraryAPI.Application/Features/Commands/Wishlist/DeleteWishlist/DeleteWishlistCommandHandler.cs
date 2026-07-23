@@ -20,11 +20,11 @@ public sealed class DeleteWishlistCommandHandler : IRequestHandler<DeleteWishlis
 
         var wishlist = await wishlistReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (wishlist == null)
-            return Result.Failure("Wishlist not found.");
+            return Result.Failure("İstək siyahısı tapılmadı.");
 
         wishlistWriteRepo.Remove(wishlist);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Wishlist moved to archive.");
+        return Result.Success("İstək siyahısı arxivə köçürüldü.");
     }
 }

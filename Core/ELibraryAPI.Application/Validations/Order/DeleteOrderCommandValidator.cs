@@ -7,6 +7,6 @@ public sealed class DeleteOrderCommandValidator : AbstractValidator<DeleteOrderC
 {
     public DeleteOrderCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty().WithMessage("Order Id is required.");
+        RuleFor(x => x.Id).NotEmpty().WithMessage("Sifariş ID-si mütləqdir.");
     }
 }

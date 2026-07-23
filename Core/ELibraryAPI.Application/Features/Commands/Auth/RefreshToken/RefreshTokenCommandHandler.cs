@@ -25,14 +25,14 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommandReq
         {
             if (result.Errors != null && result.Errors.Any())
             {
-                return Result<RefreshTokenCommandResponse>.Failure(result.Errors, result.Message ?? "Validation failed");
+                return Result<RefreshTokenCommandResponse>.Failure(result.Errors, result.Message ?? "Validasiya xətası baş verdi");
             }
 
-            return Result<RefreshTokenCommandResponse>.Failure(result.Message ?? "Token refresh failed");
+            return Result<RefreshTokenCommandResponse>.Failure(result.Message ?? "Token yenilənməsi uğursuz oldu");
         }
 
         if (result.Data == null)
-            return Result<RefreshTokenCommandResponse>.Failure(result.Message ?? "Token refresh failed");
+            return Result<RefreshTokenCommandResponse>.Failure(result.Message ?? "Token yenilənməsi uğursuz oldu");
 
         return Result<RefreshTokenCommandResponse>.Success(new(result.Data));
     }

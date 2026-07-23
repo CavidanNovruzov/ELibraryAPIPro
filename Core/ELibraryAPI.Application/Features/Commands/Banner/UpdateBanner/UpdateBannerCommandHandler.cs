@@ -1,6 +1,6 @@
-
 using ELibraryAPI.Application.Abstractions.Services.Storage;
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 
@@ -10,11 +10,16 @@ public sealed class UpdateBannerCommandHandler : IRequestHandler<UpdateBannerCom
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStorageService _storageService;
+    private readonly IMediator _mediator;
 
-    public UpdateBannerCommandHandler(IUnitOfWork unitOfWork, IStorageService storageService)
+    public UpdateBannerCommandHandler(
+        IUnitOfWork unitOfWork,
+        IStorageService storageService,
+        IMediator mediator)
     {
         _unitOfWork = unitOfWork;
         _storageService = storageService;
+        _mediator = mediator;
     }
 
     public async Task<Result<UpdateBannerCommandResponse>> Handle(UpdateBannerCommandRequest request, CancellationToken ct)
@@ -23,8 +28,7 @@ public sealed class UpdateBannerCommandHandler : IRequestHandler<UpdateBannerCom
         var banner = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (banner == null)
-            return Result<UpdateBannerCommandResponse>.Failure("Banner not found.");
-
+            return Result<UpdateBannerCommandResponse>.Failure("Banner tapılmadı.");
 
         if (!string.IsNullOrEmpty(request.Base64File) && !string.IsNullOrEmpty(request.FileName))
         {
@@ -45,8 +49,14 @@ public sealed class UpdateBannerCommandHandler : IRequestHandler<UpdateBannerCom
         var result = await _unitOfWork.SaveAsync(ct);
 
         if (result > 0)
-            return Result<UpdateBannerCommandResponse>.Success(new UpdateBannerCommandResponse(banner.Id));
+        {
+            await _mediator.Publish(new EntityChangedEvent("banner", banner.Id), ct);
 
-        return Result<UpdateBannerCommandResponse>.Failure("Update zamanı xəta baş verdi.");
+            return Result<UpdateBannerCommandResponse>.Success(
+                new UpdateBannerCommandResponse(banner.Id),
+                "Banner uğurla yeniləndi.");
+        }
+
+        return Result<UpdateBannerCommandResponse>.Failure("Yeniləmə zamanı xəta baş verdi.");
     }
 }

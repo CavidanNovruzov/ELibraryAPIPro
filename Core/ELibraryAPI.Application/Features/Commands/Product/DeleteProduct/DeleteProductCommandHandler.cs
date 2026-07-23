@@ -29,7 +29,7 @@ public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductC
 
         if (product == null)
         {
-            return Result.Failure("Product not found.");
+            return Result.Failure("Məhsul tapılmadı..");
         }
 
         writeRepository.Remove(product);
@@ -38,6 +38,6 @@ public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductC
 
         await _mediator.Publish(new EntityChangedEvent("product", request.Id), ct);
 
-        return Result.Success("Product deleted successfully.");
+        return Result.Success("Məhsul uğurla silindi.");
     }
 }

@@ -9,9 +9,9 @@ public sealed class ConfirmEmailCommandValidator : AbstractValidator<ConfirmEmai
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("UserId boş ola bilməz.")
+            .WithMessage("İstifadəçi ID-si boş ola bilməz.")
             .MaximumLength(64)
-            .WithMessage("UserId maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("İstifadəçi ID-si maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Token)
             .NotEmpty()

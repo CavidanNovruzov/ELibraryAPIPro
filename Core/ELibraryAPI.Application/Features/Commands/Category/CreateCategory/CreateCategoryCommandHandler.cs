@@ -1,5 +1,6 @@
 using AutoMapper;
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 
@@ -9,11 +10,13 @@ public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategor
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
 
-    public CreateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IMediator mediator)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _mediator = mediator;
     }
 
     public async Task<Result<CreateCategoryCommandResponse>> Handle(CreateCategoryCommandRequest request, CancellationToken ct)
@@ -28,7 +31,7 @@ public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategor
 
         if (isNameUsed)
         {
-            return Result<CreateCategoryCommandResponse>.Failure("A category with this name already exists.");
+            return Result<CreateCategoryCommandResponse>.Failure("Bu adda kateqoriya artıq mövcuddur.");
         }
 
         var category = _mapper.Map<Domain.Entities.Concrete.Category>(request);
@@ -36,8 +39,10 @@ public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategor
         await writeRepo.AddAsync(category, ct);
         await _unitOfWork.SaveAsync(ct);
 
+        await _mediator.Publish(new EntityChangedEvent("category", category.Id), ct);
+
         return Result<CreateCategoryCommandResponse>.Success(
             new CreateCategoryCommandResponse(category.Id),
-            "Category created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

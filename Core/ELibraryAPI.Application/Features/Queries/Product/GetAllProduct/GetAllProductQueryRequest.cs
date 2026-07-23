@@ -20,7 +20,7 @@ public sealed record GetAllProductQueryRequest(
 ) : IRequest<Result<GetAllProductQueryResponse>>, ICacheable
 {
     public string CacheKey => CacheKeyHelper.Create(
-        "products",
+        "product",
         "list",
         Search,
         CategoryId,

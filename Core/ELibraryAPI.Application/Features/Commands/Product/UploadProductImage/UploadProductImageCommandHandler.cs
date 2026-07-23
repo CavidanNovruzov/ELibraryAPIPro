@@ -32,7 +32,7 @@ public sealed class UploadProductImageCommandHandler : IRequestHandler<UploadPro
         );
 
         if (product == null)
-            return Result<UploadProductImageCommandResponse>.Failure("Product not found.");
+            return Result<UploadProductImageCommandResponse>.Failure("Məhsul tapılmadı..");
 
         var urls = new List<string>();
 

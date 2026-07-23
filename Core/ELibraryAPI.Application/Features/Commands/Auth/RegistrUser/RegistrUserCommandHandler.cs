@@ -32,7 +32,7 @@ public sealed class RegistrUserCommandHandler : IRequestHandler<RegistrUserComma
                 return Result<Guid>.Failure(result.Errors);
             }
             
-            return Result<Guid>.Failure(result.Message ?? "Registration failed");
+            return Result<Guid>.Failure(result.Message ?? "Qeydiyyat uğursuz oldu");
         }
 
         return Result<Guid>.Success(result.Data);

@@ -32,13 +32,13 @@ public sealed class UpdateStockCommandHandler
 
         var stock = await stockReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (stock == null)
-            return Result<UpdateStockCommandResponse>.Failure("Stock record not found.");
+            return Result<UpdateStockCommandResponse>.Failure("Stok qeydi tapılmadı.");
 
         if (!await productReadRepo.ExistsAsync(x => x.Id == request.ProductId, false, ct))
-            return Result<UpdateStockCommandResponse>.Failure("Product not found.");
+            return Result<UpdateStockCommandResponse>.Failure("Məhsul tapılmadı..");
 
         if (!await branchReadRepo.ExistsAsync(x => x.Id == request.BranchId, false, ct))
-            return Result<UpdateStockCommandResponse>.Failure("Branch not found.");
+            return Result<UpdateStockCommandResponse>.Failure("Filial tapılmadı.");
 
         if (stock.ProductId != request.ProductId || stock.BranchId != request.BranchId)
         {
@@ -48,11 +48,11 @@ public sealed class UpdateStockCommandHandler
 
             if (stockExists)
                 return Result<UpdateStockCommandResponse>.Failure(
-                    "A stock record for this product in the selected branch already exists.");
+                    "Seçilmiş filialda bu məhsul üçün stok qeydi artıq mövcuddur.");
         }
 
         if (request.Quantity < 0)
-            return Result<UpdateStockCommandResponse>.Failure("Stock quantity cannot be negative.");
+            return Result<UpdateStockCommandResponse>.Failure("Stok miqdarı mənfi ola bilməz.");
 
         int previousQuantity = stock.Quantity;
 
@@ -65,7 +65,7 @@ public sealed class UpdateStockCommandHandler
         catch (DbUpdateConcurrencyException)
         {
             return Result<UpdateStockCommandResponse>.Failure(
-                "Stock was modified by another request. Please reload and try again.",
+                "Stok başqa bir sorğu tərəfindən dəyişdirildi. Zəhmət olmasa səhifəni yeniləyin və yenidən cəhd edin.",
                 ErrorType.Conflict);
         }
 
@@ -74,8 +74,9 @@ public sealed class UpdateStockCommandHandler
             await _mediator.Publish(new ProductBackInStockEvent(stock.ProductId), ct);
         }
 
+
         return Result<UpdateStockCommandResponse>.Success(
             new UpdateStockCommandResponse(stock.Id),
-            "Stock record updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

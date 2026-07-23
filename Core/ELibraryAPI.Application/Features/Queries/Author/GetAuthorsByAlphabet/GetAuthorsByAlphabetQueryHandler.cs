@@ -20,8 +20,7 @@ public sealed class GetAuthorsByAlphabetQueryHandler : IRequestHandler<GetAuthor
 
         var authors = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Author, Guid>()
-            .GetAll(false)
-            .Include(a => a.ProductAuthors)
+            .GetAll(tracking: false)
             .Where(a => a.FullName.StartsWith(letter))
             .OrderBy(a => a.FullName)
             .Select(a => new AuthorAlphabetDto(

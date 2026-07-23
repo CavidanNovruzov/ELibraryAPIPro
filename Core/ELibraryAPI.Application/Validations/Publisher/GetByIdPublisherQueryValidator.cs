@@ -8,7 +8,7 @@ public sealed class GetByIdPublisherQueryValidator : AbstractValidator<GetByIdPu
     public GetByIdPublisherQueryValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty()
+            .NotEmpty().WithMessage("ID-si boş ola bilməz.")
             .NotEqual(Guid.Empty);
     }
 }

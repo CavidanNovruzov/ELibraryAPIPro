@@ -28,7 +28,7 @@ public sealed class CreateLanguageCommandHandler : IRequestHandler<CreateLanguag
 
         if (isExists)
         {
-            return Result<CreateLanguageCommandResponse>.Failure("Language with this name or code already exists.");
+            return Result<CreateLanguageCommandResponse>.Conflict("Bu adda və ya kodda dil artıq mövcuddur.");
         }
 
         var language = _mapper.Map<Domain.Entities.Concrete.Language>(request);
@@ -38,6 +38,6 @@ public sealed class CreateLanguageCommandHandler : IRequestHandler<CreateLanguag
 
         return Result<CreateLanguageCommandResponse>.Success(
             new CreateLanguageCommandResponse(language.Id),
-            "Language created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

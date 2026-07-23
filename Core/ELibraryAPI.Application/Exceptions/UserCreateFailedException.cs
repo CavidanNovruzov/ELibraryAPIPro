@@ -3,7 +3,7 @@ namespace ELibraryAPI.Application.Exceptions
 {
     public class UserCreateFailedException : Exception
     {
-        public UserCreateFailedException() : base("User creation failed.")
+        public UserCreateFailedException() : base("İstifadəçi yaradılması uğursuz oldu.")
         {
             
         }

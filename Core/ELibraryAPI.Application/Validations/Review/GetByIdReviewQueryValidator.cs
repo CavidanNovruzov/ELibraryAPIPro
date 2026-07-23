@@ -11,7 +11,7 @@ public sealed class GetByIdReviewQueryValidator : AbstractValidator<GetByIdRevie
     public GetByIdReviewQueryValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Review ID is required.")
-            .NotEqual(Guid.Empty).WithMessage("A valid Review ID must be provided.");
+            .NotEmpty().WithMessage("Rəy ID-si mütləqdir.")
+            .NotEqual(Guid.Empty).WithMessage("Düzgün Rəy ID-si təmin edilməlidir.");
     }
 }

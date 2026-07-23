@@ -9,7 +9,7 @@ public sealed class GetMovementsByProductQueryValidator : AbstractValidator<GetM
     public GetMovementsByProductQueryValidator()
     {
         RuleFor(x => x.ProductId)
-            .NotEmpty()
+            .NotEmpty().WithMessage("Məhsul ID-si boş ola bilməz.")
             .NotEqual(Guid.Empty);
     }
 }

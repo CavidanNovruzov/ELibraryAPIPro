@@ -12,12 +12,12 @@ public sealed class GetAllStockQueryValidator : AbstractValidator<GetAllStockQue
     {
         RuleFor(x => x.Page)
             .GreaterThanOrEqualTo(1)
-            .WithMessage("Page number must be at least 1.");
+            .WithMessage("Səhifə nömrəsi ən azı 1 olmalıdır.");
 
         RuleFor(x => x.Size)
             .GreaterThanOrEqualTo(1)
-            .WithMessage("Page size must be at least 1.")
+            .WithMessage("Səhifə ölçüsü ən azı 1 olmalıdır.")
             .LessThanOrEqualTo(100)
-            .WithMessage("Page size cannot exceed 100 items per request.");
+            .WithMessage("Səhifə ölçüsü bir sorğu üçün 100 elementdən çox ola bilməz.");
     }
 }

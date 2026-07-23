@@ -16,28 +16,25 @@ public sealed class GetAuthorByIdQueryHandler : IRequestHandler<GetAuthorByIdQue
 
     public async Task<Result<GetAuthorByIdQueryResponse>> Handle(GetAuthorByIdQueryRequest request, CancellationToken ct)
     {
-        var author = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Author, Guid>()
-            .GetAll(false)
-            .Include(a => a.ProductAuthors)
-                .ThenInclude(pa => pa.Product)
-                    .ThenInclude(p => p.Images)
-            .FirstOrDefaultAsync(a => a.Id == request.Id, ct);
+        var response = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Author, Guid>()
+            .GetAll(tracking: false)
+            .Where(a => a.Id == request.Id)
+            .Select(a => new GetAuthorByIdQueryResponse(
+                a.Id,
+                a.FullName,
+                a.Biography,
+                a.Country,
+                a.ProductAuthors.Select(pa => new AuthorBookDto(
+                    pa.Product.Id,
+                    pa.Product.Title,
+                    pa.Product.SalePrice,
+                    pa.Product.Images.FirstOrDefault(i => i.IsMain).ImageUrl
+                )).ToList()
+            ))
+            .FirstOrDefaultAsync(ct);
 
-        if (author == null)
-            return Result<GetAuthorByIdQueryResponse>.Failure("Author not found.");
-
-        var response = new GetAuthorByIdQueryResponse(
-            author.Id,
-            author.FullName,
-            author.Biography,
-            author.Country,
-            author.ProductAuthors.Select(pa => new AuthorBookDto(
-                pa.Product.Id,
-                pa.Product.Title,
-                pa.Product.SalePrice,
-                pa.Product.Images.FirstOrDefault(i => i.IsMain)?.ImageUrl
-            )).ToList()
-        );
+        if (response is null)
+            return Result<GetAuthorByIdQueryResponse>.NotFound("Müəllif tapılmadı.");
 
         return Result<GetAuthorByIdQueryResponse>.Success(response);
     }

@@ -1,30 +1,41 @@
-using ELibraryAPI.Application.UnitOfWork;
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Application.Shared.Events;
+using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 
 namespace ELibraryAPI.Application.Features.Commands.Author.DeleteAuthor;
 
-public class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommandRequest, Result>
+public sealed class DeleteAuthorCommandHandler : IRequestHandler<DeleteAuthorCommandRequest, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public DeleteAuthorCommandHandler(IUnitOfWork unitOfWork)
+    public DeleteAuthorCommandHandler(IUnitOfWork unitOfWork, IMediator mediator)
     {
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     public async Task<Result> Handle(DeleteAuthorCommandRequest request, CancellationToken ct)
     {
-        var writeRepository = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Author, Guid>();
+        var readRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Author, Guid>();
+        var writeRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Author, Guid>();
 
-        var author = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Author, Guid>().GetByIdAsync(request.Id, tracking: true, ct); 
+        var author = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (author is null)
-            return Result.Failure("Author not found or already deleted.");
+            return Result.Failure("Müəllif tapılmadı və ya artıq silinib.");
 
-        writeRepository.Remove(author);
+        writeRepo.Remove(author);
 
-        await _unitOfWork.SaveAsync(ct);
+        var saveResult = await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success();
+        if (saveResult > 0)
+        {
+            await _mediator.Publish(new EntityChangedEvent("author", request.Id), ct);
+
+            return Result.Success("Müəllif uğurla silindi.");
+        }
+
+        return Result.Failure("Müəllif silinərkən xəta baş verdi.");
     }
 }

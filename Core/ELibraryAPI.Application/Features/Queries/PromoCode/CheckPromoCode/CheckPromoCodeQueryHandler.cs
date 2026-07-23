@@ -23,16 +23,16 @@ public sealed class CheckPromoCodeQueryHandler : IRequestHandler<CheckPromoCodeQ
             .FirstOrDefaultAsync(pc => pc.Code == request.Code, cancellationToken);
 
         if (promo == null)
-            return Result<CheckPromoCodeQueryResponse>.Failure("This promo code does not exist.", ErrorType.NotFound);
+            return Result<CheckPromoCodeQueryResponse>.Failure("Bu promo kod mövcud deyil.", ErrorType.NotFound);
 
         if (!promo.IsActive)
-            return Result<CheckPromoCodeQueryResponse>.Failure("This promo code is no longer active.", ErrorType.ValidationError);
+            return Result<CheckPromoCodeQueryResponse>.Failure("Bu promo kod artıq aktiv deyil.", ErrorType.ValidationError);
 
         if (promo.EndDate < DateTime.UtcNow)
-            return Result<CheckPromoCodeQueryResponse>.Failure("This promo code has expired.", ErrorType.ValidationError);
+            return Result<CheckPromoCodeQueryResponse>.Failure("Bu promo kodun vaxtı bitib.", ErrorType.ValidationError);
 
         if (promo.UsageCount >= promo.UsageLimit)
-            return Result<CheckPromoCodeQueryResponse>.Failure("This promo code has reached its usage limit.", ErrorType.ValidationError);
+            return Result<CheckPromoCodeQueryResponse>.Failure("Bu promo kodun istifadə limiti bitib.", ErrorType.ValidationError);
 
         return Result<CheckPromoCodeQueryResponse>.Success(new CheckPromoCodeQueryResponse(
             promo.Code,

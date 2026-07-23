@@ -8,9 +8,9 @@ public sealed class ChangeOrderStatusCommandValidator : AbstractValidator<Change
     public ChangeOrderStatusCommandValidator()
     {
         RuleFor(x => x.OrderId)
-            .NotEmpty().WithMessage("Order Id is required.");
+            .NotEmpty().WithMessage("Sifariş ID-si mütləqdir.");
 
         RuleFor(x => x.StatusId)
-            .NotEmpty().WithMessage("New status Id is required.");
+            .NotEmpty().WithMessage("Yeni status ID-si mütləqdir.");
     }
 }

@@ -6,14 +6,14 @@ public sealed class CreateReviewCommandValidator : AbstractValidator<CreateRevie
     public CreateReviewCommandValidator()
     {
         RuleFor(x => x.Comment)
-            .NotEmpty().WithMessage("Comment cannot be empty.")
-            .MaximumLength(500).WithMessage("Comment must be less than 500 characters.");
+            .NotEmpty().WithMessage("Rəy boş ola bilməz.")
+            .MaximumLength(500).WithMessage("Rəy 500 simvoldan az olmalıdır.");
 
         RuleFor(x => x.Rating)
-            .InclusiveBetween(1, 5).WithMessage("Rating must be between 1 and 5.");
+            .InclusiveBetween(1, 5).WithMessage("Qiymətləndirmə 1 ilə 5 arasında olmalıdır.");
 
         RuleFor(x => x.ProductId)
-            .NotEmpty().WithMessage("Product must be specified.");
+            .NotEmpty().WithMessage("Məhsul qeyd edilməlidir.");
 
     }
 }

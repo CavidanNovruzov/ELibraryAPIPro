@@ -21,16 +21,16 @@ public sealed class CreateWishlistItemCommandHandler : IRequestHandler<CreateWis
         var itemWrite = _unitOfWork.WriteRepository<Domain.Entities.Concrete.       WishlistItem, Guid>();
 
         if (!await wishlistRead.ExistsAsync(x => x.Id == request.WishlistId, false, ct))
-            return Result<CreateWishlistItemCommandResponse>.Failure("Wishlist not found.");
+            return Result<CreateWishlistItemCommandResponse>.NotFound("İstək siyahısı tapılmadı.");
 
         if (!await productRead.ExistsAsync(x => x.Id == request.ProductId, false, ct))
-            return Result<CreateWishlistItemCommandResponse>.Failure("Product not found.");
+            return Result<CreateWishlistItemCommandResponse>.NotFound("Məhsul tapılmadı..");
 
         var alreadyExists = await itemRead.ExistsAsync(
             x => x.WishlistId == request.WishlistId && x.ProductId == request.ProductId, false, ct);
 
         if (alreadyExists)
-            return Result<CreateWishlistItemCommandResponse>.Failure("Product already exists in wishlist.");
+            return Result<CreateWishlistItemCommandResponse>.Conflict("Məhsul artıq istək siyahısındadır.");
 
         var item = new Domain.Entities.Concrete.WishlistItem
         {
@@ -43,6 +43,6 @@ public sealed class CreateWishlistItemCommandHandler : IRequestHandler<CreateWis
 
         return Result<CreateWishlistItemCommandResponse>.Success(
             new CreateWishlistItemCommandResponse(item.Id),
-            "Item added to wishlist successfully.");
+            "Item added to wishlist uğurla tamamlandı.");
     }
 }

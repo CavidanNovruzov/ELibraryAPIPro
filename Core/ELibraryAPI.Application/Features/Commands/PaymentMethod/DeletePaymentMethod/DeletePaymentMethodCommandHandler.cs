@@ -22,13 +22,13 @@ public sealed class DeletePaymentMethodCommandHandler : IRequestHandler<DeletePa
 
         if (paymentMethod == null)
         {
-            return Result.Failure("Payment method not found.");
+            return Result.Failure("Ödəniş metodu tapılmadı.");
         }
 
         writeRepository.Remove(paymentMethod);
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Payment method deleted successfully.");
+        return Result.Success("Ödəniş metodu uğurla silindi.");
     }
 }

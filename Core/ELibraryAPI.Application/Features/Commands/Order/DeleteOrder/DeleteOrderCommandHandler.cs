@@ -17,11 +17,11 @@ public sealed class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderComma
             .GetAll()
             .FirstOrDefaultAsync(o => o.Id == request.Id, ct);
 
-        if (order == null) return Result.Failure("Order not found.");
+        if (order == null) return Result.Failure("Sifariş tapılmadı..");
 
         _unitOfWork.WriteRepository<Domain.Entities.Concrete.Order, Guid>().Remove(order);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Order permanently deleted.");
+        return Result.Success("Sifariş tamamilə silindi.");
     }
 }

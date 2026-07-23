@@ -3,7 +3,7 @@ namespace ELibraryAPI.Application.Exceptions;
 
 public class NotFoundException : Exception
 {
-    public NotFoundException():base("The requested resource was not found.")
+    public NotFoundException():base("Axtarılan məlumat tapılmadı.")
     {
     }
 

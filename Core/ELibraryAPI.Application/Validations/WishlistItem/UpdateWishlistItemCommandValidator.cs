@@ -7,9 +7,9 @@ public sealed class UpdateWishlistItemCommandValidator : AbstractValidator<Updat
 {
     public UpdateWishlistItemCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
 
-        RuleFor(x => x.ProductId).NotEmpty();
-        RuleFor(x => x.WishlistId).NotEmpty();
+        RuleFor(x => x.ProductId).NotEmpty().WithMessage("Məhsul ID-si boş ola bilməz.");
+        RuleFor(x => x.WishlistId).NotEmpty().WithMessage("Arzu siyahısı ID-si boş ola bilməz.");
     }
 }

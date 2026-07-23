@@ -7,7 +7,7 @@ namespace ELibraryAPI.Application.Validations.InventoryMovement
     {
         public GetAllInventoryMovementQueryValidator()
         {
-            RuleFor(x => x.Page).GreaterThanOrEqualTo(1);
+            RuleFor(x => x.Page).GreaterThanOrEqualTo(1).WithMessage("Page {ComparisonValue}-dan böyük olmalıdır.");
             RuleFor(x => x.Size).InclusiveBetween(1, 100);
         }
     }

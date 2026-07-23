@@ -43,7 +43,7 @@ public sealed class GetByIdOrderQueryHandler : IRequestHandler<GetByIdOrderQuery
             .FirstOrDefaultAsync(cancellationToken);
 
         if (order == null)
-            return Result<GetByIdOrderQueryResponse>.Failure("Order not found");
+            return Result<GetByIdOrderQueryResponse>.NotFound("Sifariş tapılmadı.");
 
         return Result<GetByIdOrderQueryResponse>.Success(new GetByIdOrderQueryResponse(order));
     }

@@ -20,7 +20,7 @@ public sealed class CancelOrderCommandHandler : IRequestHandler<CancelOrderComma
             .Include(o => o.OrderItems).ThenInclude(oi => oi.Product).ThenInclude(p => p.Stocks)
             .FirstOrDefaultAsync(o => o.Id == request.Id && !o.IsDeleted, ct);
 
-        if (order == null) return Result.Failure("Order not found.");
+        if (order == null) return Result.Failure("Sifariş tapılmadı..");
 
         var movements = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.InventoryMovement, Guid>()
             .GetWhere(m => m.OrderId == request.Id && m.Type == InventoryMovementType.Sale, tracking: false)
@@ -57,6 +57,6 @@ public sealed class CancelOrderCommandHandler : IRequestHandler<CancelOrderComma
         if (cancelledStatus != null) order.OrderStatusId = cancelledStatus.Id;
 
         await _unitOfWork.SaveAsync(ct);
-        return Result.Success("Order has been cancelled successfully.");
+        return Result.Success("Sifariş uğurla ləğv edildi.");
     }
 }

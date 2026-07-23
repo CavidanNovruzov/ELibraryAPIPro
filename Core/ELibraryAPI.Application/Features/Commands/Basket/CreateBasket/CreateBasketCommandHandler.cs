@@ -28,7 +28,7 @@ public sealed class CreateBasketCommandHandler
 
         if (userId == Guid.Empty)
             return Result<CreateBasketCommandResponse>.Failure(
-                "Authenticated user not found.", ErrorType.Unauthorized);
+                "Sistemə daxil olmuş istifadəçi tapılmadı.", ErrorType.Unauthorized);
 
         var basketReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Basket, Guid>();
         var basketWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Basket, Guid>();
@@ -38,7 +38,7 @@ public sealed class CreateBasketCommandHandler
 
         if (hasActiveBasket)
             return Result<CreateBasketCommandResponse>.Failure(
-                "User already has an active shopping basket.");
+                "İstifadəçinin artıq aktiv alış-veriş səbəti var.");
 
         var basket = new Domain.Entities.Concrete.Basket
         {

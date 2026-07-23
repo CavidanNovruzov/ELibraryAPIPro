@@ -25,9 +25,9 @@ public sealed class LogoutUserCommandHandler : IRequestHandler<LogoutUserCommand
 
         if (affectedRows == 0)
         {
-            return Result.Success("No active session found or already logged out.");
+            return Result.Success("Aktiv sessiya tapılmadı və ya artıq çıxış edilib.");
         }
 
-        return Result.Success("Logged out successfully.");
+        return Result.Success("Sistemdən uğurla çıxış edildi.");
     }
 }

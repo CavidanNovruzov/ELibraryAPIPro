@@ -20,11 +20,11 @@ public sealed class DeleteWishlistItemCommandHandler : IRequestHandler<DeleteWis
         var writeRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.WishlistItem, Guid>();
         var item = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (item == null)
-            return Result.Failure("Wishlist item not found.");
+            return Result.NotFound("İstək siyahısı elementi tapılmadı.");
 
         writeRepo.Remove(item);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Item permanently removed from wishlist.");
+        return Result.Success("Element istək siyahısından tamamilə silindi.");
     }
 }

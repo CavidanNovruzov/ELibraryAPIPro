@@ -26,7 +26,7 @@ public sealed class UpdatePublisherCommandHandler : IRequestHandler<UpdatePublis
 
         if (publisher == null)
         {
-            return Result<UpdatePublisherCommandResponse>.Failure("Publisher not found.");
+            return Result<UpdatePublisherCommandResponse>.Failure("Nəşriyyat tapılmadı..");
         }
 
         var normalizedName = request.Name.Trim().ToLower();
@@ -38,7 +38,7 @@ public sealed class UpdatePublisherCommandHandler : IRequestHandler<UpdatePublis
                 ct: ct);
 
             if (isNameUsed)
-                return Result<UpdatePublisherCommandResponse>.Failure("A publisher with this name already exists.");
+                return Result<UpdatePublisherCommandResponse>.Failure("Bu adda nəşriyyat artıq mövcuddur.");
         }
 
         _mapper.Map(request, publisher);
@@ -47,6 +47,6 @@ public sealed class UpdatePublisherCommandHandler : IRequestHandler<UpdatePublis
 
         return Result<UpdatePublisherCommandResponse>.Success(
             new UpdatePublisherCommandResponse(publisher.Id),
-            "Publisher updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

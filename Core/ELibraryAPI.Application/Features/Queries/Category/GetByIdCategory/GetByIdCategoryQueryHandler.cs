@@ -32,7 +32,7 @@ public sealed class GetByIdCategoryQueryHandler : IRequestHandler<GetByIdCategor
             .FirstOrDefaultAsync(cancellationToken);
 
         if (category == null)
-            return Result<GetByIdCategoryQueryResponse>.Failure("Category not found");
+            return Result<GetByIdCategoryQueryResponse>.NotFound("Kateqoriya tapılmadı.");
 
         return Result<GetByIdCategoryQueryResponse>.Success(new GetByIdCategoryQueryResponse(category));
     }

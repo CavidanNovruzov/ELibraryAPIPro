@@ -1,5 +1,6 @@
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
+using ELibraryAPI.Domain.Enums;
 using MediatR;
 
 namespace ELibraryAPI.Application.Features.Commands.UserSearchHistory.DeleteUserSearchHistory;
@@ -22,13 +23,18 @@ public sealed class DeleteUserSearchHistoryCommandHandler : IRequestHandler<Dele
 
         if (historyRecord == null)
         {
-            return Result.Failure("Search history record not found.");
+            return Result.Failure("Axtarış tarixçəsi qeydi tapılmadı.", ErrorType.NotFound);
+        }
+
+        if (historyRecord.UserId != request.UserId)
+        {
+            return Result.Failure("Bu qeydi silmək icazəniz yoxdur.", ErrorType.Forbidden);
         }
 
         writeRepository.Remove(historyRecord);
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Search history record deleted successfully.");
+        return Result.Success("Axtarış tarixçəsi qeydi silindi.");
     }
 }

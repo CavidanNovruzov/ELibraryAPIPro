@@ -7,6 +7,6 @@ public sealed class DeleteWishlistCommandValidator : AbstractValidator<DeleteWis
 {
     public DeleteWishlistCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

@@ -30,7 +30,7 @@ public sealed class InitializeTransactionCommandHandler : IRequestHandler<Initia
 
         if (order == null)
         {
-            return Result<InitializeTransactionCommandResponse>.NotFound("Order not found.");
+            return Result<InitializeTransactionCommandResponse>.NotFound("Sifariş tapılmadı..");
         }
 
         var paymentRequest = new PaymentRequestDto(order.Id, order.TotalAmount);
@@ -60,6 +60,6 @@ public sealed class InitializeTransactionCommandHandler : IRequestHandler<Initia
 
         return Result<InitializeTransactionCommandResponse>.Success(
             new InitializeTransactionCommandResponse(paymentResult.PaymentUrl),
-            "Transaction initialized successfully.");
+            "Transaction initialized uğurla tamamlandı.");
     }
 }

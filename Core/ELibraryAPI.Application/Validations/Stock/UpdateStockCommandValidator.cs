@@ -7,10 +7,10 @@ public sealed class UpdateStockCommandValidator : AbstractValidator<UpdateStockC
 {
     public UpdateStockCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
 
-        RuleFor(x => x.BranchId).NotEmpty();
-        RuleFor(x => x.ProductId).NotEmpty();
-        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.BranchId).NotEmpty().WithMessage("Filial ID-si boş ola bilməz.");
+        RuleFor(x => x.ProductId).NotEmpty().WithMessage("Məhsul ID-si boş ola bilməz.");
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0).WithMessage("miqdarı {ComparisonValue}-dan böyük olmalıdır.");
     }
 }

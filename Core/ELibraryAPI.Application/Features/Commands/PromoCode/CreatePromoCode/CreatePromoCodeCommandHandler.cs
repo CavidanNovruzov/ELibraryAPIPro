@@ -28,13 +28,13 @@ public sealed class CreatePromoCodeCommandHandler : IRequestHandler<CreatePromoC
             ct: ct);
 
         if (isCodeExists)
-            return Result<CreatePromoCodeCommandResponse>.Failure("This promo code already exists.");
+            return Result<CreatePromoCodeCommandResponse>.Failure("Bu promo kod artıq mövcuddur.");
 
         if (request.StartDate < DateTime.UtcNow.Date)
-            return Result<CreatePromoCodeCommandResponse>.Failure("Start date cannot be in the past.");
+            return Result<CreatePromoCodeCommandResponse>.Failure("Başlanğıc tarixi keçmişdə ola bilməz.");
 
         if (request.StartDate >= request.EndDate)
-            return Result<CreatePromoCodeCommandResponse>.Failure("Start date must be earlier than the end date.");
+            return Result<CreatePromoCodeCommandResponse>.Failure("Başlanğıc tarixi bitmə tarixindən əvvəl olmalıdır.");
 
         var promoCode = _mapper.Map<Domain.Entities.Concrete.PromoCode>(request);
 
@@ -47,6 +47,6 @@ public sealed class CreatePromoCodeCommandHandler : IRequestHandler<CreatePromoC
 
         return Result<CreatePromoCodeCommandResponse>.Success(
             new CreatePromoCodeCommandResponse(promoCode.Id),
-            "Promo code created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

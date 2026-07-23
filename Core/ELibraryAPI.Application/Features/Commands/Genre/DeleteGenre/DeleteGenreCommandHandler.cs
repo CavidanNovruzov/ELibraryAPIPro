@@ -21,13 +21,13 @@ public sealed class DeleteGenreCommandHandler : IRequestHandler<DeleteGenreComma
 
         if (!isRemoved)
         {
-            return Result.Failure("Genre not found or already deleted.");
+            return Result.Failure("Janr tapılmadı və ya artıq silinib.");
         }
 
         var result = await _unitOfWork.SaveAsync(ct);
 
         return result > 0
-            ? Result.Success("Genre deleted successfully.")
-            : Result.Failure("An error occurred while deleting the genre.");
+            ? Result.Success("Janr uğurla silindi.")
+            : Result.Failure("Janr silinərkən xəta baş verdi.");
     }
 }

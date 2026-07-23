@@ -7,6 +7,6 @@ public sealed class DeleteReviewCommandValidator : AbstractValidator<DeleteRevie
 {
     public DeleteReviewCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

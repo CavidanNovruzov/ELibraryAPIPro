@@ -29,7 +29,7 @@ public sealed class GetByIdGenreQueryHandler : IRequestHandler<GetByIdGenreQuery
             .FirstOrDefaultAsync(cancellationToken);
 
         if (genre == null)
-            return Result<GetByIdGenreQueryResponse>.Failure("Genre not found.");
+            return Result<GetByIdGenreQueryResponse>.NotFound("Janr tapılmadı.");
 
         return Result<GetByIdGenreQueryResponse>.Success(new GetByIdGenreQueryResponse(genre));
     }

@@ -20,9 +20,9 @@ public sealed class DeleteCampaignCommandHandler : IRequestHandler<DeleteCampaig
         var isRemoved = await writeRepo.RemoveAsync(request.Id, ct);
 
         if (!isRemoved)
-            return Result.Failure("Campaign not found.");
+            return Result.Failure("Kampaniya tapılmadı.");
 
         await _unitOfWork.SaveAsync(ct);
-        return Result.Success("Campaign deleted successfully.");
+        return Result.Success("Kampaniya uğurla silindi.");
     }
 }

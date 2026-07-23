@@ -17,11 +17,11 @@ public sealed class DeleteUserAddressCommandHandler : IRequestHandler<DeleteUser
         var writeRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.UserAddress, Guid>();
 
         var address = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
-        if (address == null) return Result.Failure("Address not found.");
+        if (address == null) return Result.Failure("Ünvan tapılmadı.");
 
         writeRepo.Remove(address);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Address deleted successfully.");
+        return Result.Success("Ünvan uğurla silindi.");
     }
 }

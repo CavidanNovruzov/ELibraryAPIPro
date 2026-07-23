@@ -24,11 +24,11 @@ public sealed class UpdateSubCategoryCommandHandler : IRequestHandler<UpdateSubC
         var subCategory = await subCategoryReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (subCategory == null)
-            return Result<UpdateSubCategoryCommandResponse>.Failure("Sub-category not found.");
+            return Result<UpdateSubCategoryCommandResponse>.Failure("Alt kateqoriya tapılmadı.");
 
         var categoryExists = await categoryReadRepo.ExistsAsync(x => x.Id == request.CategoryId, false, ct);
         if (!categoryExists)
-            return Result<UpdateSubCategoryCommandResponse>.Failure("Parent category not found.");
+            return Result<UpdateSubCategoryCommandResponse>.Failure("Əsas kateqoriya tapılmadı.");
 
         var normalizedName = request.Name.Trim();
         if (subCategory.Name.ToLower() != normalizedName.ToLower() || subCategory.CategoryId != request.CategoryId)
@@ -39,7 +39,7 @@ public sealed class UpdateSubCategoryCommandHandler : IRequestHandler<UpdateSubC
                 ct: ct);
 
             if (isNameExists)
-                return Result<UpdateSubCategoryCommandResponse>.Failure("A sub-category with this name already exists in this category.");
+                return Result<UpdateSubCategoryCommandResponse>.Failure("Bu kateqoriyada eyni adlı alt kateqoriya artıq mövcuddur.");
         }
 
         _mapper.Map(request, subCategory);
@@ -49,6 +49,6 @@ public sealed class UpdateSubCategoryCommandHandler : IRequestHandler<UpdateSubC
 
         return Result<UpdateSubCategoryCommandResponse>.Success(
             new UpdateSubCategoryCommandResponse(subCategory.Id),
-            "Sub-category updated successfully.");
+            "Sub-Əməliyyat uğurla tamamlandı.");
     }
 }

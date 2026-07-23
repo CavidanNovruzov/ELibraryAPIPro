@@ -24,7 +24,7 @@ public sealed class MergeSubCategoriesCommandHandler : IRequestHandler<MergeSubC
         var targetSubCategory = await subCategoryReadRepo.GetByIdAsync(request.TargetSubCategoryId, tracking: true, ct: ct);
 
         if (sourceSubCategory == null || targetSubCategory == null)
-            return Result<MergeSubCategoriesCommandResponse>.Failure("One or both sub-categories not found.");
+            return Result<MergeSubCategoriesCommandResponse>.Failure("Alt kateqoriyalardan biri və ya hər ikisi tapılmadı.");
 
 
         var productsToMove = await productReadRepo.GetWhere(x => x.SubCategoryId == request.SourceSubCategoryId, tracking: true)
@@ -49,6 +49,6 @@ public sealed class MergeSubCategoriesCommandHandler : IRequestHandler<MergeSubC
 
         return Result<MergeSubCategoriesCommandResponse>.Success(
             new MergeSubCategoriesCommandResponse(targetSubCategory.Id),
-            "Sub-categories merged successfully.");
+            "Sub-categories merged uğurla tamamlandı.");
     }
 }

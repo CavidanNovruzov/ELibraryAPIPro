@@ -23,7 +23,7 @@ public sealed class ChangeOrderStatusCommandHandler : IRequestHandler<ChangeOrde
 
         if (order == null)
         {
-            return Result.NotFound("Order not found.");
+            return Result.NotFound("Sifariş tapılmadı..");
         }
 
         order.OrderStatusId = request.StatusId;
@@ -33,9 +33,9 @@ public sealed class ChangeOrderStatusCommandHandler : IRequestHandler<ChangeOrde
 
         if (result > 0)
         {
-            return Result.Success("Order status has been updated successfully.");
+            return Result.Success("Sifariş statusu uğurla yeniləndi.");
         }
 
-        return Result.Failure("An error occurred while updating the order status.", ErrorType.ValidationError);
+        return Result.Failure("Sifariş statusu yenilənərkən xəta baş verdi.", ErrorType.ValidationError);
     }
 }

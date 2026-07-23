@@ -28,7 +28,7 @@ public sealed class CreateCampaignCommandHandler : IRequestHandler<CreateCampaig
 
         if (isTitleExists)
         {
-            return Result<CreateCampaignCommandResponse>.Failure("A campaign with this title already exists.");
+            return Result<CreateCampaignCommandResponse>.Failure("Bu başlıqda kampaniya artıq mövcuddur.");
         }
 
         var campaign = _mapper.Map<Domain.Entities.Concrete.Campaign>(request);
@@ -42,9 +42,9 @@ public sealed class CreateCampaignCommandHandler : IRequestHandler<CreateCampaig
         {
             return Result<CreateCampaignCommandResponse>.Success(
                 new CreateCampaignCommandResponse(campaign.Id),
-                "Campaign created successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<CreateCampaignCommandResponse>.Failure("An error occurred while creating the campaign.");
+        return Result<CreateCampaignCommandResponse>.Failure("Kampaniya yaradılarkən xəta baş verdi.");
     }
 }

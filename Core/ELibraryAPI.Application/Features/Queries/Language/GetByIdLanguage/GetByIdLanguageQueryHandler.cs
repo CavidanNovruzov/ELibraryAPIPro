@@ -29,7 +29,7 @@ public sealed class GetByIdLanguageQueryHandler : IRequestHandler<GetByIdLanguag
             .FirstOrDefaultAsync(cancellationToken);
 
         if (language == null)
-            return Result<GetByIdLanguageQueryResponse>.Failure("Language not found");
+            return Result<GetByIdLanguageQueryResponse>.NotFound("Dil tapılmadı.");
 
         return Result<GetByIdLanguageQueryResponse>.Success(new GetByIdLanguageQueryResponse(language));
     }

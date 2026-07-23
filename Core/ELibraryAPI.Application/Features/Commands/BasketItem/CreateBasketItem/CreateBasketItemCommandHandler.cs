@@ -34,7 +34,7 @@ public sealed class CreateBasketItemCommandHandler : IRequestHandler<CreateBaske
             .FirstOrDefaultAsync(ct);
 
         if (productInfo == null)
-            return Result<CreateBasketItemCommandResponse>.Failure("Product not found.");
+            return Result<CreateBasketItemCommandResponse>.Failure("Məhsul tapılmadı..");
 
         var existingItem = await basketItemReadRepo.GetSingleAsync(
             x => x.BasketId == request.BasketId && x.ProductId == request.ProductId,
@@ -64,6 +64,6 @@ public sealed class CreateBasketItemCommandHandler : IRequestHandler<CreateBaske
         if (result > 0)
             return Result<CreateBasketItemCommandResponse>.Success(new CreateBasketItemCommandResponse(existingItem.Id));
 
-        return Result<CreateBasketItemCommandResponse>.Failure("An error occurred while adding the item to the basket.");
+        return Result<CreateBasketItemCommandResponse>.Failure("Element səbətə əlavə edilərkən xəta baş verdi.");
     }
 }

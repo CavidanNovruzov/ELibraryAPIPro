@@ -9,7 +9,7 @@ public sealed class ResetPasswordCommandValidator : AbstractValidator<ResetPassw
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("UserId boş ola bilməz.");
+            .WithMessage("İstifadəçi ID-si boş ola bilməz.");
 
         RuleFor(x => x.Token)
             .NotEmpty()
@@ -17,10 +17,10 @@ public sealed class ResetPasswordCommandValidator : AbstractValidator<ResetPassw
 
         RuleFor(x => x.NewPassword)
             .NotEmpty()
-            .WithMessage("NewPassword boş ola bilməz.")
+            .WithMessage("Yeni şifrə boş ola bilməz.")
             .MinimumLength(8)
-            .WithMessage("NewPassword minimum {MinLength} simvol olmalıdır.")
+            .WithMessage("Yeni şifrə minimum {MinLength} simvol olmalıdır.")
             .MaximumLength(128)
-            .WithMessage("NewPassword maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Yeni şifrə maksimum {MaxLength} simvol ola bilər.");
     }
 }

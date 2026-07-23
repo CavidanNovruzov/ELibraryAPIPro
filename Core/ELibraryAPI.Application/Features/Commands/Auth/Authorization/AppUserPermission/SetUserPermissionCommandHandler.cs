@@ -39,7 +39,7 @@ public sealed class SetUserPermissionCommandHandler : IRequestHandler<SetUserPer
             await userPermissionWriteRepo.AddRangeAsync(newPermissions, ct); 
             await _uow.SaveAsync(ct);
             await transaction.CommitAsync(ct);
-            return Result.Success("User permissions updated successfully.");
+            return Result.Success("İstifadəçi icazələri uğurla yeniləndi.");
         }
         catch
         {

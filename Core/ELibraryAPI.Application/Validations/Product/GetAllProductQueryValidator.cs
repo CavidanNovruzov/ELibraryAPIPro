@@ -9,32 +9,32 @@ namespace ELibraryAPI.Application.Validations.Product
         public GetAllProductQueryValidator()
         {
             RuleFor(x => x.Page)
-                .GreaterThanOrEqualTo(1).WithMessage("Page number must be at least 1.");
+                .GreaterThanOrEqualTo(1).WithMessage("Səhifə nömrəsi ən azı 1 olmalıdır.");
 
             RuleFor(x => x.Size)
-                .GreaterThanOrEqualTo(1).WithMessage("Page size must be at least 1.")
-                .LessThanOrEqualTo(100).WithMessage("Page size cannot exceed 100."); 
+                .GreaterThanOrEqualTo(1).WithMessage("Səhifə ölçüsü ən azı 1 olmalıdır.")
+                .LessThanOrEqualTo(100).WithMessage("Səhifə ölçüsü 100-dən çox ola bilməz."); 
 
             RuleFor(x => x.MinPrice)
-                .GreaterThanOrEqualTo(0).WithMessage("Minimum price cannot be negative.")
+                .GreaterThanOrEqualTo(0).WithMessage("Minimum qiymət mənfi ola bilməz.")
                 .When(x => x.MinPrice.HasValue);
 
             RuleFor(x => x.MaxPrice)
-                .GreaterThanOrEqualTo(0).WithMessage("Maximum price cannot be negative.")
+                .GreaterThanOrEqualTo(0).WithMessage("Maksimum qiymət mənfi ola bilməz.")
                 .When(x => x.MaxPrice.HasValue);
 
             RuleFor(x => x)
                 .Must(x => x.MaxPrice >= x.MinPrice)
-                .WithMessage("Maximum price must be greater than or equal to minimum price.")
+                .WithMessage("Maksimum qiymət minimum qiymətdən böyük və ya bərabər olmalıdır.")
                 .When(x => x.MinPrice.HasValue && x.MaxPrice.HasValue);
 
             RuleFor(x => x.Search)
-                .MinimumLength(2).WithMessage("Search term must be at least 2 characters long.")
+                .MinimumLength(2).WithMessage("Axtarış mətni ən azı 2 simvol uzunluğunda olmalıdır.")
                 .When(x => !string.IsNullOrWhiteSpace(x.Search));
 
             RuleFor(x => x.SortBy)
                 .Must(s => new[] { "PriceAsc", "PriceDesc", "Newest", "TopRated", null }.Contains(s))
-                .WithMessage("Invalid sort option.");
+                .WithMessage("Yanlış çeşidləmə seçimi.");
         }
     }
 }

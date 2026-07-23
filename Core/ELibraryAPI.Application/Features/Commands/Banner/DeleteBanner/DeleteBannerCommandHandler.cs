@@ -1,4 +1,5 @@
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 
@@ -7,10 +8,12 @@ namespace ELibraryAPI.Application.Features.Commands.Banner.DeleteBanner;
 public sealed class DeleteBannerCommandHandler : IRequestHandler<DeleteBannerCommandRequest, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public DeleteBannerCommandHandler(IUnitOfWork unitOfWork)
+    public DeleteBannerCommandHandler(IUnitOfWork unitOfWork, IMediator mediator)
     {
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     public async Task<Result> Handle(DeleteBannerCommandRequest request, CancellationToken ct)
@@ -22,7 +25,7 @@ public sealed class DeleteBannerCommandHandler : IRequestHandler<DeleteBannerCom
 
         if (banner is null)
         {
-            return Result.Failure("Banner not found or already archived.");
+            return Result.Failure("Banner tapılmadı və ya artıq silinib.");
         }
 
         writeRepo.Remove(banner);
@@ -30,8 +33,12 @@ public sealed class DeleteBannerCommandHandler : IRequestHandler<DeleteBannerCom
         var result = await _unitOfWork.SaveAsync(ct);
 
         if (result > 0)
-            return Result.Success();
+        {
+            await _mediator.Publish(new EntityChangedEvent("banner", request.Id), ct);
 
-        return Result.Failure("An error occurred while archiving the banner.");
+            return Result.Success("Banner uğurla silindi.");
+        }
+
+        return Result.Failure("Banner silinərkən xəta baş verdi.");
     }
 }

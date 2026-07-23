@@ -20,12 +20,12 @@ public sealed class DeletePermissionCommandHandler : IRequestHandler<DeletePermi
 
         var permission = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (permission == null)
-            return Result.Failure("Permission not found or already deleted.");
+            return Result.Failure("İcazə tapılmadı və ya artıq silinib.");
 
         permission.IsDeleted = true;
         writeRepo.Update(permission);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Permission moved to archive.");
+        return Result.Success("İcazə arxivə köçürüldü.");
     }
 }

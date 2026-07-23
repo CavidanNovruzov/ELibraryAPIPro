@@ -28,7 +28,7 @@ namespace ELibraryAPI.Application.Features.Commands.Product.DeleteProductImage
 
             var image = await imageReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
             if (image == null)
-                return Result.Failure("Image not found.");
+                return Result.Failure("Şəkil tapılmadı.");
 
             var fileName = Path.GetFileName(image.ImageUrl);
             _storageService.Delete("product-images", fileName);
@@ -39,7 +39,7 @@ namespace ELibraryAPI.Application.Features.Commands.Product.DeleteProductImage
 
             await _mediator.Publish(new EntityChangedEvent("product", image.ProductId), ct);
 
-            return Result.Success("Image deleted successfully.");
+            return Result.Success("Şəkil uğurla silindi.");
         }
     }
 }

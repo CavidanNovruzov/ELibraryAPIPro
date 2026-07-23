@@ -23,7 +23,7 @@ public sealed class GetByIdRolePermissionQueryHandler : IRequestHandler<GetByIdR
     );
 
         if (role == null)
-            return Result<GetByIdRolePermissionQueryResponse>.Failure("Role not found.");
+            return Result<GetByIdRolePermissionQueryResponse>.NotFound("Rol tapılmadı.");
 
         var response = new GetByIdRolePermissionQueryResponse(
             role.Id,

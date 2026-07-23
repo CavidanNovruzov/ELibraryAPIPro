@@ -25,7 +25,7 @@ public sealed class SetProductActiveCommandHandler : IRequestHandler<SetProductA
 
         var product = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (product == null)
-            return Result.Failure("Product not found.");
+            return Result.Failure("Məhsul tapılmadı..");
 
         product.IsActive = request.IsActive;
         writeRepo.Update(product);
@@ -33,7 +33,7 @@ public sealed class SetProductActiveCommandHandler : IRequestHandler<SetProductA
 
         await _mediator.Publish(new EntityChangedEvent("product", request.Id), ct);
 
-        return Result.Success(request.IsActive ? "Product activated." : "Product deactivated.");
+        return Result.Success(request.IsActive ? "Məhsul aktivləşdirildi." : "Məhsul deaktiv edildi.");
     }
 }
 

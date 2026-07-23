@@ -9,7 +9,7 @@ public sealed class GetByIdOrderQueryValidator : AbstractValidator<GetByIdOrderQ
     public GetByIdOrderQueryValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Order ID is required.")
-            .NotEqual(Guid.Empty).WithMessage("Valid Order ID is required.");
+            .NotEmpty().WithMessage("Sifariş ID-si mütləqdir.")
+            .NotEqual(Guid.Empty).WithMessage("Düzgün Sifariş ID-si mütləqdir.");
     }
 }

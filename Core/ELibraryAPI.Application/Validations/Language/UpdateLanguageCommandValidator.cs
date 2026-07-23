@@ -8,14 +8,14 @@ public sealed class UpdateLanguageCommandValidator : AbstractValidator<UpdateLan
     public UpdateLanguageCommandValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Language Id is required.");
+            .NotEmpty().WithMessage("Dil ID-si mütləqdir.");
 
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Language name is required.")
-            .MaximumLength(50).WithMessage("Language name cannot exceed 50 characters.");
+            .NotEmpty().WithMessage("Dil adı mütləqdir.")
+            .MaximumLength(50).WithMessage("Dil adı 50 simvoldan çox ola bilməz.");
 
         RuleFor(x => x.Code)
-            .NotEmpty().WithMessage("Language code is required.")
-            .Length(2).WithMessage("Language code must be exactly 2 characters (e.g., az, en, ru).");
+            .NotEmpty().WithMessage("Dil kodu mütləqdir.")
+            .Length(2).WithMessage("Dil kodu dəqiq 2 simvol olmalıdır (məs: az, en, ru).");
     }
 }

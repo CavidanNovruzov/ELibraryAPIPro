@@ -25,7 +25,7 @@ public sealed class GetOrderByNumberQueryHandler : IRequestHandler<GetOrderByNum
             .FirstOrDefaultAsync(o => o.OrderNumber == request.OrderNumber.Trim(), ct);
 
         if (order == null)
-            return Result<GetOrderByNumberQueryResponse>.Failure("Order not found.");
+            return Result<GetOrderByNumberQueryResponse>.NotFound("Sifariş tapılmadı..");
 
         var response = new GetOrderByNumberQueryResponse(
             order.Id,

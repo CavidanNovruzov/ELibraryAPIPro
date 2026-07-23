@@ -13,6 +13,6 @@ public sealed class ForgotPasswordCommandValidator : AbstractValidator<ForgotPas
             .EmailAddress()
             .WithMessage("Düzgün bir email ünvanı daxil edin.")
             .MaximumLength(256)
-            .WithMessage("Email maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("E-poçt maksimum {MaxLength} simvol ola bilər.");
     }
 }

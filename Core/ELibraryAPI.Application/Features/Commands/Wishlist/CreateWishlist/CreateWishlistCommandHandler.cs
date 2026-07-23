@@ -23,11 +23,11 @@ public sealed class CreateWishlistCommandHandler : IRequestHandler<CreateWishlis
 
         var userExists = await userRepo.ExistsAsync(x => x.Id == request.UserId, tracking: false, ct: ct);
         if (!userExists)
-            return Result<CreateWishlistCommandResponse>.Failure("User not found.");
+            return Result<CreateWishlistCommandResponse>.Failure("İstifadəçi tapılmadı.");
 
         var alreadyHasWishlist = await wishlistReadRepo.ExistsAsync(x => x.UserId == request.UserId, tracking: false, ct: ct);
         if (alreadyHasWishlist)
-            return Result<CreateWishlistCommandResponse>.Failure("Wishlist already exists for this user.");
+            return Result<CreateWishlistCommandResponse>.Conflict("Bu istifadəçi üçün istək siyahısı artıq mövcuddur.");
 
         var wishlist = new Domain.Entities.Concrete.Wishlist
         {
@@ -39,6 +39,6 @@ public sealed class CreateWishlistCommandHandler : IRequestHandler<CreateWishlis
 
         return Result<CreateWishlistCommandResponse>.Success(
             new CreateWishlistCommandResponse(wishlist.Id),
-            "Wishlist created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

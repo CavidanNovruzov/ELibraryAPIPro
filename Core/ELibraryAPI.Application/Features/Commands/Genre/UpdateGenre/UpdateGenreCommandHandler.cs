@@ -25,7 +25,7 @@ public sealed class UpdateGenreCommandHandler : IRequestHandler<UpdateGenreComma
 
         if (genre == null)
         {
-            return Result<UpdateGenreCommandResponse>.Failure("Genre not found.");
+            return Result<UpdateGenreCommandResponse>.Failure("Janr tapılmadı.");
         }
 
         if (genre.Name.ToLower() != request.Name.Trim().ToLower())
@@ -37,7 +37,7 @@ public sealed class UpdateGenreCommandHandler : IRequestHandler<UpdateGenreComma
 
             if (isNameUsed)
             {
-                return Result<UpdateGenreCommandResponse>.Failure("Another genre with this name already exists.");
+                return Result<UpdateGenreCommandResponse>.Conflict("Bu adda başqa janr artıq mövcuddur.");
             }
         }
 
@@ -50,9 +50,9 @@ public sealed class UpdateGenreCommandHandler : IRequestHandler<UpdateGenreComma
         {
             return Result<UpdateGenreCommandResponse>.Success(
                 new UpdateGenreCommandResponse(genre.Id),
-                "Genre updated successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<UpdateGenreCommandResponse>.Failure("No changes were applied.");
+        return Result<UpdateGenreCommandResponse>.Failure("Heç bir dəyişiklik tətbiq edilmədi.");
     }
 }

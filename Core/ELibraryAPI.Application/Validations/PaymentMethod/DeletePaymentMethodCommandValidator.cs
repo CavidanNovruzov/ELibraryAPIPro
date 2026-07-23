@@ -7,6 +7,6 @@ public sealed class DeletePaymentMethodCommandValidator : AbstractValidator<Dele
 {
     public DeletePaymentMethodCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

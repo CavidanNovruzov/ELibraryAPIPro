@@ -21,7 +21,7 @@ public sealed class DeleteBasketItemCommandHandler : IRequestHandler<DeleteBaske
         var basketItem = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); // libraff.az — [tracking: true istifadə edildi]
 
         if (basketItem == null)
-            return Result.Failure("Basket item not found.");
+            return Result.Failure("Səbət elementi tapılmadı.");
 
         writeRepo.Remove(basketItem);
 
@@ -29,6 +29,6 @@ public sealed class DeleteBasketItemCommandHandler : IRequestHandler<DeleteBaske
 
         return result > 0
             ? Result.Success()
-            : Result.Failure("Failed to remove item from basket.");
+            : Result.Failure("Element səbətdən silinə bilmədi.");
     }
 }

@@ -7,6 +7,6 @@ public sealed class CreateWishlistCommandValidator : AbstractValidator<CreateWis
 {
     public CreateWishlistCommandValidator()
     {
-        RuleFor(x => x.UserId).NotEmpty();
+        RuleFor(x => x.UserId).NotEmpty().WithMessage("İstifadəçi ID-si boş ola bilməz.");
     }
 }

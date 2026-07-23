@@ -28,11 +28,11 @@ public sealed class CreateStockCommandHandler : IRequestHandler<CreateStockComma
 
         var productExists = await productReadRepo.ExistsAsync(x => x.Id == request.ProductId, false, ct);
         if (!productExists)
-            return Result<CreateStockCommandResponse>.Failure("Product not found.");
+            return Result<CreateStockCommandResponse>.Failure("Məhsul tapılmadı..");
 
         var branchExists = await branchReadRepo.ExistsAsync(x => x.Id == request.BranchId, false, ct);
         if (!branchExists)
-            return Result<CreateStockCommandResponse>.Failure("Branch not found.");
+            return Result<CreateStockCommandResponse>.Failure("Filial tapılmadı.");
 
 
         var stockAlreadyExists = await stockReadRepo.ExistsAsync(
@@ -41,7 +41,7 @@ public sealed class CreateStockCommandHandler : IRequestHandler<CreateStockComma
             ct);
 
         if (stockAlreadyExists)
-            return Result<CreateStockCommandResponse>.Failure("This product already has a stock record in the selected branch.");
+            return Result<CreateStockCommandResponse>.Failure("Bu məhsulun seçilmiş filialda artıq stok qeydi var.");
 
         var stock = _mapper.Map<Domain.Entities.Concrete.Stock>(request);
 
@@ -56,6 +56,6 @@ public sealed class CreateStockCommandHandler : IRequestHandler<CreateStockComma
 
         return Result<CreateStockCommandResponse>.Success(
             new CreateStockCommandResponse(stock.Id),
-            "Stock record created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

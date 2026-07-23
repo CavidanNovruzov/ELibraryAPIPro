@@ -1,5 +1,6 @@
 using AutoMapper;
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 
@@ -9,11 +10,13 @@ public sealed class CreateSubCategoryCommandHandler : IRequestHandler<CreateSubC
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IMediator _mediator; 
 
-    public CreateSubCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateSubCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IMediator mediator)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _mediator = mediator;
     }
 
     public async Task<Result<CreateSubCategoryCommandResponse>> Handle(CreateSubCategoryCommandRequest request, CancellationToken ct)
@@ -22,10 +25,11 @@ public sealed class CreateSubCategoryCommandHandler : IRequestHandler<CreateSubC
         var subCategoryWriteRepository = _unitOfWork.WriteRepository<Domain.Entities.Concrete.SubCategory, Guid>();
         var categoryReadRepository = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Category, Guid>();
 
-        var categoryExists = await categoryReadRepository.ExistsAsync(x => x.Id == request.CategoryId, false, ct);
+        // 1. Əsas kateqoriyanın varlığının yoxlanılması
+        var categoryExists = await categoryReadRepository.ExistsAsync(x => x.Id == request.CategoryId, tracking: false, ct: ct);
         if (!categoryExists)
         {
-            return Result<CreateSubCategoryCommandResponse>.Failure("Parent category not found.");
+            return Result<CreateSubCategoryCommandResponse>.Failure("Əsas kateqoriya tapılmadı.");
         }
 
         var normalizedName = request.Name.Trim();
@@ -36,17 +40,20 @@ public sealed class CreateSubCategoryCommandHandler : IRequestHandler<CreateSubC
 
         if (isNameExists)
         {
-            return Result<CreateSubCategoryCommandResponse>.Failure("A sub-category with this name already exists in this category.");
+            return Result<CreateSubCategoryCommandResponse>.Failure("Bu kateqoriyada eyni adlı alt kateqoriya artıq mövcuddur.");
         }
 
+        // 3. Mapping və Yaradılma
         var subCategory = _mapper.Map<Domain.Entities.Concrete.SubCategory>(request);
         subCategory.Name = normalizedName;
 
         await subCategoryWriteRepository.AddAsync(subCategory, ct);
         await _unitOfWork.SaveAsync(ct);
 
+        await _mediator.Publish(new EntityChangedEvent("subcategory", subCategory.Id), ct);
+
         return Result<CreateSubCategoryCommandResponse>.Success(
             new CreateSubCategoryCommandResponse(subCategory.Id),
-            "Sub-category created successfully.");
+            "Alt kateqoriya uğurla yaradıldı.");
     }
 }

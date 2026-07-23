@@ -9,7 +9,7 @@ public sealed class GetStockByProductIdQueryValidator : AbstractValidator<GetSto
     public GetStockByProductIdQueryValidator()
     {
         RuleFor(x => x.ProductId)
-            .NotEmpty().WithMessage("Product ID is required.")
-            .NotEqual(Guid.Empty).WithMessage("A valid Product ID must be provided.");
+            .NotEmpty().WithMessage("Məhsul ID-si mütləqdir.")
+            .NotEqual(Guid.Empty).WithMessage("Düzgün Məhsul ID-si təmin edilməlidir.");
     }
 }

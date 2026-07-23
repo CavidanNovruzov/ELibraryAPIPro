@@ -12,11 +12,11 @@ public sealed class DeleteUserCommandHandler(IUnitOfWork uow) : IRequestHandler<
             var result = await uow.WriteRepository<Domain.Entities.Concrete.Auth.AppUser, Guid>().RemoveAsync(request.Id, ct);
 
             if (!result)
-                return Result.NotFound("User not found.");
+                return Result.NotFound("İstifadəçi tapılmadı.");
 
             await uow.SaveAsync(ct);
 
-            return Result.Success("User has been deleted successfully.");
+            return Result.Success("İstifadəçi uğurla silindi.");
         }
     
 }

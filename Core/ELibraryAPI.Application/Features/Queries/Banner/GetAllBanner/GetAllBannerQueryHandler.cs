@@ -3,7 +3,6 @@ using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace ELibraryAPI.Application.Features.Queries.Banner.GetAllBanner;
 
 public sealed class GetAllBannerQueryHandler : IRequestHandler<GetAllBannerQueryRequest, Result<GetAllBannerQueryResponse>>
@@ -19,8 +18,7 @@ public sealed class GetAllBannerQueryHandler : IRequestHandler<GetAllBannerQuery
     {
         var query = _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Banner, Guid>()
-            .GetAll(tracking: false)
-            .Where(b => b.IsActive);
+            .GetAll(tracking: false); 
 
         var totalCount = await query.CountAsync(cancellationToken);
 

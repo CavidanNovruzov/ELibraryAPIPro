@@ -24,13 +24,13 @@ public sealed class CreateUserSearchHistoryCommandHandler : IRequestHandler<Crea
         var userExists = await userReadRepository.ExistsAsync(x => x.Id == request.UserId, false, ct);
         if (!userExists)
         {
-            return Result<CreateUserSearchHistoryCommandResponse>.Failure("User not found.");
+            return Result<CreateUserSearchHistoryCommandResponse>.Failure("İstifadəçi tapılmadı.");
         }
 
         var normalizedQuery = request.SearchQuery?.Trim();
         if (string.IsNullOrWhiteSpace(normalizedQuery))
         {
-            return Result<CreateUserSearchHistoryCommandResponse>.Failure("Search query cannot be empty.");
+            return Result<CreateUserSearchHistoryCommandResponse>.Failure("Axtarış sorğusu boş ola bilməz.");
         }
 
         var searchHistory = _mapper.Map<Domain.Entities.Concrete.UserSearchHistory>(request);
@@ -41,6 +41,6 @@ public sealed class CreateUserSearchHistoryCommandHandler : IRequestHandler<Crea
 
         return Result<CreateUserSearchHistoryCommandResponse>.Success(
             new CreateUserSearchHistoryCommandResponse(searchHistory.Id),
-            "Search history record created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

@@ -21,11 +21,11 @@ public sealed class DeleteSubCategoryCommandHandler : IRequestHandler<DeleteSubC
         var subCategory = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (subCategory == null)
-            return Result.Failure("Sub-category not found.");
+            return Result.Failure("Alt kateqoriya tapılmadı.");
 
         writeRepo.Remove(subCategory);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Sub-category deleted successfully.");
+        return Result.Success("Alt kateqoriya uğurla silindi.");
     }
 }

@@ -25,7 +25,7 @@ public sealed class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderComma
 
         if (order == null)
         {
-            return Result<UpdateOrderCommandResponse>.Failure("Order not found.");
+            return Result<UpdateOrderCommandResponse>.Failure("Sifariş tapılmadı..");
         }
 
         order.OrderNote = request.OrderNote;
@@ -40,9 +40,9 @@ public sealed class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderComma
         {
             return Result<UpdateOrderCommandResponse>.Success(
                 new UpdateOrderCommandResponse(order.Id),
-                "Order status and information updated successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<UpdateOrderCommandResponse>.Failure("No changes were applied to the order.");
+        return Result<UpdateOrderCommandResponse>.Failure("Sifarişdə heç bir dəyişiklik edilmədi.");
     }
 }

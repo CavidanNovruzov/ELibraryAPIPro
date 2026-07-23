@@ -26,7 +26,7 @@ public sealed class CreatePermissionCommandHandler : IRequestHandler<CreatePermi
             ct: ct);
 
         if (keyExists)
-            return Result<CreatePermissionCommandResponse>.Failure("A permission with this key already exists.");
+            return Result<CreatePermissionCommandResponse>.Conflict("Bu açarla icazə artıq mövcuddur.");
 
         var permission = new Domain.Entities.Concrete.Auth.Permission
         {
@@ -38,6 +38,6 @@ public sealed class CreatePermissionCommandHandler : IRequestHandler<CreatePermi
 
         return Result<CreatePermissionCommandResponse>.Success(
             new CreatePermissionCommandResponse(permission.Id),
-            "Permission created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

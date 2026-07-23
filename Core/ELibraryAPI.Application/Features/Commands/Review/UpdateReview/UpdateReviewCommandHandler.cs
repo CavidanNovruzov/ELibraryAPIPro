@@ -24,13 +24,13 @@ public sealed class UpdateReviewCommandHandler : IRequestHandler<UpdateReviewCom
         var review = await reviewReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); 
 
         if (review == null)
-            return Result<UpdateReviewCommandResponse>.Failure("Review not found.");
+            return Result<UpdateReviewCommandResponse>.Failure("Rəy tapılmadı.");
 
         if (review.UserId != _currentUserService.UserGuid)
-            return Result<UpdateReviewCommandResponse>.Failure("You can only edit your own reviews.", ErrorType.Forbidden);
+            return Result<UpdateReviewCommandResponse>.Failure("Yalnız öz rəyinizi redaktə edə bilərsiniz.", ErrorType.Forbidden);
 
         if (request.Rating < 1 || request.Rating > 5)
-            return Result<UpdateReviewCommandResponse>.Failure("Rating must be between 1 and 5.");
+            return Result<UpdateReviewCommandResponse>.Failure("Reytinq 1 ilə 5 arasında olmalıdır.");
 
         review.Rating = request.Rating;
         review.Comment = request.Comment;
@@ -41,6 +41,6 @@ public sealed class UpdateReviewCommandHandler : IRequestHandler<UpdateReviewCom
 
         return Result<UpdateReviewCommandResponse>.Success(
             new UpdateReviewCommandResponse(review.Id),
-            "Review updated and sent for re-approval.");
+            "Rəy yeniləndi və yenidən təsdiqə göndərildi.");
     }
 }

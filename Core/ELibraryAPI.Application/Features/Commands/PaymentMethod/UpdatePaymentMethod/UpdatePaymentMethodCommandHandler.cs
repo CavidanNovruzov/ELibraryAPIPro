@@ -25,7 +25,7 @@ public sealed class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePa
 
         if (paymentMethod == null)
         {
-            return Result<UpdatePaymentMethodCommandResponse>.Failure("Payment method not found.");
+            return Result<UpdatePaymentMethodCommandResponse>.Failure("Ödəniş metodu tapılmadı.");
         }
 
         if (paymentMethod.Name.ToLower() != request.Name.Trim().ToLower())
@@ -37,7 +37,7 @@ public sealed class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePa
 
             if (isDuplicate)
             {
-                return Result<UpdatePaymentMethodCommandResponse>.Failure("Another payment method with this name already exists.");
+                return Result<UpdatePaymentMethodCommandResponse>.Failure("Bu adda başqa ödəniş metodu artıq mövcuddur.");
             }
         }
 
@@ -48,6 +48,6 @@ public sealed class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePa
 
         return Result<UpdatePaymentMethodCommandResponse>.Success(
             new UpdatePaymentMethodCommandResponse(paymentMethod.Id),
-            "Payment method updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

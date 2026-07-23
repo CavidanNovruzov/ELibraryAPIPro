@@ -18,14 +18,14 @@ public sealed class UpdateProfileCommandHandler
     {
         var user = await _userManager.FindByIdAsync(request.UserId.ToString());
         if (user == null)
-            return Result<UpdateProfileCommandResponse>.Failure("User not found.");
+            return Result<UpdateProfileCommandResponse>.Failure("İstifadəçi tapılmadı.");
 
         // UserName dəyişibsə unikallığı yoxla
         if (!string.Equals(user.UserName, request.UserName, StringComparison.OrdinalIgnoreCase))
         {
             var existing = await _userManager.FindByNameAsync(request.UserName);
             if (existing != null)
-                return Result<UpdateProfileCommandResponse>.Failure("Username is already taken.");
+                return Result<UpdateProfileCommandResponse>.Failure("Bu istifadəçi adı artıq mövcuddur.");
         }
 
         user.FirstName = request.FirstName.Trim();
@@ -39,6 +39,6 @@ public sealed class UpdateProfileCommandHandler
 
         return Result<UpdateProfileCommandResponse>.Success(
             new UpdateProfileCommandResponse(user.Id, $"{user.FirstName} {user.LastName}"),
-            "Profile updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

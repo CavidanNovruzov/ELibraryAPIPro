@@ -25,7 +25,7 @@ public sealed class GetByIdReviewQueryHandler : IRequestHandler<GetByIdReviewQue
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reviewEntity == null)
-            return Result<GetByIdReviewQueryResponse>.Failure("Review was not found.");
+            return Result<GetByIdReviewQueryResponse>.Failure("Rəy tapılmadı.");
 
         var dto = new ReviewDetailDto(
             reviewEntity.Id,

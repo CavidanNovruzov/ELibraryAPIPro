@@ -26,7 +26,7 @@ public sealed class GetByIdAppUserPermissionQueryHandler : IRequestHandler<GetBy
             .FirstOrDefaultAsync(ct);
 
         if (permission == null)
-            return Result<GetByIdAppUserPermissionQueryResponse>.Failure("User permission not found.");
+            return Result<GetByIdAppUserPermissionQueryResponse>.Failure("İstifadəçi icazəsi tapılmadı.");
 
         return Result<GetByIdAppUserPermissionQueryResponse>.Success(permission);
     }

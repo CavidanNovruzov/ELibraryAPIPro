@@ -24,7 +24,7 @@ public sealed class UpdateLanguageCommandHandler : IRequestHandler<UpdateLanguag
         var language = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (language == null)
-            return Result<UpdateLanguageCommandResponse>.Failure("Language not found.");
+            return Result<UpdateLanguageCommandResponse>.Failure("Dil tapılmadı..");
 
         if (language.Code.ToLower() != request.Code.Trim().ToLower() || language.Name.ToLower() != request.Name.Trim().ToLower())
         {
@@ -34,7 +34,7 @@ public sealed class UpdateLanguageCommandHandler : IRequestHandler<UpdateLanguag
                 tracking: false, ct: ct);
 
             if (isAlreadyTaken)
-                return Result<UpdateLanguageCommandResponse>.Failure("Another language with the same name or code already exists.");
+                return Result<UpdateLanguageCommandResponse>.Conflict("Eyni adlı və ya kodlu başqa dil artıq mövcuddur.");
         }
 
         _mapper.Map(request, language);
@@ -46,9 +46,9 @@ public sealed class UpdateLanguageCommandHandler : IRequestHandler<UpdateLanguag
         {
             return Result<UpdateLanguageCommandResponse>.Success(
                 new UpdateLanguageCommandResponse(language.Id),
-                "Language updated successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<UpdateLanguageCommandResponse>.Failure("No changes were saved.");
+        return Result<UpdateLanguageCommandResponse>.Failure("Heç bir dəyişiklik yadda saxlanılmadı.");
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using ELibraryAPI.Application.Abstractions.Services.Caching;
+﻿using ELibraryAPI.Application.Abstractions.Services.Caching;
 using ELibraryAPI.Application.Shared.Caching;
 using MediatR;
 
@@ -14,8 +13,8 @@ public sealed class EntityChangedEventHandler : INotificationHandler<EntityChang
 
     public async Task Handle(EntityChangedEvent notification, CancellationToken ct)
     {
-        var listKeyPrefix = $"{notification.EntityName}s:list";
-        await _cacheService.RemoveByPrefixAsync(listKeyPrefix, ct);
+        var entityPrefix = $"{notification.EntityName}:";
+        await _cacheService.RemoveByPrefixAsync(entityPrefix, ct);
 
         if (notification.EntityId.HasValue)
         {

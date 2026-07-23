@@ -22,7 +22,7 @@ public sealed class DeleteStockCommandHandler : IRequestHandler<DeleteStockComma
 
         if (stock == null)
         {
-            return Result.Failure("Stock record not found.");
+            return Result.Failure("Stok qeydi tapılmadı.");
         }
 
         writeRepo.Remove(stock);
@@ -30,6 +30,6 @@ public sealed class DeleteStockCommandHandler : IRequestHandler<DeleteStockComma
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Stock record deleted successfully.");
+        return Result.Success("Stok qeydi uğurla silindi.");
     }
 }

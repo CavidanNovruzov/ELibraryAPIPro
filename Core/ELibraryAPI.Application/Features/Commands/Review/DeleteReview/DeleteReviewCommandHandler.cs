@@ -25,17 +25,17 @@ public sealed class DeleteReviewCommandHandler : IRequestHandler<DeleteReviewCom
         var review = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); // libraff.az — [tracking: true istifadə edildi]
 
         if (review == null)
-            return Result.Failure("Review not found.");
+            return Result.Failure("Rəy tapılmadı.");
 
         // libraff.az — [Admin və ya Review sahibi yoxlanıldı]
         var isAdmin = _currentUserService.IsInRole("Admin");
         if (!isAdmin && review.UserId != _currentUserService.UserGuid)
-            return Result.Failure("You are not authorized to delete this review.", ErrorType.Forbidden);
+            return Result.Failure("Bu rəyi silmək üçün icazəniz yoxdur.", ErrorType.Forbidden);
 
         writeRepo.Remove(review);
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Review deleted successfully.");
+        return Result.Success("Rəy uğurla silindi.");
     }
 }

@@ -7,7 +7,7 @@ public sealed class CreateTagCommandValidator : AbstractValidator<CreateTagComma
     public CreateTagCommandValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Tag name cannot be empty.")
-            .MaximumLength(50).WithMessage("Tag name cannot exceed 50 characters.");
+            .NotEmpty().WithMessage("Teq adı boş ola bilməz.")
+            .MaximumLength(50).WithMessage("Teq adı 50 simvoldan çox ola bilməz.");
     }
 }

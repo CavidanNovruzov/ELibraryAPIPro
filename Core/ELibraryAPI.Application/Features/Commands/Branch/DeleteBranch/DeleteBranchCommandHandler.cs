@@ -21,7 +21,7 @@ public sealed class DeleteBranchCommandHandler : IRequestHandler<DeleteBranchCom
         var branch = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); // libraff.az — [tracking: true istifadə edildi]
 
         if (branch == null)
-            return Result.Failure("Branch not found or already deleted.");
+            return Result.Failure("Filial tapılmadı və ya artıq silinib.");
 
         writeRepo.Remove(branch);
 
@@ -29,6 +29,6 @@ public sealed class DeleteBranchCommandHandler : IRequestHandler<DeleteBranchCom
 
         return result > 0
             ? Result.Success()
-            : Result.Failure("An error occurred while deleting the branch.");
+            : Result.Failure("Filial silinərkən xəta baş verdi.");
     }
 }

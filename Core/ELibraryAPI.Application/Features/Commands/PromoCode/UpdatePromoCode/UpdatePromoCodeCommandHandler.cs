@@ -21,19 +21,20 @@ public sealed class UpdatePromoCodeCommandHandler : IRequestHandler<UpdatePromoC
         var readRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.PromoCode, Guid>();
         var promoCode = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
-        if (promoCode == null) return Result<UpdatePromoCodeCommandResponse>.Failure("Not found.");
+        if (promoCode == null) return Result<UpdatePromoCodeCommandResponse>.Failure("Promo kod tapılmadı.");
 
         var normalizedCode = request.Code.Trim().ToUpper();
 
         if (promoCode.Code != normalizedCode)
         {
             bool exists = await readRepo.ExistsAsync(x => x.Code == normalizedCode && x.Id != request.Id, false, ct);
-            if (exists) return Result<UpdatePromoCodeCommandResponse>.Failure("Code already exists.");
+            if (exists) return Result<UpdatePromoCodeCommandResponse>.Failure("Kod artıq mövcuddur.");
         }
 
         if (request.UsageLimit < promoCode.UsageCount)
         {
-            return Result<UpdatePromoCodeCommandResponse>.Failure($"Usage limit cannot be lower than current usage count ({promoCode.UsageCount}).");
+            return Result<UpdatePromoCodeCommandResponse>.Failure(
+                $"İstifadə limiti mövcud istifadə sayından ({promoCode.UsageCount}) az ola bilməz.");
         }
 
         _mapper.Map(request, promoCode);
@@ -41,6 +42,8 @@ public sealed class UpdatePromoCodeCommandHandler : IRequestHandler<UpdatePromoC
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result<UpdatePromoCodeCommandResponse>.Success(new(promoCode.Id), "Updated.");
+        return Result<UpdatePromoCodeCommandResponse>.Success(
+            new UpdatePromoCodeCommandResponse(promoCode.Id),
+            "Promo kod uğurla yeniləndi.");
     }
 }

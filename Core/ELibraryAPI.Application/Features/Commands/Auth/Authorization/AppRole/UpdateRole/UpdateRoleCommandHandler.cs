@@ -20,13 +20,13 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
 
         if (role == null)
         {
-            return Result.Failure("Role not found.");
+            return Result.Failure("Rol tapılmadı.");
         }
 
         var isNameExists = await readRepository.ExistsAsync(r => r.Name == request.Name && r.Id != request.Id, false, ct);
         if (isNameExists)
         {
-            return Result.Failure("Another role with this name already exists.");
+            return Result.Conflict("Another role with this name artıq mövcuddur.");
         }
 
         role.Name = request.Name;
@@ -35,7 +35,7 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
         _uow.WriteRepository<Domain.Entities.Concrete.Auth.AppRole, Guid>().Update(role);
 
         return await _uow.SaveAsync(ct) > 0
-            ? Result.Success("Role updated successfully.")
-            : Result.Failure("No changes were saved.");
+            ? Result.Success("Rol uğurla yeniləndi.")
+            : Result.Failure("Heç bir dəyişiklik yadda saxlanılmadı.");
     }
 }

@@ -7,6 +7,6 @@ public sealed class DeleteLanguageCommandValidator : AbstractValidator<DeleteLan
 {
     public DeleteLanguageCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

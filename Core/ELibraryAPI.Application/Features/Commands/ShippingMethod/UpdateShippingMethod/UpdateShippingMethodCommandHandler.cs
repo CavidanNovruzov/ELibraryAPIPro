@@ -23,13 +23,13 @@ public sealed class UpdateShippingMethodCommandHandler : IRequestHandler<UpdateS
         var shippingMethod = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (shippingMethod == null)
-            return Result<UpdateShippingMethodCommandResponse>.Failure("Shipping method not found.");
+            return Result<UpdateShippingMethodCommandResponse>.Failure("Çatdırılma metodu tapılmadı.");
 
         var normalizedName = request.Name.Trim().ToLower();
         if (shippingMethod.Name.ToLower() != normalizedName)
         {
             var exists = await readRepo.ExistsAsync(x => x.Name.ToLower() == normalizedName, false, ct);
-            if (exists) return Result<UpdateShippingMethodCommandResponse>.Failure("Name already exists.");
+            if (exists) return Result<UpdateShippingMethodCommandResponse>.Failure("Ad artıq mövcuddur.");
         }
 
         _mapper.Map(request, shippingMethod);
@@ -37,6 +37,6 @@ public sealed class UpdateShippingMethodCommandHandler : IRequestHandler<UpdateS
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result<UpdateShippingMethodCommandResponse>.Success(new(shippingMethod.Id), "Updated successfully.");
+        return Result<UpdateShippingMethodCommandResponse>.Success(new(shippingMethod.Id), "Updated uğurla tamamlandı.");
     }
 }

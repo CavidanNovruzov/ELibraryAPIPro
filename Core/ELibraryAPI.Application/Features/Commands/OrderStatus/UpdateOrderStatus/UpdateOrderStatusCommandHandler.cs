@@ -25,7 +25,7 @@ public sealed class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrde
 
         if (orderStatus == null)
         {
-            return Result<UpdateOrderStatusCommandResponse>.Failure("Order status not found.");
+            return Result<UpdateOrderStatusCommandResponse>.Failure("Sifariş statusu tapılmadı.");
         }
 
         if (orderStatus.Name.ToLower() != request.Name.Trim().ToLower())
@@ -37,7 +37,7 @@ public sealed class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrde
 
             if (isDuplicate)
             {
-                return Result<UpdateOrderStatusCommandResponse>.Failure("Another order status with this name already exists.");
+                return Result<UpdateOrderStatusCommandResponse>.Failure("Bu adda başqa sifariş statusu artıq mövcuddur.");
             }
         }
 
@@ -48,6 +48,6 @@ public sealed class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrde
 
         return Result<UpdateOrderStatusCommandResponse>.Success(
             new UpdateOrderStatusCommandResponse(orderStatus.Id),
-            "Order status updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

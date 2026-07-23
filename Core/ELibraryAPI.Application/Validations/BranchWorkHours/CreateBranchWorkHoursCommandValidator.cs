@@ -9,9 +9,9 @@ public sealed class CreateBranchWorkHoursCommandValidator : AbstractValidator<Cr
     {
         RuleFor(x => x.BranchId)
             .NotEmpty()
-            .WithMessage("Branch seçilməlidir.")
+            .WithMessage("Filial seçilməlidir.")
             .NotEqual(Guid.Empty)
-            .WithMessage("Keçərsiz Branch ID.");
+            .WithMessage("Keçərsiz Filial ID-si.");
 
         RuleFor(x => x.Day)
             .IsInEnum()

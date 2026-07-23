@@ -22,7 +22,7 @@ public sealed class UpdateUserAddressCommandHandler : IRequestHandler<UpdateUser
         var addressReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.UserAddress, Guid>();
 
         var address = await addressReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
-        if (address == null) return Result<UpdateUserAddressCommandResponse>.Failure("Address not found.");
+        if (address == null) return Result<UpdateUserAddressCommandResponse>.Failure("Ünvan tapılmadı.");
 
         if (request.IsDefault && !address.IsDefault)
         {
@@ -38,6 +38,6 @@ public sealed class UpdateUserAddressCommandHandler : IRequestHandler<UpdateUser
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result<UpdateUserAddressCommandResponse>.Success(new(address.Id), "User address updated.");
+        return Result<UpdateUserAddressCommandResponse>.Success(new(address.Id), "İstifadəçi ünvanı yeniləndi.");
     }
 }

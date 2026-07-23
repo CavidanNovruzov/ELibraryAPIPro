@@ -7,7 +7,7 @@ public sealed class CreateShippingMethodCommandValidator : AbstractValidator<Cre
 {
     public CreateShippingMethodCommandValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Price).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Name).NotEmpty().WithMessage("adı boş ola bilməz.").MaximumLength(100).WithMessage("adı maksimum {MaxLength} simvol ola bilər.");
+        RuleFor(x => x.Price).GreaterThanOrEqualTo(0).WithMessage("qiyməti {ComparisonValue}-dan böyük olmalıdır.");
     }
 }

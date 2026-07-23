@@ -7,6 +7,6 @@ public sealed class DeleteUserAddressCommandValidator : AbstractValidator<Delete
 {
     public DeleteUserAddressCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

@@ -9,11 +9,11 @@ public class SetUserPermissionCommandValidator : AbstractValidator<SetUserPermis
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("UserId boş ola bilməz.");
+            .WithMessage("İstifadəçi ID-si boş ola bilməz.");
 
         RuleFor(x => x.PermissionIds)
             .NotEmpty()
-            .WithMessage("PermissionIds boş ola bilməz.")
+            .WithMessage("İcazə ID-ləri boş ola bilməz.")
             .Must(p => p != null && p.Count > 0)
             .WithMessage("Permission siyahısı boş ola bilməz.");
 

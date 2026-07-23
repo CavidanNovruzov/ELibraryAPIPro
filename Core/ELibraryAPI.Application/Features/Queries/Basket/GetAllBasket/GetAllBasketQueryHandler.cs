@@ -12,10 +12,12 @@ namespace ELibraryAPI.Application.Features.Queries.Basket.GetAllBasket;
 public sealed class GetAllBasketQueryHandler : IRequestHandler<GetAllBasketQueryRequest, Result<GetAllBasketQueryResponse>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ELibraryAPI.Application.Abstractions.Services.ICurrentUserService _currentUserService;
 
-    public GetAllBasketQueryHandler(IUnitOfWork unitOfWork)
+    public GetAllBasketQueryHandler(IUnitOfWork unitOfWork, ELibraryAPI.Application.Abstractions.Services.ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result<GetAllBasketQueryResponse>> Handle(GetAllBasketQueryRequest request, CancellationToken ct)
@@ -23,6 +25,9 @@ public sealed class GetAllBasketQueryHandler : IRequestHandler<GetAllBasketQuery
         var query = _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Basket, Guid>()
             .GetAll(tracking: false);
+
+        if (_currentUserService.IsAdmin)
+            query = query.IgnoreQueryFilters();
 
         var totalCount = await query.CountAsync(ct);
 

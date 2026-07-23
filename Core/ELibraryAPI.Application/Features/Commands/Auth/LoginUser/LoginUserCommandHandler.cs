@@ -31,7 +31,7 @@ public sealed class LoginUserCommandHandler : IRequestHandler<LoginUserCommandRe
                 return Result<LoginUserCommandResponse>.Failure(result.Errors);
             }
 
-            return Result<LoginUserCommandResponse>.Failure(result.Message ?? "Login failed");
+            return Result<LoginUserCommandResponse>.Failure(result.Message ?? "Giriş uğursuz oldu");
         }
 
         return Result<LoginUserCommandResponse>.Success(new LoginUserCommandResponse(result.Data!));

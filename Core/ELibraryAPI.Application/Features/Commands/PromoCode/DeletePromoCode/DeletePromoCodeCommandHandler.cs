@@ -20,11 +20,11 @@ public sealed class DeletePromoCodeCommandHandler : IRequestHandler<DeletePromoC
 
         var promoCode = await readRepository.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
-        if (promoCode == null) return Result.Failure("Promo code not found.");
+        if (promoCode == null) return Result.Failure("Promo kod tapılmadı.");
 
         writeRepository.Remove(promoCode);
 
         await _unitOfWork.SaveAsync(ct);
-        return Result.Success("Promo code deleted successfully.");
+        return Result.Success("Promo kod uğurla silindi.");
     }
 }

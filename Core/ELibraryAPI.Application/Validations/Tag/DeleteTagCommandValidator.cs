@@ -7,6 +7,6 @@ public sealed class DeleteTagCommandValidator : AbstractValidator<DeleteTagComma
 {
     public DeleteTagCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

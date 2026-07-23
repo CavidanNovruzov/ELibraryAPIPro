@@ -29,7 +29,7 @@ public sealed class CreateOrderCommandHandler
     {
         var userId = _currentUserService.UserGuid;
         if (userId == Guid.Empty)
-            return Result<CreateOrderCommandResponse>.Failure("User is not authenticated.", ErrorType.Unauthorized);
+            return Result<CreateOrderCommandResponse>.Failure("Sistemə daxil olmamısınız.", ErrorType.Unauthorized);
 
         var pendingStatus = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.OrderStatus, Guid>()
@@ -37,8 +37,22 @@ public sealed class CreateOrderCommandHandler
 
         if (pendingStatus == null)
             return Result<CreateOrderCommandResponse>.Failure(
-                "System configuration error: Pending order status not found.",
+                "Sistem konfiqurasiya xətası: gözləmə statusu tapılmadı.",
                 ErrorType.ServerError);
+
+        var shippingMethod = await _unitOfWork
+            .ReadRepository<Domain.Entities.Concrete.ShippingMethod, Guid>()
+            .GetSingleAsync(s => s.Id == request.ShippingMethodId, tracking: false, ct: ct);
+
+        if (shippingMethod == null)
+            return Result<CreateOrderCommandResponse>.Failure("Çatdırılma metodu tapılmadı.", ErrorType.NotFound);
+
+        var paymentMethodExists = await _unitOfWork
+            .ReadRepository<Domain.Entities.Concrete.PaymentMethod, Guid>()
+            .ExistsAsync(p => p.Id == request.PaymentMethodId, tracking: false, ct: ct);
+
+        if (!paymentMethodExists)
+            return Result<CreateOrderCommandResponse>.Failure("Ödəniş metodu tapılmadı.", ErrorType.NotFound);
 
         var basket = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Basket, Guid>()
@@ -49,14 +63,14 @@ public sealed class CreateOrderCommandHandler
             .FirstOrDefaultAsync(b => b.UserId == userId, ct);
 
         if (basket == null || !basket.BasketItems.Any())
-            return Result<CreateOrderCommandResponse>.Failure("Your basket is empty.", ErrorType.ValidationError);
+            return Result<CreateOrderCommandResponse>.Failure("Səbətiniz boşdur.", ErrorType.ValidationError);
 
         var address = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.UserAddress, Guid>()
             .GetSingleAsync(a => a.Id == request.UserAddressId && a.UserId == userId, false, ct);
 
         if (address == null)
-            return Result<CreateOrderCommandResponse>.Failure("Shipping address not found.", ErrorType.NotFound);
+            return Result<CreateOrderCommandResponse>.Failure("Çatdırılma ünvanı tapılmadı.", ErrorType.NotFound);
 
         Domain.Entities.Concrete.PromoCode? promoCode = null;
         if (!string.IsNullOrWhiteSpace(request.PromoCode))
@@ -71,10 +85,10 @@ public sealed class CreateOrderCommandHandler
                     tracking: true, ct: ct);
 
             if (promoCode == null)
-                return Result<CreateOrderCommandResponse>.Failure("Invalid or expired promo code.", ErrorType.ValidationError);
+                return Result<CreateOrderCommandResponse>.Failure("Promo kod etibarsızdır və ya vaxtı bitib.", ErrorType.ValidationError);
 
             if (promoCode.UsageCount >= promoCode.UsageLimit)
-                return Result<CreateOrderCommandResponse>.Failure("Promo code usage limit reached.", ErrorType.ValidationError);
+                return Result<CreateOrderCommandResponse>.Failure("Promo kodun istifadə limiti bitib.", ErrorType.ValidationError);
 
             var alreadyUsed = await _unitOfWork
                 .ReadRepository<Domain.Entities.Concrete.Order, Guid>()
@@ -82,7 +96,7 @@ public sealed class CreateOrderCommandHandler
                 .AnyAsync(o => o.UserId == userId && o.PromoCodeId == promoCode.Id, ct);
 
             if (alreadyUsed)
-                return Result<CreateOrderCommandResponse>.Failure("You have already used this promo code.", ErrorType.ValidationError);
+                return Result<CreateOrderCommandResponse>.Failure("Bu promo kodu artıq istifadə etmisiniz.", ErrorType.ValidationError);
         }
 
         decimal total = 0;
@@ -91,7 +105,7 @@ public sealed class CreateOrderCommandHandler
             var totalStock = item.Product.Stocks.Sum(s => s.Quantity);
             if (totalStock < item.Quantity)
                 return Result<CreateOrderCommandResponse>.Failure(
-                    $"Product '{item.Product.Title}' is out of stock.", ErrorType.ValidationError);
+                    $"'{item.Product.Title}' adlı məhsul stokda yoxdur.", ErrorType.ValidationError);
 
             total += (item.Product.DiscountPrice ?? item.Product.SalePrice) * item.Quantity;
         }
@@ -101,6 +115,8 @@ public sealed class CreateOrderCommandHandler
             total -= total * (promoCode.DiscountPercent / 100);
             promoCode.UsageCount++;
         }
+
+        total += shippingMethod.Price;
 
         var order = new Domain.Entities.Concrete.Order
         {
@@ -112,12 +128,17 @@ public sealed class CreateOrderCommandHandler
             ShippingAddressLine = address.AddressLine,
             ShippingCity = address.City,
             OrderNote = request.OrderNote,
-            OrderNumber = $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}",
+            OrderNumber = $"LF-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(100000, 999999)}",
             TotalAmount = total,
             PromoCodeId = promoCode?.Id
         };
 
         var movementWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.InventoryMovement, Guid>();
+
+        // ÖNƏMLİ: order əvvəlcə context-ə əlavə olunur ki, order.Id (client-side Guid generator vasitəsilə)
+        // artıq generasiya olunsun. Əvvəllər bu sətir loop-dan SONRA idi və InventoryMovement.OrderId
+        // hər zaman Guid.Empty kimi yazılırdı — inventar hərəkətləri sifarişlə əlaqələndirilmirdi.
+        await _unitOfWork.WriteRepository<Domain.Entities.Concrete.Order, Guid>().AddAsync(order, ct);
 
         foreach (var item in basket.BasketItems)
         {
@@ -135,7 +156,7 @@ public sealed class CreateOrderCommandHandler
             {
                 if (remaining <= 0) break;
                 int deduction = Math.Min(stock.Quantity, remaining);
-                stock.Quantity -= deduction;
+                stock.Decrease(deduction); // invariant (mənfi stok yoxlaması) artıq entity daxilindədir
                 remaining -= deduction;
 
                 await movementWriteRepo.AddAsync(new Domain.Entities.Concrete.InventoryMovement
@@ -143,7 +164,7 @@ public sealed class CreateOrderCommandHandler
                     ProductId = item.ProductId,
                     FromBranchId = stock.BranchId,
                     ToBranchId = null,
-                    OrderId = order.Id,
+                    OrderId = order.Id, // artıq doğru dəyərdədir
                     Quantity = deduction,
                     Type = InventoryMovementType.Sale,
                     Status = InventoryMovementStatus.Completed
@@ -151,7 +172,6 @@ public sealed class CreateOrderCommandHandler
             }
         }
 
-        await _unitOfWork.WriteRepository<Domain.Entities.Concrete.Order, Guid>().AddAsync(order, ct);
         _unitOfWork.WriteRepository<Domain.Entities.Concrete.Basket, Guid>().Remove(basket);
 
         try
@@ -161,17 +181,22 @@ public sealed class CreateOrderCommandHandler
             {
                 await _mediator.Publish(new EntityChangedEvent("order", order.Id), ct);
 
+                foreach (var productId in basket.BasketItems.Select(i => i.ProductId).Distinct())
+                {
+                    await _mediator.Publish(new EntityChangedEvent("product", productId), ct);
+                }
+
                 return Result<CreateOrderCommandResponse>.Success(
                     new CreateOrderCommandResponse(order.Id),
-                    "Order has been placed successfully.");
+                    "Sifarişiniz uğurla qeydə alındı.");
             }
 
-            return Result<CreateOrderCommandResponse>.Failure("An error occurred while processing your order.", ErrorType.BadRequest);
+            return Result<CreateOrderCommandResponse>.Failure("Sifarişiniz emal edilərkən xəta baş verdi.", ErrorType.ServerError);
         }
         catch (DbUpdateConcurrencyException)
         {
             return Result<CreateOrderCommandResponse>.Failure(
-                "Stock availability changed during checkout. Please try again.",
+                "Stok və ya promo kodun mövcudluğu ödəniş zamanı dəyişdi. Zəhmət olmasa yenidən cəhd edin.",
                 ErrorType.Conflict);
         }
     }

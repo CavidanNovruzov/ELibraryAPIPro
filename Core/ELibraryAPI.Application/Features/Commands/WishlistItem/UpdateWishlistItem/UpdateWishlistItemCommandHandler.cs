@@ -21,20 +21,20 @@ public sealed class UpdateWishlistItemCommandHandler : IRequestHandler<UpdateWis
 
         var item = await itemRead.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (item == null)
-            return Result<UpdateWishlistItemCommandResponse>.Failure("Wishlist item not found.");
+            return Result<UpdateWishlistItemCommandResponse>.NotFound("İstək siyahısı elementi tapılmadı.");
 
         if (!await wishlistRead.ExistsAsync(x => x.Id == request.WishlistId, false, ct))
-            return Result<UpdateWishlistItemCommandResponse>.Failure("Target wishlist not found.");
+            return Result<UpdateWishlistItemCommandResponse>.NotFound("Hədəf istək siyahısı tapılmadı.");
 
         if (!await productRead.ExistsAsync(x => x.Id == request.ProductId, false, ct))
-            return Result<UpdateWishlistItemCommandResponse>.Failure("Target product not found.");
+            return Result<UpdateWishlistItemCommandResponse>.NotFound("Hədəf məhsul tapılmadı.");
 
         var duplicate = await itemRead.ExistsAsync(
             x => x.Id != request.Id && x.WishlistId == request.WishlistId && x.ProductId == request.ProductId,
             false, ct);
 
         if (duplicate)
-            return Result<UpdateWishlistItemCommandResponse>.Failure("This product is already in the target wishlist.");
+            return Result<UpdateWishlistItemCommandResponse>.Conflict("Bu məhsul artıq hədəf istək siyahısındadır.");
 
         item.WishlistId = request.WishlistId;
         item.ProductId = request.ProductId;
@@ -43,6 +43,6 @@ public sealed class UpdateWishlistItemCommandHandler : IRequestHandler<UpdateWis
 
         return Result<UpdateWishlistItemCommandResponse>.Success(
             new UpdateWishlistItemCommandResponse(item.Id),
-            "Wishlist item updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

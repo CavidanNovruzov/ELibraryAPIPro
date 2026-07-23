@@ -19,4 +19,19 @@ public class Stock : BaseEntity
     /// </summary>
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;
+
+    /// <summary>
+    /// Stokdan miqdar azaldır. Mənfi stok yaranmasının qarşısını invariant kimi burada alır —
+    /// handler-lərdə hər dəfə "kifayət qədərdirmi" yoxlamasını təkrarlamağa ehtiyac qalmır.
+    /// </summary>
+    public void Decrease(int amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount), "Azaldılan miqdar 0-dan böyük olmalıdır.");
+
+        if (Quantity < amount)
+            throw new InvalidOperationException("Stok kifayət qədər deyil.");
+
+        Quantity -= amount;
+    }
 }

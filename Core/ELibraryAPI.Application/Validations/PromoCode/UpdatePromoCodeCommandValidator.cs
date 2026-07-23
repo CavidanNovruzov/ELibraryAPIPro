@@ -7,12 +7,12 @@ public sealed class UpdatePromoCodeCommandValidator : AbstractValidator<UpdatePr
 {
     public UpdatePromoCodeCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
 
-        RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Code).NotEmpty().WithMessage("kodu boş ola bilməz.").MaximumLength(50).WithMessage("kodu maksimum {MaxLength} simvol ola bilər.");
         RuleFor(x => x.DiscountPercent).InclusiveBetween(0,100);
-        RuleFor(x => x.EndDate).NotEmpty().GreaterThan(x => x.StartDate);
-        RuleFor(x => x.StartDate).NotEmpty();
-        RuleFor(x => x.UsageLimit).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.EndDate).NotEmpty().WithMessage("End tarixi boş ola bilməz.").GreaterThan(x => x.StartDate).WithMessage("End tarixi {ComparisonValue}-dan böyük olmalıdır.");
+        RuleFor(x => x.StartDate).NotEmpty().WithMessage("Start tarixi boş ola bilməz.");
+        RuleFor(x => x.UsageLimit).GreaterThanOrEqualTo(0).WithMessage("Usage Limit {ComparisonValue}-dan böyük olmalıdır.");
     }
 }

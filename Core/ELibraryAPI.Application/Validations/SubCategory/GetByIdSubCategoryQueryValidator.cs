@@ -9,7 +9,7 @@ public sealed class GetByIdSubCategoryQueryValidator : AbstractValidator<GetById
     public GetByIdSubCategoryQueryValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Sub-category ID is required.")
-            .NotEqual(Guid.Empty).WithMessage("A valid Sub-category ID must be provided.");
+            .NotEmpty().WithMessage("Alt-kateqoriya ID-si mütləqdir.")
+            .NotEqual(Guid.Empty).WithMessage("Düzgün Alt-kateqoriya ID-si təmin edilməlidir.");
     }
 }

@@ -29,11 +29,11 @@ namespace ELibraryAPI.Application.Features.Commands.Product.SetMainProductImage
                 .FirstOrDefaultAsync(p => p.Id == request.ProductId, ct);
 
             if (product == null)
-                return Result.Failure("Product not found.");
+                return Result.Failure("Məhsul tapılmadı..");
 
             var targetImage = product.Images.FirstOrDefault(i => i.Id == request.ImageId);
             if (targetImage == null)
-                return Result.Failure("Image not found.");
+                return Result.Failure("Şəkil tapılmadı.");
 
             foreach (var img in product.Images)
             {
@@ -45,7 +45,7 @@ namespace ELibraryAPI.Application.Features.Commands.Product.SetMainProductImage
 
             await _mediator.Publish(new EntityChangedEvent("product", request.ProductId), ct);
 
-            return Result.Success("Main image updated successfully.");
+            return Result.Success("Əsas şəkil uğurla yeniləndi.");
         }
     }
 }

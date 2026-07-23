@@ -20,9 +20,9 @@ public sealed class DeleteLanguageCommandHandler : IRequestHandler<DeleteLanguag
         var isRemoved = await writeRepo.RemoveAsync(request.Id, ct);
 
         if (!isRemoved)
-            return Result.Failure("Language not found.");
+            return Result.Failure("Dil tapılmadı..");
 
         await _unitOfWork.SaveAsync(ct);
-        return Result.Success("Language deleted successfully.");
+        return Result.Success("Dil uğurla silindi.");
     }
 }

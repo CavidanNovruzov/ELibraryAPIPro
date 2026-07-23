@@ -26,7 +26,7 @@ public sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswor
 
         // Güvənlik səbəbindən həmişə eyni cavabı qaytar (user enumeration-ın qarşısını al)
         if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
-            return Result.Success("If the email exists, a reset link has been sent.");
+            return Result.Success("Əgər bu email mövcuddursa, sıfırlama linki göndərildi.");
 
         var token      = await _userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = Uri.EscapeDataString(token);
@@ -38,6 +38,6 @@ public sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswor
             htmlBody: $"Şifrənizi sıfırlamaq üçün <a href='{resetLink}'>bura klikləyin</a>.",
             ct: ct);
 
-        return Result.Success("If the email exists, a reset link has been sent.");
+        return Result.Success("Əgər bu email mövcuddursa, sıfırlama linki göndərildi.");
     }
 }

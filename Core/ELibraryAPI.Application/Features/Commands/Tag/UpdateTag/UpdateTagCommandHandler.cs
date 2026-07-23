@@ -24,14 +24,14 @@ public sealed class UpdateTagCommandHandler : IRequestHandler<UpdateTagCommandRe
         var tag = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (tag == null)
-            return Result<UpdateTagCommandResponse>.Failure("Tag not found.");
+            return Result<UpdateTagCommandResponse>.Failure("Etiket tapılmadı.");
 
         var normalizedName = request.Name.Trim();
         if (tag.Name.ToLower() != normalizedName.ToLower())
         {
             var exists = await readRepo.ExistsAsync(x => x.Name.ToLower() == normalizedName.ToLower(), false, ct);
             if (exists)
-                return Result<UpdateTagCommandResponse>.Failure("A tag with this name already exists.");
+                return Result<UpdateTagCommandResponse>.Failure("Bu adda teq artıq mövcuddur.");
         }
 
         _mapper.Map(request, tag);
@@ -39,6 +39,6 @@ public sealed class UpdateTagCommandHandler : IRequestHandler<UpdateTagCommandRe
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result<UpdateTagCommandResponse>.Success(new(tag.Id), "Tag updated successfully.");
+        return Result<UpdateTagCommandResponse>.Success(new(tag.Id), "Əməliyyat uğurla tamamlandı.");
     }
 }

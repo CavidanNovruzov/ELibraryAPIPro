@@ -17,7 +17,7 @@ public sealed class GetUserByIdQueryHandler
     {
         var user = await _userManager.FindByIdAsync(request.UserId.ToString());
         if (user == null)
-            return Result<GetUserByIdQueryResponse>.Failure("User not found.");
+            return Result<GetUserByIdQueryResponse>.NotFound("İstifadəçi tapılmadı.");
 
         var roles = (await _userManager.GetRolesAsync(user)).ToList();
         var claims = (await _userManager.GetClaimsAsync(user))

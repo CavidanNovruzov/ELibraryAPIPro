@@ -9,8 +9,8 @@ public sealed class RefreshTokenCommandValidator : AbstractValidator<RefreshToke
     {
         RuleFor(x => x.RefreshToken)
             .NotEmpty()
-            .WithMessage("RefreshToken boş ola bilməz.")
+            .WithMessage("Yeniləmə tokeni (RefreshToken) boş ola bilməz.")
             .MaximumLength(1024)
-            .WithMessage("RefreshToken maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Yeniləmə tokeni (RefreshToken) maksimum {MaxLength} simvol ola bilər.");
     }
 }

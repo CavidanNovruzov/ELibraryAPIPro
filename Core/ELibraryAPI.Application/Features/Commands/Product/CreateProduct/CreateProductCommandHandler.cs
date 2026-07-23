@@ -34,7 +34,7 @@ public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductC
 
         if (isIsbnExists)
         {
-            return Result<CreateProductCommandResponse>.Failure("A product with this ISBN already exists.");
+            return Result<CreateProductCommandResponse>.Failure("Bu ISBN nömrəli məhsul artıq mövcuddur.");
         }
 
         var product = _mapper.Map<Domain.Entities.Concrete.Product>(request);
@@ -53,7 +53,7 @@ public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductC
             if (existingAuthorsCount != authorIds.Count)
             {
                 return Result<CreateProductCommandResponse>.Failure(
-                    "One or more provided Author IDs were not found.",
+                    "Göstərilən müəllif ID-lərindən biri və ya bir neçəsi tapılmadı.",
                     ErrorType.NotFound);
             }
 
@@ -110,10 +110,10 @@ public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductC
         await productWriteRepository.AddAsync(product, ct);
         await _unitOfWork.SaveAsync(ct);
 
-        await _mediator.Publish(new EntityChangedEvent("product"), ct);
+        await _mediator.Publish(new EntityChangedEvent("product", product.Id), ct);
 
         return Result<CreateProductCommandResponse>.Success(
             new CreateProductCommandResponse(product.Id),
-            "Product created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

@@ -25,11 +25,11 @@ namespace ELibraryAPI.Application.Features.Commands.Transaction.SyncTransactionS
             var orderWriteRepository = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Order, Guid>();
 
             var transaction = await transactionReadRepository.GetByIdAsync(request.TransactionId, tracking: true, ct: ct, includes: t => t.Order);
-            if (transaction == null) return Result<SyncTransactionStatusResponse>.NotFound("Transaction not found.");
-            if (transaction.Status != TransactionStatus.Pending) return Result<SyncTransactionStatusResponse>.Success(new SyncTransactionStatusResponse(transaction.Status.ToString()), "Transaction already synchronized.");
+            if (transaction == null) return Result<SyncTransactionStatusResponse>.NotFound("Tranzaksiya tapılmadı.");
+            if (transaction.Status != TransactionStatus.Pending) return Result<SyncTransactionStatusResponse>.Success(new SyncTransactionStatusResponse(transaction.Status.ToString()), "Tranzaksiya artıq sinxronlaşdırılıb.");
 
             var bankResult = await _paymentService.CheckTransactionStatusAsync(transaction.TransactionId!, ct);
-            if (!bankResult.IsSuccess) return Result<SyncTransactionStatusResponse>.Failure("Failed to fetch status from provider.", ErrorType.BadRequest);
+            if (!bankResult.IsSuccess) return Result<SyncTransactionStatusResponse>.Failure("Provayderdən status alına bilmədi.", ErrorType.BadRequest);
 
             if (bankResult.Status == "APPROVED")
             {
@@ -45,7 +45,7 @@ namespace ELibraryAPI.Application.Features.Commands.Transaction.SyncTransactionS
             transactionWriteRepository.Update(transaction);
             await _unitOfWork.SaveAsync(ct);
 
-            return Result<SyncTransactionStatusResponse>.Success(new SyncTransactionStatusResponse(transaction.Status.ToString()), "Status synchronized successfully.");
+            return Result<SyncTransactionStatusResponse>.Success(new SyncTransactionStatusResponse(transaction.Status.ToString()), "Status synchronized uğurla tamamlandı.");
         }
     }
 }

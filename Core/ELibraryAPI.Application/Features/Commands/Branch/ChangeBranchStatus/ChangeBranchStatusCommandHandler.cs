@@ -21,7 +21,7 @@ public sealed class ChangeBranchStatusCommandHandler : IRequestHandler<ChangeBra
         var branch = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (branch == null)
-            return Result<ChangeBranchStatusCommandResponse>.Failure("Branch not found.");
+            return Result<ChangeBranchStatusCommandResponse>.Failure("Filial tapılmadı.");
 
         // Branch entity-də IsActive və ya Status sahəsi olduğunu fərz edirik
         // branch.IsActive = request.IsActive; 
@@ -31,6 +31,6 @@ public sealed class ChangeBranchStatusCommandHandler : IRequestHandler<ChangeBra
 
         return Result<ChangeBranchStatusCommandResponse>.Success(
             new ChangeBranchStatusCommandResponse(branch.Id, request.IsActive),
-            "Branch status changed successfully.");
+            "Branch status changed uğurla tamamlandı.");
     }
 }

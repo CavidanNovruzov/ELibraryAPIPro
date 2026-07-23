@@ -25,19 +25,19 @@ public sealed class DeleteOrderStatusCommandHandler : IRequestHandler<DeleteOrde
 
         if (status == null)
         {
-            return Result.Failure("Order status not found.");
+            return Result.Failure("Sifariş statusu tapılmadı.");
         }
 
         if (status.Orders.Any())
         {
-            return Result.Failure("This status is being used by existing orders and cannot be deleted.");
+            return Result.Failure("Bu status mövcud sifarişlərdə istifadə olunur və silinə bilməz.");
         }
 
         writeRepo.Remove(status);
         var result = await _unitOfWork.SaveAsync(ct);
 
         return result > 0
-            ? Result.Success("Order status deleted successfully.")
-            : Result.Failure("An error occurred while deleting the order status.");
+            ? Result.Success("Sifariş statusu uğurla silindi.")
+            : Result.Failure("Sifariş statusu silinərkən xəta baş verdi.");
     }
 }

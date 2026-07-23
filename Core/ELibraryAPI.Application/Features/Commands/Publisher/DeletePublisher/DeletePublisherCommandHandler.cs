@@ -22,13 +22,13 @@ public sealed class DeletePublisherCommandHandler : IRequestHandler<DeletePublis
 
         if (publisher is null)
         {
-            return Result.Failure("Publisher not found.");
+            return Result.Failure("Nəşriyyat tapılmadı..");
         }
 
         writeRepo.Remove(publisher);
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Publisher has been successfully deleted.");
+        return Result.Success("Nəşriyyat uğurla silindi.");
     }
 }

@@ -9,6 +9,6 @@ public sealed class RefreshTokenRequestValidator : AbstractValidator<RefreshToke
     {
         RuleFor(x => x.RefreshToken)
             .NotEmpty()
-            .WithMessage("RefreshToken boş ola bilməz.");
+            .WithMessage("Yeniləmə tokeni (RefreshToken) boş ola bilməz.");
     }
 }

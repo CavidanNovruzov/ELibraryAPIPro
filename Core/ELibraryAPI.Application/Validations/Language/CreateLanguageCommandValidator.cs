@@ -8,11 +8,11 @@ public sealed class CreateLanguageCommandValidator : AbstractValidator<CreateLan
     public CreateLanguageCommandValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Language name is required.")
-            .MaximumLength(50);
+            .NotEmpty().WithMessage("Dil adı mütləqdir.")
+            .MaximumLength(50).WithMessage("adı maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Code)
-            .NotEmpty().WithMessage("Language code is required.")
-            .Length(2).WithMessage("Language code must be exactly 2 characters (e.g., az, en).");
+            .NotEmpty().WithMessage("Dil kodu mütləqdir.")
+            .Length(2).WithMessage("Dil kodu dəqiq 2 simvol olmalıdır (məs: az, en).");
     }
 }

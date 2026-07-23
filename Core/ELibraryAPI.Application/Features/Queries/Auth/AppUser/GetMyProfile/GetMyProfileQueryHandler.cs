@@ -18,7 +18,7 @@ public sealed class GetMyProfileQueryHandler
     {
         var user = await _userManager.FindByIdAsync(request.UserId.ToString());
         if (user == null)
-            return Result<GetMyProfileQueryResponse>.Failure("User not found.");
+            return Result<GetMyProfileQueryResponse>.NotFound("İstifadəçi tapılmadı.");
 
         var roles = (await _userManager.GetRolesAsync(user)).ToList();
 

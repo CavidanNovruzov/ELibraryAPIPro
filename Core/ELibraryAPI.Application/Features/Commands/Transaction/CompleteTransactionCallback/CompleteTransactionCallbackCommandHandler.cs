@@ -28,13 +28,13 @@ public sealed class CompleteTransactionCallbackCommandHandler : IRequestHandler<
 
         if (transaction == null)
         {
-            return Result<CompleteTransactionCallbackCommandResponse>.NotFound("Transaction not found.");
+            return Result<CompleteTransactionCallbackCommandResponse>.NotFound("Tranzaksiya tapılmadı.");
         }
 
         if (transaction.Status != TransactionStatus.Pending)
         {
             return Result<CompleteTransactionCallbackCommandResponse>.Failure(
-                "This transaction has already been processed.",
+                "Bu tranzaksiya artıq emal edilib.",
                 ErrorType.BadRequest);
         }
 
@@ -61,8 +61,8 @@ public sealed class CompleteTransactionCallbackCommandHandler : IRequestHandler<
         await _unitOfWork.SaveAsync(ct);
 
         string responseMessage = request.IsSuccess
-            ? "Transaction completed successfully."
-            : "Transaction failed or was rejected by the provider.";
+            ? "Transaction completed uğurla tamamlandı."
+            : "Tranzaksiya uğursuz oldu və ya provayder tərəfindən rədd edildi.";
 
         return Result<CompleteTransactionCallbackCommandResponse>.Success(
             new CompleteTransactionCallbackCommandResponse(transaction.OrderId, true),

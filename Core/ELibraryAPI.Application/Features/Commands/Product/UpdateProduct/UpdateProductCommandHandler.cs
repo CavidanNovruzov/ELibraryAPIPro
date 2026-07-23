@@ -33,7 +33,7 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
             .FirstOrDefaultAsync(p => p.Id == request.Id, ct);
 
         if (product == null)
-            return Result<UpdateProductCommandResponse>.Failure("Product not found.");
+            return Result<UpdateProductCommandResponse>.Failure("Məhsul tapılmadı..");
 
         if (product.ISBN != request.ISBN.Trim())
         {
@@ -41,7 +41,7 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
                 x => x.ISBN == request.ISBN.Trim() && x.Id != request.Id, false, ct);
 
             if (isIsbnExists)
-                return Result<UpdateProductCommandResponse>.Failure("A product with this ISBN already exists.");
+                return Result<UpdateProductCommandResponse>.Failure("Bu ISBN nömrəli məhsul artıq mövcuddur.");
         }
 
         if (product.SalePrice != request.SalePrice)
@@ -75,6 +75,6 @@ public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductC
 
         return Result<UpdateProductCommandResponse>.Success(
             new UpdateProductCommandResponse(product.Id),
-            "Product and relations updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

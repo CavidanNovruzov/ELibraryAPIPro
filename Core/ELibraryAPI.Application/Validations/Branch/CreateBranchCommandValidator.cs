@@ -9,13 +9,13 @@ public sealed class CreateBranchCommandValidator : AbstractValidator<CreateBranc
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .WithMessage("Branch adı boş ola bilməz.")
+            .WithMessage("Filial adı boş ola bilməz.")
             .MaximumLength(150)
-            .WithMessage("Branch adı maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Filial adı maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Location)
             .NotEmpty()
-            .WithMessage("Location (Ünvan) boş ola bilməz.");
+            .WithMessage("Məkan (Ünvan) boş ola bilməz.");
 
         RuleFor(x => x.Phone)
             .NotEmpty()

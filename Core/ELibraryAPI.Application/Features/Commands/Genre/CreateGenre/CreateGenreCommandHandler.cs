@@ -28,7 +28,7 @@ public sealed class CreateGenreCommandHandler : IRequestHandler<CreateGenreComma
 
         if (exists)
         {
-            return Result<CreateGenreCommandResponse>.Failure("A genre with this name already exists.");
+            return Result<CreateGenreCommandResponse>.Failure("Bu adda janr artıq mövcuddur.");
         }
 
         var genre = _mapper.Map<Domain.Entities.Concrete.Genre>(request);
@@ -40,9 +40,9 @@ public sealed class CreateGenreCommandHandler : IRequestHandler<CreateGenreComma
         {
             return Result<CreateGenreCommandResponse>.Success(
                 new CreateGenreCommandResponse(genre.Id),
-                "Genre created successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<CreateGenreCommandResponse>.Failure("An error occurred while creating the genre.");
+        return Result<CreateGenreCommandResponse>.Failure("Janr yaradılarkən xəta baş verdi.");
     }
 }

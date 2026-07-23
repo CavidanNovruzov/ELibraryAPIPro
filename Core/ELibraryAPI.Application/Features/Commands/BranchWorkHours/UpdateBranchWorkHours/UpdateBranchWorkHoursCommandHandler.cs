@@ -25,12 +25,12 @@ public sealed class UpdateBranchWorkHoursCommandHandler : IRequestHandler<Update
 
         if (workHours == null)
         {
-            return Result<UpdateBranchWorkHoursCommandResponse>.Failure("Work hours not found.");
+            return Result<UpdateBranchWorkHoursCommandResponse>.Failure("İş saatları tapılmadı.");
         }
 
         if (request.OpenTime >= request.CloseTime)
         {
-            return Result<UpdateBranchWorkHoursCommandResponse>.Failure("Opening time cannot be later than or equal to closing time.");
+            return Result<UpdateBranchWorkHoursCommandResponse>.Failure("Açılış vaxtı bağlanış vaxtından sonra və ya ona bərabər ola bilməz.");
         }
 
         if (workHours.BranchId != request.BranchId || workHours.Day != request.Day)
@@ -42,7 +42,7 @@ public sealed class UpdateBranchWorkHoursCommandHandler : IRequestHandler<Update
 
             if (isDuplicate)
             {
-                return Result<UpdateBranchWorkHoursCommandResponse>.Failure("Work hours for this day already exist for the selected branch.");
+                return Result<UpdateBranchWorkHoursCommandResponse>.Conflict("Seçilmiş filial üçün həmin gün üzrə iş saatları artıq mövcuddur.");
             }
         }
 
@@ -53,6 +53,6 @@ public sealed class UpdateBranchWorkHoursCommandHandler : IRequestHandler<Update
 
         return Result<UpdateBranchWorkHoursCommandResponse>.Success(
             new UpdateBranchWorkHoursCommandResponse(workHours.Id),
-            "Branch work hours updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

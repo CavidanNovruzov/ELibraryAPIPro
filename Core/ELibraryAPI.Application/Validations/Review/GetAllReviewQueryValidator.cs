@@ -11,10 +11,10 @@ public sealed class GetAllReviewQueryValidator : AbstractValidator<GetAllReviewQ
     public GetAllReviewQueryValidator()
     {
         RuleFor(x => x.Page)
-            .GreaterThanOrEqualTo(1).WithMessage("Page number must be at least 1.");
+            .GreaterThanOrEqualTo(1).WithMessage("Səhifə nömrəsi ən azı 1 olmalıdır.");
 
         RuleFor(x => x.Size)
-            .GreaterThanOrEqualTo(1).WithMessage("Page size must be at least 1.")
-            .LessThanOrEqualTo(100).WithMessage("Page size cannot exceed 100.");
+            .GreaterThanOrEqualTo(1).WithMessage("Səhifə ölçüsü ən azı 1 olmalıdır.")
+            .LessThanOrEqualTo(100).WithMessage("Səhifə ölçüsü 100-dən çox ola bilməz.");
     }
 }

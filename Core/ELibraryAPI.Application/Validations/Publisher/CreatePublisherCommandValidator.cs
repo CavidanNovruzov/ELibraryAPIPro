@@ -7,7 +7,7 @@ public sealed class CreatePublisherCommandValidator : AbstractValidator<CreatePu
 {
     public CreatePublisherCommandValidator()
     {
-        RuleFor(x => x.Description).NotEmpty();
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Description).NotEmpty().WithMessage("təsviri boş ola bilməz.");
+        RuleFor(x => x.Name).NotEmpty().WithMessage("adı boş ola bilməz.").MaximumLength(200).WithMessage("adı maksimum {MaxLength} simvol ola bilər.");
     }
 }

@@ -24,7 +24,7 @@ public sealed class UpdateCampaignCommandHandler : IRequestHandler<UpdateCampaig
         var campaign = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (campaign == null)
-            return Result<UpdateCampaignCommandResponse>.Failure("Campaign not found.");
+            return Result<UpdateCampaignCommandResponse>.Failure("Kampaniya tapılmadı.");
 
         if (campaign.Title.ToLower() != request.Title.Trim().ToLower())
         {
@@ -34,7 +34,7 @@ public sealed class UpdateCampaignCommandHandler : IRequestHandler<UpdateCampaig
                 ct: ct);
 
             if (isTitleExists)
-                return Result<UpdateCampaignCommandResponse>.Failure("Another active campaign with this title already exists.");
+                return Result<UpdateCampaignCommandResponse>.Failure("Bu başlıqda başqa aktiv kampaniya artıq mövcuddur.");
         }
 
         _mapper.Map(request, campaign);
@@ -46,9 +46,9 @@ public sealed class UpdateCampaignCommandHandler : IRequestHandler<UpdateCampaig
         {
             return Result<UpdateCampaignCommandResponse>.Success(
                 new UpdateCampaignCommandResponse(campaign.Id),
-                "Campaign updated successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<UpdateCampaignCommandResponse>.Failure("No changes were saved.");
+        return Result<UpdateCampaignCommandResponse>.Failure("Heç bir dəyişiklik yadda saxlanılmadı.");
     }
 }

@@ -9,10 +9,10 @@ public class SetRolePermissionsCommandValidator : AbstractValidator<SetRolePermi
     {
         RuleFor(x => x.RoleId)
             .NotEmpty()
-            .WithMessage("RoleId boş ola bilməz.");
+            .WithMessage("Rol ID-si boş ola bilməz.");
 
         RuleFor(x => x.PermissionIds)
             .NotEmpty()
-            .WithMessage("PermissionIds siyahısı boş ola bilməz.");
+            .WithMessage("İcazə ID-ləri siyahısı boş ola bilməz.");
     }
 }

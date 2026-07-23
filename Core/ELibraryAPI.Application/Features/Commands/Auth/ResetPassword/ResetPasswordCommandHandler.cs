@@ -16,7 +16,7 @@ public sealed class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordC
     {
         var user = await _userManager.FindByIdAsync(request.UserId.ToString());
         if (user == null)
-            return Result.Failure("Invalid request.");
+            return Result.Failure("Yanlış sorğu.");
 
         var decodedToken = Uri.UnescapeDataString(request.Token);
         var result = await _userManager.ResetPasswordAsync(user, decodedToken, request.NewPassword);
@@ -24,6 +24,6 @@ public sealed class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordC
         if (!result.Succeeded)
             return Result.Failure(result.Errors.Select(e => e.Description).ToList());
 
-        return Result.Success("Password reset successfully.");
+        return Result.Success("Şifrə uğurla sıfırlandı.");
     }
 }

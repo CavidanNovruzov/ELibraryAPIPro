@@ -7,6 +7,6 @@ public sealed class MoveToBasketCommandValidator : AbstractValidator<MoveToBaske
 {
     public MoveToBasketCommandValidator()
     {
-        RuleFor(x => x.WishlistItemId).NotEmpty().WithMessage("Wishlist item ID is required.");
+        RuleFor(x => x.WishlistItemId).NotEmpty().WithMessage("Arzu siyahısı elementi ID-si mütləqdir.");
     }
 }

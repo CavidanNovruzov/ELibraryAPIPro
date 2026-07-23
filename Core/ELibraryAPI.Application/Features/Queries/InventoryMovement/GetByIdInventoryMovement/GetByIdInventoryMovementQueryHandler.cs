@@ -47,7 +47,7 @@ public sealed class GetByIdInventoryMovementQueryHandler
             .FirstOrDefaultAsync(cancellationToken);
 
         if (movement == null)
-            return Result<GetByIdInventoryMovementQueryResponse>.Failure("Inventory movement not found.");
+            return Result<GetByIdInventoryMovementQueryResponse>.NotFound("İnventar hərəkəti tapılmadı.");
 
         return Result<GetByIdInventoryMovementQueryResponse>.Success(
             new GetByIdInventoryMovementQueryResponse(movement));

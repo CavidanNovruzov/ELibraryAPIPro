@@ -21,11 +21,11 @@ public sealed class DeleteShippingMethodCommandHandler : IRequestHandler<DeleteS
         var shippingMethod = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (shippingMethod == null)
-            return Result.Failure("Shipping method not found.");
+            return Result.Failure("Çatdırılma metodu tapılmadı.");
 
         writeRepo.Remove(shippingMethod);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Shipping method deleted successfully.");
+        return Result.Success("Çatdırılma metodu uğurla silindi.");
     }
 }

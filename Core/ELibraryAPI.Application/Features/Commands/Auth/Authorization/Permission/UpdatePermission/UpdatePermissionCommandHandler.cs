@@ -21,7 +21,7 @@ public sealed class UpdatePermissionCommandHandler : IRequestHandler<UpdatePermi
 
         var permission = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
         if (permission == null)
-            return Result<UpdatePermissionCommandResponse>.Failure("Permission not found.");
+            return Result<UpdatePermissionCommandResponse>.Failure("İcazə tapılmadı.");
 
         var normalizedKey = request.Key.Trim();
 
@@ -31,7 +31,7 @@ public sealed class UpdatePermissionCommandHandler : IRequestHandler<UpdatePermi
             ct: ct);
 
         if (keyExists)
-            return Result<UpdatePermissionCommandResponse>.Failure("A permission with this key already exists.");
+            return Result<UpdatePermissionCommandResponse>.Conflict("Bu açarla icazə artıq mövcuddur.");
 
         permission.Key = normalizedKey;
         writeRepo.Update(permission);
@@ -39,6 +39,6 @@ public sealed class UpdatePermissionCommandHandler : IRequestHandler<UpdatePermi
 
         return Result<UpdatePermissionCommandResponse>.Success(
             new UpdatePermissionCommandResponse(permission.Id),
-            "Permission updated successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

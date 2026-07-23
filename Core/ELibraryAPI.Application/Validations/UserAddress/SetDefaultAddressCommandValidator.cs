@@ -6,6 +6,6 @@ public sealed class SetDefaultAddressCommandValidator : AbstractValidator<SetDef
 {
     public SetDefaultAddressCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty().WithMessage("Address ID is required.");
+        RuleFor(x => x.Id).NotEmpty().WithMessage("Ünvan ID-si mütləqdir.");
     }
 }

@@ -22,7 +22,7 @@ public sealed class ToggleCampaignStatusCommandHandler : IRequestHandler<ToggleC
 
         if (campaign == null)
         {
-            return Result<ToggleCampaignStatusResponse>.Failure("Campaign not found.");
+            return Result<ToggleCampaignStatusResponse>.Failure("Kampaniya tapılmadı.");
         }
 
         campaign.IsActive = !campaign.IsActive;
@@ -35,9 +35,9 @@ public sealed class ToggleCampaignStatusCommandHandler : IRequestHandler<ToggleC
             string status = campaign.IsActive ? "activated" : "deactivated";
             return Result<ToggleCampaignStatusResponse>.Success(
                 new ToggleCampaignStatusResponse(campaign.Id, campaign.IsActive),
-                $"Campaign has been {status} successfully.");
+                $"Campaign has been {status} uğurla tamamlandı.");
         }
 
-        return Result<ToggleCampaignStatusResponse>.Failure("An error occurred while toggling campaign status.");
+        return Result<ToggleCampaignStatusResponse>.Failure("Kampaniya statusu dəyişdirilərkən xəta baş verdi.");
     }
 }

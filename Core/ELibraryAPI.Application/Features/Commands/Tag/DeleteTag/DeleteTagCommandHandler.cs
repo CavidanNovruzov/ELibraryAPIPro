@@ -22,11 +22,11 @@ public sealed class DeleteTagCommandHandler : IRequestHandler<DeleteTagCommandRe
         var tag = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (tag == null)
-            return Result.Failure("Tag not found.");
+            return Result.Failure("Etiket tapılmadı.");
 
         writeRepo.Remove(tag);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Tag deleted successfully.");
+        return Result.Success("Teq uğurla silindi.");
     }
 }

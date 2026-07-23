@@ -21,10 +21,10 @@ public sealed class SetDefaultAddressCommandHandler : IRequestHandler<SetDefault
         var targetAddress = await addressReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (targetAddress == null)
-            return Result.Failure("Address not found.");
+            return Result.Failure("Ünvan tapılmadı.");
 
         if (targetAddress.IsDefault)
-            return Result.Success("This address is already set as default.");
+            return Result.Success("Bu ünvan artıq default olaraq təyin edilib.");
 
         var currentDefaults = await addressReadRepo
             .GetWhere(x => x.UserId == targetAddress.UserId && x.IsDefault && x.Id != targetAddress.Id, tracking: true)
@@ -40,6 +40,6 @@ public sealed class SetDefaultAddressCommandHandler : IRequestHandler<SetDefault
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Default address updated successfully.");
+        return Result.Success("Default ünvan uğurla yeniləndi.");
     }
 }

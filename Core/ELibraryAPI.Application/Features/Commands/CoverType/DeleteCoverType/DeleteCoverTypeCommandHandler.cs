@@ -22,13 +22,13 @@ public sealed class DeleteCoverTypeCommandHandler : IRequestHandler<DeleteCoverT
 
         if (!isRemoved)
         {
-            return Result.Failure("Cover type not found or already deleted.");
+            return Result.Failure("Üz qabığı növü tapılmadı və ya artıq silinib.");
         }
 
         var result = await _unitOfWork.SaveAsync(ct);
 
         return result > 0
-            ? Result.Success("Cover type deleted successfully.")
-            : Result.Failure("An error occurred while deleting the cover type.");
+            ? Result.Success("Üz qabığı növü uğurla silindi.")
+            : Result.Failure("Üz qabığı növü silinərkən xəta baş verdi.");
     }
 }

@@ -9,10 +9,10 @@ public sealed class GetAllAuthorQueryValidator : AbstractValidator<GetAllAuthorQ
     {
         RuleFor(x => x.Page)
             .GreaterThanOrEqualTo(1)
-            .WithMessage("Page 1-dən böyük və ya bərabər olmalıdır.");
+            .WithMessage("Səhifə 1-dən böyük və ya bərabər olmalıdır.");
 
         RuleFor(x => x.Size)
             .InclusiveBetween(1, 100)
-            .WithMessage("Size {From} və {To} arasında olmalıdır.");
+            .WithMessage("Ölçü {From} və {To} arasında olmalıdır.");
     }
 }

@@ -38,7 +38,7 @@ public sealed class GetByIdProductQueryHandler : IRequestHandler<GetByIdProductQ
             .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
         if (productEntity == null)
-            return Result<GetByIdProductQueryResponse>.Failure("Product not found");
+            return Result<GetByIdProductQueryResponse>.Failure("Məhsul tapılmadı.");
 
         var dto = new ProductDetailDto(
             productEntity.Id,

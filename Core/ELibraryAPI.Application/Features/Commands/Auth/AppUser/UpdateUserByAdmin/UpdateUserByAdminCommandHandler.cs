@@ -13,7 +13,7 @@ public sealed class UpdateUserByAdminCommandHandler(UserManager<Domain.Entities.
             var user = await userManager.FindByIdAsync(request.Id.ToString());
 
             if (user == null)
-                return Result.NotFound("User not found.");
+                return Result.NotFound("İstifadəçi tapılmadı.");
 
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
@@ -25,10 +25,10 @@ public sealed class UpdateUserByAdminCommandHandler(UserManager<Domain.Entities.
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description).ToList();
-                return Result.Failure(errors, "An error occurred while updating the user.");
+                return Result.Failure(errors, "İstifadəçi yenilənərkən xəta baş verdi.");
             }
 
-            return Result.Success("User updated successfully by administrator.");
+            return Result.Success("İstifadəçi administrator tərəfindən uğurla yeniləndi.");
         }
     
 }

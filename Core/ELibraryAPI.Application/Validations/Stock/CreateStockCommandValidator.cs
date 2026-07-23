@@ -7,8 +7,8 @@ public sealed class CreateStockCommandValidator : AbstractValidator<CreateStockC
 {
     public CreateStockCommandValidator()
     {
-        RuleFor(x => x.BranchId).NotEmpty();
-        RuleFor(x => x.ProductId).NotEmpty();
-        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.BranchId).NotEmpty().WithMessage("Filial ID-si boş ola bilməz.");
+        RuleFor(x => x.ProductId).NotEmpty().WithMessage("Məhsul ID-si boş ola bilməz.");
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0).WithMessage("miqdarı {ComparisonValue}-dan böyük olmalıdır.");
     }
 }

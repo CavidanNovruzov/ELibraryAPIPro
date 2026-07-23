@@ -1,5 +1,6 @@
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -24,7 +25,9 @@ public abstract class ApiControllerBase : ControllerBase
         ErrorType.Unauthorized => Unauthorized(result),
         ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, result),
         ErrorType.Conflict => Conflict(result),
-        ErrorType.ValidationError => BadRequest(result),
+        ErrorType.ValidationError => UnprocessableEntity(result), 
+        ErrorType.ServerError => StatusCode(StatusCodes.Status500InternalServerError, result), 
+        ErrorType.BadRequest => BadRequest(result),
         _ => BadRequest(result)
     };
 }

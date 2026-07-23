@@ -25,7 +25,7 @@ public sealed class CreateReviewCommandHandler : IRequestHandler<CreateReviewCom
     {
         var currentUserGuid = _currentUserService.UserGuid;
         if (currentUserGuid == Guid.Empty)
-            return Result<CreateReviewCommandResponse>.Failure("Authenticated user not found.", ErrorType.Unauthorized);
+            return Result<CreateReviewCommandResponse>.Failure("Sistemə daxil olmuş istifadəçi tapılmadı.", ErrorType.Unauthorized);
 
         var reviewReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Review, Guid>();
         var reviewWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Review, Guid>();
@@ -34,10 +34,10 @@ public sealed class CreateReviewCommandHandler : IRequestHandler<CreateReviewCom
 
         var productExists = await productReadRepo.ExistsAsync(x => x.Id == request.ProductId, false, ct);
         if (!productExists)
-            return Result<CreateReviewCommandResponse>.Failure("Product not found.", ErrorType.NotFound);
+            return Result<CreateReviewCommandResponse>.Failure("Məhsul tapılmadı..", ErrorType.NotFound);
 
         if (request.Rating < 1 || request.Rating > 5)
-            return Result<CreateReviewCommandResponse>.Failure("Rating must be between 1 and 5.", ErrorType.BadRequest);
+            return Result<CreateReviewCommandResponse>.Failure("Reytinq 1 ilə 5 arasında olmalıdır.", ErrorType.BadRequest);
 
         var alreadyReviewed = await reviewReadRepo.ExistsAsync(
             x => x.ProductId == request.ProductId && x.UserId == currentUserGuid,
@@ -45,7 +45,7 @@ public sealed class CreateReviewCommandHandler : IRequestHandler<CreateReviewCom
             ct);
 
         if (alreadyReviewed)
-            return Result<CreateReviewCommandResponse>.Failure("You have already reviewed this product.", ErrorType.Conflict);
+            return Result<CreateReviewCommandResponse>.Failure("Siz bu məhsula artıq rəy yazmısınız.", ErrorType.Conflict);
 
         var hasPurchased = await orderItemReadRepo.ExistsAsync(
             oi => oi.ProductId == request.ProductId
@@ -56,7 +56,7 @@ public sealed class CreateReviewCommandHandler : IRequestHandler<CreateReviewCom
 
         if (!hasPurchased)
             return Result<CreateReviewCommandResponse>.Failure(
-                "You can only review products you have successfully purchased and received.",
+                "Yalnız uğurla aldığınız və çatdırılan məhsullara rəy yaza bilərsiniz.",
                 ErrorType.Forbidden); 
 
         var review = _mapper.Map<Domain.Entities.Concrete.Review>(request);
@@ -68,6 +68,6 @@ public sealed class CreateReviewCommandHandler : IRequestHandler<CreateReviewCom
 
         return Result<CreateReviewCommandResponse>.Success(
             new CreateReviewCommandResponse(review.Id),
-            "Review submitted successfully and is awaiting approval.");
+            "Rəy uğurla göndərildi və təsdiq gözləyir.");
     }
 }

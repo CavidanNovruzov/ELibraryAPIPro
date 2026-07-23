@@ -9,6 +9,6 @@ public sealed class DeleteBranchCommandValidator : AbstractValidator<DeleteBranc
     {
         RuleFor(x => x.Id)
             .NotEmpty()
-            .WithMessage("Branch ID boş ola bilməz.");
+            .WithMessage("Filial ID-si boş ola bilməz.");
     }
 }

@@ -7,6 +7,6 @@ public sealed class DeletePromoCodeCommandValidator : AbstractValidator<DeletePr
 {
     public DeletePromoCodeCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

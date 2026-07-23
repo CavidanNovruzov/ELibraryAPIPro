@@ -28,7 +28,7 @@ public sealed class GetByIdCoverTypeQueryHandler : IRequestHandler<GetByIdCoverT
             .FirstOrDefaultAsync(cancellationToken);
 
         if (coverType == null)
-            return Result<GetByIdCoverTypeQueryResponse>.Failure("Cover type not found.");
+            return Result<GetByIdCoverTypeQueryResponse>.NotFound("Üz qabığı növü tapılmadı.");
 
        return Result<GetByIdCoverTypeQueryResponse>.Success(new GetByIdCoverTypeQueryResponse(coverType));
     }

@@ -29,7 +29,7 @@ public sealed class GetByIdPublisherQueryHandler : IRequestHandler<GetByIdPublis
             .FirstOrDefaultAsync(cancellationToken);
 
         if (publisher == null)
-            return Result<GetByIdPublisherQueryResponse>.Failure("Publisher not found");
+            return Result<GetByIdPublisherQueryResponse>.Failure("Nəşriyyat tapılmadı.");
 
         return Result<GetByIdPublisherQueryResponse>.Success(new GetByIdPublisherQueryResponse(publisher));
     }

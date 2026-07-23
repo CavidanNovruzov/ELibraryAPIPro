@@ -28,7 +28,7 @@ public sealed class CreatePaymentMethodCommandHandler : IRequestHandler<CreatePa
 
         if (isExists)
         {
-            return Result<CreatePaymentMethodCommandResponse>.Failure("This payment method already exists.");
+            return Result<CreatePaymentMethodCommandResponse>.Failure("Bu ödəniş metodu artıq mövcuddur.");
         }
 
         var paymentMethod = _mapper.Map<Domain.Entities.Concrete.PaymentMethod>(request);
@@ -38,6 +38,6 @@ public sealed class CreatePaymentMethodCommandHandler : IRequestHandler<CreatePa
 
         return Result<CreatePaymentMethodCommandResponse>.Success(
             new CreatePaymentMethodCommandResponse(paymentMethod.Id),
-            "Payment method created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

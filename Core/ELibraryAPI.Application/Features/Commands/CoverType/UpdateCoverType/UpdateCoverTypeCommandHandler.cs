@@ -23,7 +23,7 @@ public sealed class UpdateCoverTypeCommandHandler : IRequestHandler<UpdateCoverT
         var coverType = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (coverType == null)
-            return Result<UpdateCoverTypeCommandResponse>.Failure("Cover type not found.");
+            return Result<UpdateCoverTypeCommandResponse>.Failure("Üz qabığı növü tapılmadı.");
 
 
         if (coverType.Name.ToLower() != request.Name.Trim().ToLower())
@@ -33,7 +33,7 @@ public sealed class UpdateCoverTypeCommandHandler : IRequestHandler<UpdateCoverT
                 tracking: false, ct: ct);
 
             if (isNameExists)
-                return Result<UpdateCoverTypeCommandResponse>.Failure("Another cover type with this name already exists.");
+                return Result<UpdateCoverTypeCommandResponse>.Failure("Bu adda başqa üz qabığı növü artıq mövcuddur.");
         }
 
         _mapper.Map(request, coverType);
@@ -42,7 +42,7 @@ public sealed class UpdateCoverTypeCommandHandler : IRequestHandler<UpdateCoverT
         var result = await _unitOfWork.SaveAsync(ct);
 
         return result > 0
-            ? Result<UpdateCoverTypeCommandResponse>.Success(new UpdateCoverTypeCommandResponse(coverType.Id), "Cover type updated successfully.")
-            : Result<UpdateCoverTypeCommandResponse>.Failure("No changes were applied.");
+            ? Result<UpdateCoverTypeCommandResponse>.Success(new UpdateCoverTypeCommandResponse(coverType.Id), "Əməliyyat uğurla tamamlandı.")
+            : Result<UpdateCoverTypeCommandResponse>.Failure("Heç bir dəyişiklik tətbiq edilmədi.");
     }
 }

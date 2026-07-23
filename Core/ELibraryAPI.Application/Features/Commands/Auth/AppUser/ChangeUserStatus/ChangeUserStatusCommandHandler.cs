@@ -16,12 +16,12 @@ public sealed class ChangeUserStatusCommandHandler(IUnitOfWork uow)
             .GetByIdAsync(request.Id, tracking: true, ct);
 
         if (user == null)
-            return Result.NotFound("User not found.");
+            return Result.NotFound("İstifadəçi tapılmadı.");
 
         user.IsActive = !user.IsActive;
         await uow.SaveAsync(ct);
 
         string statusText = user.IsActive ? "activated" : "deactivated";
-        return Result.Success($"User status has been {statusText} successfully.");
+        return Result.Success($"User status has been {statusText} uğurla tamamlandı.");
     }
 }

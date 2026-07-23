@@ -28,7 +28,7 @@ public sealed class CreateOrderStatusCommandHandler : IRequestHandler<CreateOrde
 
         if (isExists)
         {
-            return Result<CreateOrderStatusCommandResponse>.Failure("This order status already exists.");
+            return Result<CreateOrderStatusCommandResponse>.Failure("Bu sifariş statusu artıq mövcuddur.");
         }
 
         var orderStatus = _mapper.Map<Domain.Entities.Concrete.OrderStatus>(request);
@@ -38,6 +38,6 @@ public sealed class CreateOrderStatusCommandHandler : IRequestHandler<CreateOrde
 
         return Result<CreateOrderStatusCommandResponse>.Success(
             new CreateOrderStatusCommandResponse(orderStatus.Id),
-            "Order status created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

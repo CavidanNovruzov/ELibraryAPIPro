@@ -28,12 +28,12 @@ public sealed class CreateShippingMethodCommandHandler : IRequestHandler<CreateS
 
         if (isNameExists)
         {
-            return Result<CreateShippingMethodCommandResponse>.Failure("A shipping method with this name already exists.");
+            return Result<CreateShippingMethodCommandResponse>.Failure("Bu adda çatdırılma metodu artıq mövcuddur.");
         }
 
         if (request.Price < 0)
         {
-            return Result<CreateShippingMethodCommandResponse>.Failure("Shipping price cannot be negative.");
+            return Result<CreateShippingMethodCommandResponse>.Failure("Çatdırılma qiyməti mənfi ola bilməz.");
         }
 
         var shippingMethod = _mapper.Map<Domain.Entities.Concrete.ShippingMethod>(request);
@@ -44,6 +44,6 @@ public sealed class CreateShippingMethodCommandHandler : IRequestHandler<CreateS
 
         return Result<CreateShippingMethodCommandResponse>.Success(
             new CreateShippingMethodCommandResponse(shippingMethod.Id),
-            "Shipping method created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

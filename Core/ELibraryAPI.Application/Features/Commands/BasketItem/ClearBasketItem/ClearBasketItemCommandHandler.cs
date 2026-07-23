@@ -31,6 +31,6 @@ public sealed class ClearBasketItemCommandHandler : IRequestHandler<ClearBasketI
         if (result > 0)
             return Result<ClearBasketItemCommandResponse>.Success(new ClearBasketItemCommandResponse());
 
-        return Result<ClearBasketItemCommandResponse>.Failure("An error occurred while clearing the basket items.");
+        return Result<ClearBasketItemCommandResponse>.Failure("Səbət elementləri təmizlənərkən xəta baş verdi.");
     }
 }

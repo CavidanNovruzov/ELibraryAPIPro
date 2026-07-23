@@ -23,13 +23,13 @@ public sealed class MoveToBasketCommandHandler : IRequestHandler<MoveToBasketCom
     {
         var userId = _currentUserService.UserGuid;
         if (userId == Guid.Empty)
-            return Result.Failure("Authenticated user not found.", ErrorType.Unauthorized);
+            return Result.Failure("Sistemə daxil olmuş istifadəçi tapılmadı.", ErrorType.Unauthorized);
 
         var basket = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Basket, Guid>()
             .GetSingleAsync(b => b.UserId == userId, tracking: true, ct: ct);
 
         if (basket == null)
-            return Result.Failure("Basket not found for the current user.", ErrorType.NotFound);
+            return Result.Failure("Cari istifadəçi üçün səbət tapılmadı.", ErrorType.NotFound);
 
         await using var transaction = await _unitOfWork.BeginTransactionAsync();
 
@@ -38,7 +38,7 @@ public sealed class MoveToBasketCommandHandler : IRequestHandler<MoveToBasketCom
             var wishlistItem = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.WishlistItem, Guid>()
                 .GetByIdAsync(request.WishlistItemId, tracking: true, ct: ct);
 
-            if (wishlistItem == null) return Result.Failure("Wishlist item not found.", ErrorType.NotFound);
+            if (wishlistItem == null) return Result.Failure("İstək siyahısı elementi tapılmadı.", ErrorType.NotFound);
 
             var product = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Product, Guid>()
                 .GetAll()
@@ -46,10 +46,10 @@ public sealed class MoveToBasketCommandHandler : IRequestHandler<MoveToBasketCom
                 .FirstOrDefaultAsync(p => p.Id == wishlistItem.ProductId, ct);
 
             if (product == null)
-                return Result.Failure("Product not found.", ErrorType.NotFound);
+                return Result.Failure("Məhsul tapılmadı..", ErrorType.NotFound);
 
             if (product.Stocks.Sum(s => s.Quantity) <= 0)
-                return Result.Failure("Product is out of stock.", ErrorType.ValidationError);
+                return Result.Failure("Məhsul stokda yoxdur.", ErrorType.ValidationError);
 
             var basketItem = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.BasketItem, Guid>()
                 .GetSingleAsync(b => b.BasketId == basket.Id && b.ProductId == wishlistItem.ProductId, tracking: true, ct: ct);
@@ -73,12 +73,12 @@ public sealed class MoveToBasketCommandHandler : IRequestHandler<MoveToBasketCom
             await _unitOfWork.SaveAsync(ct);
             await transaction.CommitAsync(ct);
 
-            return Result.Success("Moved to basket successfully.");
+            return Result.Success("Səbətə uğurla köçürüldü.");
         }
         catch (Exception)
         {
             await transaction.RollbackAsync(ct);
-            return Result.Failure("An error occurred while moving product to basket.");
+            return Result.Failure("Məhsul səbətə köçürülərkən xəta baş verdi.");
         }
     }
 }

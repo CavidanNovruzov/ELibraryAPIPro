@@ -13,18 +13,18 @@ public sealed class UpdateAuthorCommandValidator : AbstractValidator<UpdateAutho
 
         RuleFor(x => x.FullName)
             .NotEmpty()
-            .WithMessage("FullName boş ola bilməz.")
+            .WithMessage("Ad və soyad boş ola bilməz.")
             .MaximumLength(200)
-            .WithMessage("FullName maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Ad və soyad maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Country)
             .NotEmpty()
-            .WithMessage("Country boş ola bilməz.")
+            .WithMessage("Ölkə boş ola bilməz.")
             .MaximumLength(100)
-            .WithMessage("Country maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Ölkə adı maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Biography)
             .NotEmpty()
-            .WithMessage("Biography boş ola bilməz.");
+            .WithMessage("Bioqrafiya boş ola bilməz.");
     }
 }

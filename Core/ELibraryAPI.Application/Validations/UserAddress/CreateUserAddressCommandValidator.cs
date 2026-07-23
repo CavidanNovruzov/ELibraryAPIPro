@@ -6,10 +6,10 @@ public sealed class CreateUserAddressCommandValidator : AbstractValidator<Create
     public CreateUserAddressCommandValidator()
     {
         RuleFor(x => x.AddressLine)
-            .NotEmpty().WithMessage("Address line cannot be empty.")
-            .MaximumLength(1000).WithMessage("Address line is too long.");
+            .NotEmpty().WithMessage("Ünvan xətti boş ola bilməz.")
+            .MaximumLength(1000).WithMessage("Ünvan xətti çox uzundur.");
 
         RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required.");
+            .NotEmpty().WithMessage("İstifadəçi ID-si mütləqdir.");
     }
 }

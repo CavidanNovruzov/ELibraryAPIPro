@@ -9,16 +9,16 @@ public sealed class LoginUserCommandValidator : AbstractValidator<LoginUserComma
     {
         RuleFor(x => x.Login)
             .NotEmpty()
-            .WithMessage("Login boş ola bilməz.")
+            .WithMessage("Daxilolma adı (Login) boş ola bilməz.")
             .MaximumLength(256)
-            .WithMessage("Login maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Daxilolma adı (Login) maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .WithMessage("Password boş ola bilməz.")
+            .WithMessage("Şifrə boş ola bilməz.")
             .MinimumLength(8)
-            .WithMessage("Password minimum {MinLength} simvol olmalıdır.")
+            .WithMessage("Şifrə minimum {MinLength} simvol olmalıdır.")
             .MaximumLength(128)
-            .WithMessage("Password maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Şifrə maksimum {MaxLength} simvol ola bilər.");
     }
 }

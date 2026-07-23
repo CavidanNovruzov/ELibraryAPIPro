@@ -24,7 +24,7 @@ public sealed class CreateBranchCommandHandler : IRequestHandler<CreateBranchCom
         bool isExist = await readRepo.ExistsAsync(x => x.Name.ToLower() == request.Name.ToLower(), ct: ct);
 
         if (isExist)
-            return Result<CreateBranchCommandResponse>.Failure("A branch with this name already exists.");
+            return Result<CreateBranchCommandResponse>.Conflict("Bu adda filial artıq mövcuddur.");
 
         var branch = _mapper.Map<ELibraryAPI.Domain.Entities.Concrete.Branch>(request);
 
@@ -35,6 +35,6 @@ public sealed class CreateBranchCommandHandler : IRequestHandler<CreateBranchCom
         if (result > 0)
             return Result<CreateBranchCommandResponse>.Success(new CreateBranchCommandResponse(branch.Id));
 
-        return Result<CreateBranchCommandResponse>.Failure("An error occurred while creating the branch.");
+        return Result<CreateBranchCommandResponse>.Failure("Filial yaradılarkən xəta baş verdi.");
     }
 }

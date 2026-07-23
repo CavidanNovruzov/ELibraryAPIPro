@@ -7,7 +7,7 @@ public sealed class SetProductActiveCommandValidator : AbstractValidator<SetProd
 {
     public SetProductActiveCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }
 

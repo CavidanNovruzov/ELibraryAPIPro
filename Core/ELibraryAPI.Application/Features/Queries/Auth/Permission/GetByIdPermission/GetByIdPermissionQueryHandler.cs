@@ -21,7 +21,7 @@ public sealed class GetByIdPermissionQueryHandler : IRequestHandler<GetByIdPermi
             .GetByIdAsync(request.Id, tracking: false, ct);
 
            if (permission == null)
-            return Result<GetByIdPermissionQueryResponse>.NotFound("Permission not found.");
+            return Result<GetByIdPermissionQueryResponse>.NotFound("İcazə tapılmadı.");
 
         var response = new GetByIdPermissionQueryResponse(
             permission.Id,

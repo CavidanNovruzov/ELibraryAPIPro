@@ -7,9 +7,9 @@ public sealed class UpdateSubCategoryCommandValidator : AbstractValidator<Update
 {
     public UpdateSubCategoryCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
 
-        RuleFor(x => x.CategoryId).NotEmpty();
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Kateqoriya ID-si boş ola bilməz.");
+        RuleFor(x => x.Name).NotEmpty().WithMessage("adı boş ola bilməz.").MaximumLength(200).WithMessage("adı maksimum {MaxLength} simvol ola bilər.");
     }
 }

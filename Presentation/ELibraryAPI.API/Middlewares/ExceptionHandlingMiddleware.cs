@@ -1,6 +1,7 @@
 using ELibraryAPI.Application.Exceptions;
+using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Domain.Enums;
 using FluentValidation;
-using System.Text.Json;
 
 namespace ELibraryAPI.API.Middlewares;
 
@@ -24,48 +25,36 @@ public sealed class ExceptionHandlingMiddleware
         catch (ValidationException ex)
         {
             _logger.LogWarning(ex, "Validation error");
-            await WriteResponse(context, 400, "Validation failed",
-                errors: ex.Errors.Select(e => e.ErrorMessage).ToList());
+            var result = Result.Failure(
+                ex.Errors.Select(e => e.ErrorMessage).ToList(),
+                "Validasiya xətası baş verdi.",
+                ErrorType.ValidationError);
+            await WriteResponse(context, 422, result);
         }
-        catch (NotFoundException ex)     
+        catch (NotFoundException)
         {
-            _logger.LogWarning(ex, "Resource not found");
-            await WriteResponse(context, 404, ex.Message);
+            _logger.LogWarning("Resource not found");
+            var result = Result.Failure("Axtarılan məlumat tapılmadı.", ErrorType.NotFound);
+            await WriteResponse(context, 404, result);
         }
-        catch (UnauthorizedAccessException ex) 
+        catch (UnauthorizedAccessException)
         {
-            _logger.LogWarning(ex, "Unauthorized");
-            await WriteResponse(context, 401, ex.Message);
+            _logger.LogWarning("Unauthorized access attempt");
+            var result = Result.Failure("Bu əməliyyat üçün icazəniz yoxdur.", ErrorType.Forbidden);
+            await WriteResponse(context, 403, result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception");
-            await WriteResponse(context, 500, "Internal Server Error",
-                traceId: context.TraceIdentifier);
+            _logger.LogError(ex, "Unhandled exception. TraceId: {TraceId}", context.TraceIdentifier);
+            var result = Result.Failure("Sistemdə gözlənilməz xəta baş verdi.", ErrorType.ServerError);
+            await WriteResponse(context, 500, result);
         }
     }
 
-    private static async Task WriteResponse(
-        HttpContext context,
-        int statusCode,
-        string title,
-        List<string>? errors = null,
-        string? traceId = null)
+    private static async Task WriteResponse(HttpContext context, int statusCode, Result result)
     {
         context.Response.StatusCode = statusCode;
-        context.Response.ContentType = "application/problem+json";
-
-        var problem = new Dictionary<string, object?>
-        {
-            ["type"] = $"https://httpstatuses.com/{statusCode}",
-            ["title"] = title,
-            ["status"] = statusCode,
-        };
-
-        if (errors is { Count: > 0 }) problem["errors"] = errors;
-        if (traceId is not null) problem["traceId"] = traceId;
-
-        await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsJsonAsync(result);
     }
 }
-

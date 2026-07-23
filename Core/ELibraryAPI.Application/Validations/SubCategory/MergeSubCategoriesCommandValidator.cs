@@ -7,10 +7,10 @@ public sealed class MergeSubCategoriesCommandValidator : AbstractValidator<Merge
     public MergeSubCategoriesCommandValidator()
     {
         RuleFor(x => x.SourceSubCategoryId)
-            .NotEmpty().WithMessage("Source sub-category ID is required.");
+            .NotEmpty().WithMessage("Mənbə alt-kateqoriya ID-si mütləqdir.");
 
         RuleFor(x => x.TargetSubCategoryId)
-            .NotEmpty().WithMessage("Target sub-category ID is required.")
-            .NotEqual(x => x.SourceSubCategoryId).WithMessage("Source and target sub-categories cannot be the same.");
+            .NotEmpty().WithMessage("Hədəf alt-kateqoriya ID-si mütləqdir.")
+            .NotEqual(x => x.SourceSubCategoryId).WithMessage("Mənbə və hədəf alt-kateqoriyaları eyni ola bilməz.");
     }
 }

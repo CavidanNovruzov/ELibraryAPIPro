@@ -30,7 +30,7 @@ public sealed class GetStockByProductIdQueryHandler : IRequestHandler<GetStockBy
             .ToListAsync(cancellationToken);
 
         if (stocks == null || !stocks.Any())
-            return Result<GetStockByProductIdQueryResponse>.Failure("No stock information found for this product.");
+            return Result<GetStockByProductIdQueryResponse>.NotFound("Bu məhsul üçün stok məlumatı tapılmadı.");
 
         return Result<GetStockByProductIdQueryResponse>.Success(new GetStockByProductIdQueryResponse(stocks));
     }

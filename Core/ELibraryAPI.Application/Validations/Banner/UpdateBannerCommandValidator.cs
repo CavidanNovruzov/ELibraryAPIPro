@@ -13,6 +13,6 @@ public sealed class UpdateBannerCommandValidator : AbstractValidator<UpdateBanne
 
         RuleFor(x => x.Order)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("Order {ComparisonValue}-dan kiçik ola bilməz.");
+            .WithMessage("Sıralama {ComparisonValue}-dan kiçik ola bilməz.");
     }
 }

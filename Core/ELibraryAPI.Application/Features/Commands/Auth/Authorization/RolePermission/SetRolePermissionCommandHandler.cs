@@ -34,8 +34,8 @@ public sealed class SetRolePermissionsCommandHandler : IRequestHandler<SetRolePe
         var result = await _uow.SaveAsync(ct) > 0;
 
         if (result)
-            return Result.Success("Role permissions updated successfully.");
+            return Result.Success("Rol icazələri uğurla yeniləndi.");
 
-        return Result.Failure("No changes were made or an error occurred.");
+        return Result.Failure("Heç bir dəyişiklik edilmədi və ya xəta baş verdi.");
     }
 }

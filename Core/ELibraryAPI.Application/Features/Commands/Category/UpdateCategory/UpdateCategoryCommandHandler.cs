@@ -1,5 +1,6 @@
 using AutoMapper;
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 
@@ -9,11 +10,13 @@ public sealed class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategor
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
 
-    public UpdateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateCategoryCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, IMediator mediator)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _mediator = mediator;
     }
 
     public async Task<Result<UpdateCategoryCommandResponse>> Handle(UpdateCategoryCommandRequest request, CancellationToken ct)
@@ -21,10 +24,10 @@ public sealed class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategor
         var readRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Category, Guid>();
         var writeRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Category, Guid>();
 
-        var category = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); // libraff.az — [tracking: true istifadə edildi]
+        var category = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (category == null)
-            return Result<UpdateCategoryCommandResponse>.Failure("Category not found.");
+            return Result<UpdateCategoryCommandResponse>.Failure("Kateqoriya tapılmadı.");
 
         if (category.Name.ToLower() != request.Name.Trim().ToLower())
         {
@@ -34,7 +37,7 @@ public sealed class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategor
                 ct: ct);
 
             if (isNameExists)
-                return Result<UpdateCategoryCommandResponse>.Failure("Another category with this name already exists.");
+                return Result<UpdateCategoryCommandResponse>.Failure("Bu adda başqa kateqoriya artıq mövcuddur.");
         }
 
         _mapper.Map(request, category);
@@ -44,11 +47,13 @@ public sealed class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategor
 
         if (result > 0)
         {
+            await _mediator.Publish(new EntityChangedEvent("category", category.Id), ct);
+
             return Result<UpdateCategoryCommandResponse>.Success(
                 new UpdateCategoryCommandResponse(category.Id),
-                "Category updated successfully.");
+                "Əməliyyat uğurla tamamlandı.");
         }
 
-        return Result<UpdateCategoryCommandResponse>.Failure("No changes were applied.");
+        return Result<UpdateCategoryCommandResponse>.Failure("Heç bir dəyişiklik tətbiq edilmədi.");
     }
 }

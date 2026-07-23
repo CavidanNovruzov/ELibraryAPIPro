@@ -26,7 +26,7 @@ public sealed class RemoveProductFromCampaignCommandHandler : IRequestHandler<Re
         var productCampaign = await productCampaignReadRepo.GetAll(tracking: true)
             .FirstOrDefaultAsync(x => x.CampaignId == request.CampaignId && x.ProductId == request.ProductId, ct);
 
-        if (productCampaign == null) return Result.Failure("Product is not part of this campaign.", ErrorType.NotFound);
+        if (productCampaign == null) return Result.Failure("Məhsul bu kampaniyaya aid deyil.", ErrorType.NotFound);
 
         var product = await productReadRepo.GetByIdAsync(request.ProductId, tracking: true, ct: ct);
         if (product != null)
@@ -40,6 +40,6 @@ public sealed class RemoveProductFromCampaignCommandHandler : IRequestHandler<Re
         productCampaignWriteRepo.Remove(productCampaign);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Product removed from campaign successfully.");
+        return Result.Success("Məhsul kampaniyadan uğurla silindi.");
     }
 }

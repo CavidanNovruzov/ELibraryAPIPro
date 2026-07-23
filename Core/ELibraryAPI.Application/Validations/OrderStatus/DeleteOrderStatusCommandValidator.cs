@@ -7,6 +7,6 @@ public sealed class DeleteOrderStatusCommandValidator : AbstractValidator<Delete
 {
     public DeleteOrderStatusCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

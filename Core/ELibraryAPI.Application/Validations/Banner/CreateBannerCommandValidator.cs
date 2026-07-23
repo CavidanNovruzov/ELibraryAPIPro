@@ -9,16 +9,16 @@ public sealed class CreateBannerCommandValidator : AbstractValidator<CreateBanne
     {
         RuleFor(x => x.Title)
             .NotEmpty()
-            .WithMessage("Title boş ola bilməz.")
+            .WithMessage("Başlıq boş ola bilməz.")
             .MaximumLength(200)
-            .WithMessage("Title maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Başlıq maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.RedirectUrl)
             .MaximumLength(500)
-            .WithMessage("RedirectUrl maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Yönləndirmə keçidi (RedirectUrl) maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Order)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("Order 0-dan böyük və ya bərabər olmalıdır.");
+            .WithMessage("Sıralama 0-dan böyük və ya bərabər olmalıdır.");
     }
 }

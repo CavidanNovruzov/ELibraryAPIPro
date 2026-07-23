@@ -24,7 +24,7 @@ public sealed class UpdateBasketItemQuantityHandler : IRequestHandler<UpdateBask
         var basketItem = await basketItemReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (basketItem == null)
-            return Result<UpdateBasketItemQuantityResponse>.Failure("Basket item not found.");
+            return Result<UpdateBasketItemQuantityResponse>.Failure("Səbət elementi tapılmadı.");
 
         var productInfo = await productReadRepo.GetAll(tracking: false)
             .Where(p => p.Id == basketItem.ProductId)
@@ -36,7 +36,7 @@ public sealed class UpdateBasketItemQuantityHandler : IRequestHandler<UpdateBask
             .FirstOrDefaultAsync(ct);
 
         if (productInfo == null)
-            return Result<UpdateBasketItemQuantityResponse>.Failure("Associated product not found.");
+            return Result<UpdateBasketItemQuantityResponse>.Failure("Əlaqədar məhsul tapılmadı.");
 
         if (productInfo.TotalStock < request.Quantity)
             return Result<UpdateBasketItemQuantityResponse>.Failure($"Insufficient stock. Available: {productInfo.TotalStock}");
@@ -49,6 +49,6 @@ public sealed class UpdateBasketItemQuantityHandler : IRequestHandler<UpdateBask
         if (result > 0)
             return Result<UpdateBasketItemQuantityResponse>.Success(new UpdateBasketItemQuantityResponse(basketItem.Id));
 
-        return Result<UpdateBasketItemQuantityResponse>.Failure("An error occurred while updating the quantity.");
+        return Result<UpdateBasketItemQuantityResponse>.Failure("Miqdar yenilənərkən xəta baş verdi.");
     }
 }

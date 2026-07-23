@@ -22,13 +22,13 @@ public sealed class DeleteBranchWorkHoursCommandHandler : IRequestHandler<Delete
 
         if (workHours == null)
         {
-            return Result.Failure("Work hours not found.");
+            return Result.Failure("İş saatları tapılmadı.");
         }
 
         writeRepo.Remove(workHours);
 
         await _unitOfWork.SaveAsync(ct);
 
-        return Result.Success("Branch work hours deleted successfully.");
+        return Result.Success("Filial iş saatları uğurla silindi.");
     }
 }

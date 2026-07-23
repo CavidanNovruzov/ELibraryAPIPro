@@ -38,7 +38,7 @@ public sealed class GetByIdBranchQueryHandler : IRequestHandler<GetByIdBranchQue
             .FirstOrDefaultAsync(ct);
 
         if (branchDto == null)
-            return Result<GetByIdBranchQueryResponse>.Failure("Filial tapılmadı.");
+            return Result<GetByIdBranchQueryResponse>.NotFound("Filial tapılmadı.");
 
         return Result<GetByIdBranchQueryResponse>.Success(new GetByIdBranchQueryResponse(branchDto));
     }

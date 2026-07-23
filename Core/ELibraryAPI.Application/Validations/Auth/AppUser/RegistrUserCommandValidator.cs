@@ -9,23 +9,23 @@ public sealed class RegistrUserCommandValidator : AbstractValidator<RegistrUserC
     {
         RuleFor(x => x.FirstName)
             .NotEmpty()
-            .WithMessage("FirstName boş ola bilməz.")
+            .WithMessage("Ad boş ola bilməz.")
             .MaximumLength(100)
-            .WithMessage("FirstName maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Ad maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.LastName)
             .NotEmpty()
-            .WithMessage("LastName boş ola bilməz.")
+            .WithMessage("Soyad boş ola bilməz.")
             .MaximumLength(100)
-            .WithMessage("LastName maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Soyad maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.UserName)
             .NotEmpty()
-            .WithMessage("UserName boş ola bilməz.")
+            .WithMessage("İstifadəçi adı boş ola bilməz.")
             .MinimumLength(3)
-            .WithMessage("UserName minimum {MinLength} simvol olmalıdır.")
+            .WithMessage("İstifadəçi adı minimum {MinLength} simvol olmalıdır.")
             .MaximumLength(50)
-            .WithMessage("UserName maksimum {MaxLength} simvol ola bilər.")
+            .WithMessage("İstifadəçi adı maksimum {MaxLength} simvol ola bilər.")
             .Matches("^[a-zA-Z0-9._-]+$")
             .WithMessage("UserName yalnız hərflər, rəqəmlər, nöqtə, alt-xətt və defisdən ibarət ola bilər.");
 
@@ -35,14 +35,14 @@ public sealed class RegistrUserCommandValidator : AbstractValidator<RegistrUserC
             .EmailAddress()
             .WithMessage("Düzgün bir email ünvanı daxil edin.")
             .MaximumLength(256)
-            .WithMessage("Email maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("E-poçt maksimum {MaxLength} simvol ola bilər.");
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .WithMessage("Password boş ola bilməz.")
+            .WithMessage("Şifrə boş ola bilməz.")
             .MinimumLength(8)
-            .WithMessage("Password minimum {MinLength} simvol olmalıdır.")
+            .WithMessage("Şifrə minimum {MinLength} simvol olmalıdır.")
             .MaximumLength(128)
-            .WithMessage("Password maksimum {MaxLength} simvol ola bilər.");
+            .WithMessage("Şifrə maksimum {MaxLength} simvol ola bilər.");
     }
 }

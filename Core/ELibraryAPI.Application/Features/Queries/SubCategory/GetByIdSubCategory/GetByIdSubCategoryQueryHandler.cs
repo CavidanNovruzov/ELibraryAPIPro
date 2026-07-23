@@ -33,7 +33,7 @@ public sealed class GetByIdSubCategoryQueryHandler : IRequestHandler<GetByIdSubC
             .FirstOrDefaultAsync(cancellationToken);
 
         if (subCategory == null)
-            return Result<GetByIdSubCategoryQueryResponse>.Failure("Sub-category was not found.");
+            return Result<GetByIdSubCategoryQueryResponse>.NotFound("Alt kateqoriya tapılmadı.");
 
         return Result<GetByIdSubCategoryQueryResponse>.Success(new GetByIdSubCategoryQueryResponse(subCategory));
     }

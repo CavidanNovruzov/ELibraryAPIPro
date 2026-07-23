@@ -7,6 +7,6 @@ public sealed class DeleteSubCategoryCommandValidator : AbstractValidator<Delete
 {
     public DeleteSubCategoryCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
     }
 }

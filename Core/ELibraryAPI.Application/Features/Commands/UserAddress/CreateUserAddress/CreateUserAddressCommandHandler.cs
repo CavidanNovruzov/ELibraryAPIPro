@@ -24,7 +24,7 @@ public sealed class CreateUserAddressCommandHandler : IRequestHandler<CreateUser
         var userReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Auth.AppUser, Guid>();
 
         if (!await userReadRepo.ExistsAsync(x => x.Id == request.UserId, false, ct))
-            return Result<CreateUserAddressCommandResponse>.Failure("User not found.");
+            return Result<CreateUserAddressCommandResponse>.Failure("İstifadəçi tapılmadı.");
 
         if (request.IsDefault)
         {
@@ -42,6 +42,6 @@ public sealed class CreateUserAddressCommandHandler : IRequestHandler<CreateUser
         await addressWriteRepo.AddAsync(userAddress, ct);
         await _unitOfWork.SaveAsync(ct);
 
-        return Result<CreateUserAddressCommandResponse>.Success(new(userAddress.Id), "User address created.");
+        return Result<CreateUserAddressCommandResponse>.Success(new(userAddress.Id), "İstifadəçi ünvanı yaradıldı.");
     }
 }

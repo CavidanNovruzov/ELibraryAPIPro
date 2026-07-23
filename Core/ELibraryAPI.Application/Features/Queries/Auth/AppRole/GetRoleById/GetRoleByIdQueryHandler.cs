@@ -17,7 +17,7 @@ public sealed class GetRoleByIdQueryHandler(IUnitOfWork uow)
                 includes: r => r.RolePermissions);
 
         if (role == null)
-            return Result<GetRoleByIdQueryResponse>.NotFound("Role not found.");
+            return Result<GetRoleByIdQueryResponse>.NotFound("Rol tapılmadı.");
 
         var permissions = role.RolePermissions
             .Select(rp => rp.PermissionId.ToString()) 

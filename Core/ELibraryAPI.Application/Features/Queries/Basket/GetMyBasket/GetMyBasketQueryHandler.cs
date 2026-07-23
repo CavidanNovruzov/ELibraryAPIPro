@@ -26,7 +26,7 @@ public sealed class GetMyBasketQueryHandler
     {
         var userId = _currentUserService.UserGuid;
         if (userId == Guid.Empty)
-            return Result<GetMyBasketQueryResponse>.Failure("User is not authenticated.");
+            return Result<GetMyBasketQueryResponse>.Failure("İstifadəçi sistemə daxil olmayıb.");
 
         var basket = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Basket, Guid>()
@@ -37,7 +37,7 @@ public sealed class GetMyBasketQueryHandler
             .FirstOrDefaultAsync(b => b.UserId == userId, ct);
 
         if (basket == null)
-            return Result<GetMyBasketQueryResponse>.Failure("Basket not found.");
+            return Result<GetMyBasketQueryResponse>.NotFound("Səbət tapılmadı.");
 
         var items = basket.BasketItems.Select(bi => new BasketItemDto(
             bi.Id,

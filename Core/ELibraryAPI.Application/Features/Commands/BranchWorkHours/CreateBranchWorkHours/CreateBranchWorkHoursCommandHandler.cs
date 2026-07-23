@@ -25,11 +25,11 @@ public sealed class CreateBranchWorkHoursCommandHandler : IRequestHandler<Create
         var isExist = await readRepo.GetWhere(x => x.BranchId == request.BranchId && x.Day == request.Day).AnyAsync(ct);
 
         if (isExist)
-            return Result<CreateBranchWorkHoursCommandResponse>.Failure("Work hours for this day already exist for this branch.");
+            return Result<CreateBranchWorkHoursCommandResponse>.Conflict("Bu filial üçün həmin gün üzrə iş saatları artıq mövcuddur.");
 
         if (isExist)
         {
-            return Result<CreateBranchWorkHoursCommandResponse>.Failure("Work hours for this day already exist for this branch.");
+            return Result<CreateBranchWorkHoursCommandResponse>.Conflict("Bu filial üçün həmin gün üzrə iş saatları artıq mövcuddur.");
         }
 
         var workHours = _mapper.Map<Domain.Entities.Concrete.BranchWorkHours>(request);
@@ -39,8 +39,8 @@ public sealed class CreateBranchWorkHoursCommandHandler : IRequestHandler<Create
         var result = await _unitOfWork.SaveAsync(ct);
 
         if (result > 0)
-            return Result<CreateBranchWorkHoursCommandResponse>.Success(new CreateBranchWorkHoursCommandResponse(workHours.Id), "Work hours created successfully.");
+            return Result<CreateBranchWorkHoursCommandResponse>.Success(new CreateBranchWorkHoursCommandResponse(workHours.Id), "Əməliyyat uğurla tamamlandı.");
 
-        return Result<CreateBranchWorkHoursCommandResponse>.Failure("An error occurred while saving branch work hours.");
+        return Result<CreateBranchWorkHoursCommandResponse>.Failure("Filial iş saatları yadda saxlanılarkən xəta baş verdi.");
     }
 }

@@ -30,7 +30,7 @@ public sealed class CreateTagCommandHandler : IRequestHandler<CreateTagCommandRe
 
         if (isNameExists)
         {
-            return Result<CreateTagCommandResponse>.Failure("A tag with this name already exists.");
+            return Result<CreateTagCommandResponse>.Failure("Bu adda teq artıq mövcuddur.");
         }
 
         var tag = _mapper.Map<Domain.Entities.Concrete.Tag>(request);
@@ -41,6 +41,6 @@ public sealed class CreateTagCommandHandler : IRequestHandler<CreateTagCommandRe
 
         return Result<CreateTagCommandResponse>.Success(
             new CreateTagCommandResponse(tag.Id),
-            "Tag created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }

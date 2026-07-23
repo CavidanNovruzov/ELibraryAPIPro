@@ -20,10 +20,10 @@ public sealed class ApproveReviewCommandHandler : IRequestHandler<ApproveReviewC
         var review = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (review == null)
-            return Result<ApproveReviewCommandResponse>.Failure("Review not found.");
+            return Result<ApproveReviewCommandResponse>.Failure("Rəy tapılmadı.");
 
         if (review.IsApproved)
-            return Result<ApproveReviewCommandResponse>.Failure("Review is already approved.");
+            return Result<ApproveReviewCommandResponse>.Failure("Rəy artıq təsdiqlənib.");
 
         review.IsApproved = true;
 

@@ -9,7 +9,7 @@ public sealed class ConfirmEmailRequestValidator : AbstractValidator<ConfirmEmai
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("UserId boş ola bilməz.");
+            .WithMessage("İstifadəçi ID-si boş ola bilməz.");
 
         RuleFor(x => x.Token)
             .NotEmpty()

@@ -27,7 +27,7 @@ public sealed class CreatePublisherCommandHandler : IRequestHandler<CreatePublis
                     ct: ct);
 
         if (exists)
-            return Result<CreatePublisherCommandResponse>.Failure("A publisher with this name already exists.");
+            return Result<CreatePublisherCommandResponse>.Failure("Bu adda nəşriyyat artıq mövcuddur.");
 
         var publisher = _mapper.Map<Domain.Entities.Concrete.Publisher>(request);
 
@@ -36,6 +36,6 @@ public sealed class CreatePublisherCommandHandler : IRequestHandler<CreatePublis
 
         return Result<CreatePublisherCommandResponse>.Success(
             new CreatePublisherCommandResponse(publisher.Id),
-            "Publisher created successfully.");
+            "Əməliyyat uğurla tamamlandı.");
     }
 }
