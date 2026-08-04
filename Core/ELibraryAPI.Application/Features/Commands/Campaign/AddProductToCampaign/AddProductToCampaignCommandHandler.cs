@@ -17,10 +17,10 @@ public sealed class AddProductToCampaignCommandHandler : IRequestHandler<AddProd
 
     public async Task<Result> Handle(AddProductToCampaignCommandRequest request, CancellationToken ct)
     {
-        var campaignReadRepo = _unitOfWork.ReadRepository<ELibraryAPI.Domain.Entities.Concrete.Campaign, Guid>();
-        var productReadRepo = _unitOfWork.ReadRepository<ELibraryAPI.Domain.Entities.Concrete.Product, Guid>();
+        var campaignReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Campaign, Guid>();
+        var productReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Product, Guid>();
         var productCampaignWriteRepo = _unitOfWork.WriteRepository<ProductCampaign, Guid>();
-        var productWriteRepo = _unitOfWork.WriteRepository<ELibraryAPI.Domain.Entities.Concrete.Product, Guid>();
+        var productWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Product, Guid>();
 
         var campaign = await campaignReadRepo.GetByIdAsync(request.CampaignId, tracking: false, ct: ct);
         if (campaign == null) return Result.Failure("Kampaniya tapılmadı.", ErrorType.NotFound);
@@ -40,7 +40,6 @@ public sealed class AddProductToCampaignCommandHandler : IRequestHandler<AddProd
             ProductId = request.ProductId
         };
 
-        // Apply discount to product
         product.DiscountPrice = product.SalePrice - (product.SalePrice * (campaign.DiscountPercent / 100));
 
         await productCampaignWriteRepo.AddAsync(productCampaign, ct);

@@ -26,7 +26,7 @@ public sealed class UsersController : ApiControllerBase
     public async Task<IActionResult> GetMyProfile(CancellationToken ct)
     {
         if (UserId == null) return Unauthorized();
-        return FromResult(await _mediator.Send(new GetMyProfileQueryRequest(UserId.Value), ct));
+        return FromResult(await _mediator.Send(new GetMyProfileQueryRequest(), ct));
     }
 
     [HttpPut("update-profile")]
@@ -34,7 +34,7 @@ public sealed class UsersController : ApiControllerBase
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommandRequest request, CancellationToken ct)
     {
         if (UserId == null) return Unauthorized();
-        return FromResult(await _mediator.Send(request with { UserId = UserId.Value }, ct));
+        return FromResult(await _mediator.Send(request, ct));
     }
 
     [HttpPut("change-password")]
@@ -42,7 +42,7 @@ public sealed class UsersController : ApiControllerBase
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommandRequest request, CancellationToken ct)
     {
         if (UserId == null) return Unauthorized();
-        return FromResult(await _mediator.Send(request with { UserId = UserId.Value }, ct));
+        return FromResult(await _mediator.Send(request, ct));
     }
 
     #endregion

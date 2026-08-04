@@ -4,6 +4,5 @@ using MediatR;
 namespace ELibraryAPI.Application.Features.Commands.WishlistItem.CreateWishlistItem;
 
 public sealed record CreateWishlistItemCommandRequest(
-    Guid ProductId,
-    Guid WishlistId
+    Guid ProductId
 ) : IRequest<Result<CreateWishlistItemCommandResponse>>;

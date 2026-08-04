@@ -5,6 +5,5 @@ namespace ELibraryAPI.Application.Features.Commands.UserAddress.CreateUserAddres
 
 public sealed record CreateUserAddressCommandRequest(
     string AddressLine,
-    Guid UserId,
     bool IsDefault
 ) : IRequest<Result<CreateUserAddressCommandResponse>>;

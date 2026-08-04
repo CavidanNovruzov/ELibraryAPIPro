@@ -21,7 +21,7 @@ public sealed class UpdateBranchCommandHandler : IRequestHandler<UpdateBranchCom
         var readRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Branch, Guid>();
         var writeRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Branch, Guid>();
 
-        var branch = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); // libraff.az — [tracking: true istifadə edildi]
+        var branch = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); 
 
         if (branch == null)
             return Result<UpdateBranchCommandResponse>.NotFound("Filial tapılmadı.");

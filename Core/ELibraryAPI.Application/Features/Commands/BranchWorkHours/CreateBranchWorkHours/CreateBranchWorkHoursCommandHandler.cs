@@ -1,6 +1,8 @@
 using AutoMapper;
+using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
+using ELibraryAPI.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,37 +12,48 @@ public sealed class CreateBranchWorkHoursCommandHandler : IRequestHandler<Create
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateBranchWorkHoursCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateBranchWorkHoursCommandHandler(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result<CreateBranchWorkHoursCommandResponse>> Handle(CreateBranchWorkHoursCommandRequest request, CancellationToken ct)
     {
-        var readRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.BranchWorkHours, Guid>();
-        var writeRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.BranchWorkHours, Guid>();
+        if (!_currentUserService.IsAdmin)
+            return Result<CreateBranchWorkHoursCommandResponse>.Failure("Filial iş saatlarını dəyişmək üçün inzibatçı hüququnuz olmalıdır.", ErrorType.Forbidden);
 
-        var isExist = await readRepo.GetWhere(x => x.BranchId == request.BranchId && x.Day == request.Day).AnyAsync(ct);
+        if (request.CloseTime <= request.OpenTime)
+            return Result<CreateBranchWorkHoursCommandResponse>.Failure("Bağlanış saatı açılış saatından sonra olmalıdır.", ErrorType.ValidationError);
+
+        var branchReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Branch, Guid>();
+        var workHoursReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.BranchWorkHours, Guid>();
+        var workHoursWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.BranchWorkHours, Guid>();
+
+        var branchExists = await branchReadRepo.ExistsAsync(x => x.Id == request.BranchId, tracking: false, ct: ct);
+        if (!branchExists)
+            return Result<CreateBranchWorkHoursCommandResponse>.Failure("Filial tapılmadı.", ErrorType.NotFound);
+
+        var isExist = await workHoursReadRepo
+            .GetWhere(x => x.BranchId == request.BranchId && x.Day == request.Day, tracking: false)
+            .AnyAsync(ct);
 
         if (isExist)
-            return Result<CreateBranchWorkHoursCommandResponse>.Conflict("Bu filial üçün həmin gün üzrə iş saatları artıq mövcuddur.");
-
-        if (isExist)
-        {
-            return Result<CreateBranchWorkHoursCommandResponse>.Conflict("Bu filial üçün həmin gün üzrə iş saatları artıq mövcuddur.");
-        }
+            return Result<CreateBranchWorkHoursCommandResponse>.Failure("Bu filial üçün həmin gün üzrə iş saatları artıq mövcuddur.", ErrorType.Conflict);
 
         var workHours = _mapper.Map<Domain.Entities.Concrete.BranchWorkHours>(request);
 
-        await writeRepo.AddAsync(workHours, ct);
+        await workHoursWriteRepo.AddAsync(workHours, ct);
+        await _unitOfWork.SaveAsync(ct);
 
-        var result = await _unitOfWork.SaveAsync(ct);
-
-        if (result > 0)
-            return Result<CreateBranchWorkHoursCommandResponse>.Success(new CreateBranchWorkHoursCommandResponse(workHours.Id), "Əməliyyat uğurla tamamlandı.");
-
-        return Result<CreateBranchWorkHoursCommandResponse>.Failure("Filial iş saatları yadda saxlanılarkən xəta baş verdi.");
+        return Result<CreateBranchWorkHoursCommandResponse>.Success(
+            new CreateBranchWorkHoursCommandResponse(workHours.Id),
+            "Filial iş saatları uğurla əlavə edildi.");
     }
 }

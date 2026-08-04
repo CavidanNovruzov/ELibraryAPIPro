@@ -1,7 +1,7 @@
-using AutoMapper;
+using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
+using ELibraryAPI.Domain.Enums;
 using MediatR;
 
 namespace ELibraryAPI.Application.Features.Commands.Wishlist.CreateWishlist;
@@ -9,29 +9,30 @@ namespace ELibraryAPI.Application.Features.Commands.Wishlist.CreateWishlist;
 public sealed class CreateWishlistCommandHandler : IRequestHandler<CreateWishlistCommandRequest, Result<CreateWishlistCommandResponse>>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateWishlistCommandHandler(IUnitOfWork unitOfWork)
+    public CreateWishlistCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result<CreateWishlistCommandResponse>> Handle(CreateWishlistCommandRequest request, CancellationToken ct)
     {
-        var userRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Auth.AppUser, Guid>();
+        var userId = _currentUserService.UserGuid;
+        if (userId == Guid.Empty)
+            return Result<CreateWishlistCommandResponse>.Failure("Sistemə daxil olunmamışdır.", ErrorType.Unauthorized);
+
         var wishlistReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Wishlist, Guid>();
         var wishlistWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Wishlist, Guid>();
 
-        var userExists = await userRepo.ExistsAsync(x => x.Id == request.UserId, tracking: false, ct: ct);
-        if (!userExists)
-            return Result<CreateWishlistCommandResponse>.Failure("İstifadəçi tapılmadı.");
-
-        var alreadyHasWishlist = await wishlistReadRepo.ExistsAsync(x => x.UserId == request.UserId, tracking: false, ct: ct);
+        var alreadyHasWishlist = await wishlistReadRepo.ExistsAsync(x => x.UserId == userId, tracking: false, ct: ct);
         if (alreadyHasWishlist)
-            return Result<CreateWishlistCommandResponse>.Conflict("Bu istifadəçi üçün istək siyahısı artıq mövcuddur.");
+            return Result<CreateWishlistCommandResponse>.Conflict("Sizin üçün istək siyahısı artıq mövcuddur.");
 
         var wishlist = new Domain.Entities.Concrete.Wishlist
         {
-            UserId = request.UserId
+            UserId = userId
         };
 
         await wishlistWriteRepo.AddAsync(wishlist, ct);
@@ -39,6 +40,6 @@ public sealed class CreateWishlistCommandHandler : IRequestHandler<CreateWishlis
 
         return Result<CreateWishlistCommandResponse>.Success(
             new CreateWishlistCommandResponse(wishlist.Id),
-            "Əməliyyat uğurla tamamlandı.");
+            "İstək siyahısı uğurla yaradıldı.");
     }
 }

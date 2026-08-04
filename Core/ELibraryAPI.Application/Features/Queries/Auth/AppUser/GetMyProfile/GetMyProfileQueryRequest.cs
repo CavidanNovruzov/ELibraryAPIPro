@@ -4,10 +4,10 @@ using MediatR;
 
 namespace ELibraryAPI.Application.Features.Queries.Auth.AppUser.GetMyProfile;
 
-public sealed record GetMyProfileQueryRequest(Guid UserId)
+public sealed record GetMyProfileQueryRequest()
     : IRequest<Result<GetMyProfileQueryResponse>>, ICacheable
 {
-    public string CacheKey => $"user:profile:{UserId}";
+    public string CacheKey => "user:profile:me";
 
     public TimeSpan? AbsoluteExpiration => TimeSpan.FromMinutes(20);
 

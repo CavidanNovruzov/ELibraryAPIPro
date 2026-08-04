@@ -4,6 +4,5 @@ using MediatR;
 namespace ELibraryAPI.Application.Features.Commands.UserSearchHistory.CreateUserSearchHistory;
 
 public sealed record CreateUserSearchHistoryCommandRequest(
-    string SearchQuery,
-    Guid UserId
+    string SearchQuery
 ) : IRequest<Result<CreateUserSearchHistoryCommandResponse>>;

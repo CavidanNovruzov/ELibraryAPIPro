@@ -1,9 +1,9 @@
 using AutoMapper;
+using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace ELibraryAPI.Application.Features.Commands.BasketItem.CreateBasketItem;
 
@@ -11,15 +11,21 @@ public sealed class CreateBasketItemCommandHandler : IRequestHandler<CreateBaske
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateBasketItemCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateBasketItemCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result<CreateBasketItemCommandResponse>> Handle(CreateBasketItemCommandRequest request, CancellationToken ct)
     {
+        var userId = _currentUserService.UserGuid;
+        if (userId == Guid.Empty)
+            return Result<CreateBasketItemCommandResponse>.Failure("Sistemdə daxil olunmamısınız.", ErrorType.Unauthorized);
+
         var basketItemReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.BasketItem, Guid>();
         var basketItemWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.BasketItem, Guid>();
         var productReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Product, Guid>();
@@ -36,8 +42,14 @@ public sealed class CreateBasketItemCommandHandler : IRequestHandler<CreateBaske
         if (productInfo == null)
             return Result<CreateBasketItemCommandResponse>.Failure("Məhsul tapılmadı..");
 
+        var basket = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Basket, Guid>()
+            .GetSingleAsync(b => b.UserId == userId, tracking: false, ct: ct);
+
+        if (basket == null)
+            return Result<CreateBasketItemCommandResponse>.NotFound("Səbət tapılmadı.");
+
         var existingItem = await basketItemReadRepo.GetSingleAsync(
-            x => x.BasketId == request.BasketId && x.ProductId == request.ProductId,
+            x => x.BasketId == basket.Id && x.ProductId == request.ProductId,
             tracking: true, ct: ct);
 
         if (existingItem != null)
@@ -55,8 +67,10 @@ public sealed class CreateBasketItemCommandHandler : IRequestHandler<CreateBaske
             if (productInfo.TotalStock < request.Quantity)
                 return Result<CreateBasketItemCommandResponse>.Failure($"Only {productInfo.TotalStock} items available in stock.");
 
-            existingItem = _mapper.Map<Domain.Entities.Concrete.BasketItem>(request);
-            await basketItemWriteRepo.AddAsync(existingItem, ct);
+            var newItem = _mapper.Map<Domain.Entities.Concrete.BasketItem>(request);
+            newItem.BasketId = basket.Id;
+            await basketItemWriteRepo.AddAsync(newItem, ct);
+            existingItem = newItem;
         }
 
         var result = await _unitOfWork.SaveAsync(ct);

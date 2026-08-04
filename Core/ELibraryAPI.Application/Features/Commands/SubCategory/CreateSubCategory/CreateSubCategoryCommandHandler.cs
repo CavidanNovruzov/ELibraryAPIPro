@@ -25,7 +25,6 @@ public sealed class CreateSubCategoryCommandHandler : IRequestHandler<CreateSubC
         var subCategoryWriteRepository = _unitOfWork.WriteRepository<Domain.Entities.Concrete.SubCategory, Guid>();
         var categoryReadRepository = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Category, Guid>();
 
-        // 1. Əsas kateqoriyanın varlığının yoxlanılması
         var categoryExists = await categoryReadRepository.ExistsAsync(x => x.Id == request.CategoryId, tracking: false, ct: ct);
         if (!categoryExists)
         {
@@ -43,7 +42,6 @@ public sealed class CreateSubCategoryCommandHandler : IRequestHandler<CreateSubC
             return Result<CreateSubCategoryCommandResponse>.Failure("Bu kateqoriyada eyni adlı alt kateqoriya artıq mövcuddur.");
         }
 
-        // 3. Mapping və Yaradılma
         var subCategory = _mapper.Map<Domain.Entities.Concrete.SubCategory>(request);
         subCategory.Name = normalizedName;
 
