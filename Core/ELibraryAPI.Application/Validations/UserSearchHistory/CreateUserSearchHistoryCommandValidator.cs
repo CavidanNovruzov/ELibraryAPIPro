@@ -10,8 +10,5 @@ public sealed class CreateUserSearchHistoryCommandValidator : AbstractValidator<
         RuleFor(x => x.SearchQuery)
             .NotEmpty().WithMessage("Axtarış sorğusu boş ola bilməz.")
             .MaximumLength(500).WithMessage("Axtarış sorğusu çox uzundur.");
-
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("İstifadəçi ID-si mütləqdir.");
     }
 }
