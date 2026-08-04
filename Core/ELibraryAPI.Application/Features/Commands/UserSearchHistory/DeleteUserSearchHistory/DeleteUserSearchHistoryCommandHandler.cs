@@ -1,3 +1,4 @@
+using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
 using ELibraryAPI.Domain.Enums;
@@ -8,14 +9,20 @@ namespace ELibraryAPI.Application.Features.Commands.UserSearchHistory.DeleteUser
 public sealed class DeleteUserSearchHistoryCommandHandler : IRequestHandler<DeleteUserSearchHistoryCommandRequest, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUserService;
 
-    public DeleteUserSearchHistoryCommandHandler(IUnitOfWork unitOfWork)
+    public DeleteUserSearchHistoryCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result> Handle(DeleteUserSearchHistoryCommandRequest request, CancellationToken ct)
     {
+        var userId = _currentUserService.UserGuid;
+        if (userId == Guid.Empty)
+            return Result.Unauthorized("Sistemdə daxil edilməmisiniz. Zəhmət olmasa, daxil olun.");
+
         var readRepository = _unitOfWork.ReadRepository<Domain.Entities.Concrete.UserSearchHistory, Guid>();
         var writeRepository = _unitOfWork.WriteRepository<Domain.Entities.Concrete.UserSearchHistory, Guid>();
 
@@ -23,12 +30,12 @@ public sealed class DeleteUserSearchHistoryCommandHandler : IRequestHandler<Dele
 
         if (historyRecord == null)
         {
-            return Result.Failure("Axtarış tarixçəsi qeydi tapılmadı.", ErrorType.NotFound);
+            return Result.NotFound("Axtarış tarixçəsi qeydi tapılmadı.");
         }
 
-        if (historyRecord.UserId != request.UserId)
+        if (historyRecord.UserId != userId && !_currentUserService.IsAdmin)
         {
-            return Result.Failure("Bu qeydi silmək icazəniz yoxdur.", ErrorType.Forbidden);
+            return Result.Forbidden("Bu qeydi silmək icazəniz yoxdur.");
         }
 
         writeRepository.Remove(historyRecord);

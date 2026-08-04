@@ -18,6 +18,6 @@ public class WishlistsController : ApiControllerBase
         => FromResult(await _mediator.Send(new GetCustomerWishlistQueryRequest()));
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
-        => FromResult(await _mediator.Send(new DeleteWishlistCommandRequest(id, UserId.Value)));
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
+        => FromResult(await _mediator.Send(new DeleteWishlistCommandRequest(id), ct));
 }
