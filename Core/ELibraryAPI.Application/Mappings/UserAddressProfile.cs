@@ -17,8 +17,7 @@ public class UserAddressProfile : Profile
             .ForMember(dest => dest.City, opt => opt.Ignore());
 
         CreateMap<UpdateUserAddressCommandRequest, UserAddress>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) 
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
 
         CreateMap<UserAddress, CreateUserAddressCommandResponse>();
         CreateMap<UserAddress, UpdateUserAddressCommandResponse>();
