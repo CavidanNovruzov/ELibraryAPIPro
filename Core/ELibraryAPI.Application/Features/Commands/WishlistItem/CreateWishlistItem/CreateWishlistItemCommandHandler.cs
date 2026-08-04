@@ -33,7 +33,9 @@ public sealed class CreateWishlistItemCommandHandler : IRequestHandler<CreateWis
 
         var wishlist = await wishlistRead.GetSingleAsync(x => x.UserId == userId, tracking: false, ct: ct);
         if (wishlist == null)
+        {
             return Result<CreateWishlistItemCommandResponse>.NotFound("İstək siyahınız tapılmadı. Zəhmət olmasa əvvəlcə istək siyahısı yaradın.");
+        }
 
         var alreadyExists = await itemRead.ExistsAsync(
             x => x.WishlistId == wishlist.Id && x.ProductId == request.ProductId, false, ct);
