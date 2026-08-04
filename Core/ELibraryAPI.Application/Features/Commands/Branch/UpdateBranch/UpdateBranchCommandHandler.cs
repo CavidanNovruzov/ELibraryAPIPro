@@ -24,7 +24,7 @@ public sealed class UpdateBranchCommandHandler : IRequestHandler<UpdateBranchCom
         var branch = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); // libraff.az — [tracking: true istifadə edildi]
 
         if (branch == null)
-            return Result<UpdateBranchCommandResponse>.Failure("Filial tapılmadı.");
+            return Result<UpdateBranchCommandResponse>.NotFound("Filial tapılmadı.");
 
         _mapper.Map(request, branch);
 

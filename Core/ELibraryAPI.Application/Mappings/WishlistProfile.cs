@@ -2,7 +2,6 @@ using AutoMapper;
 using ELibraryAPI.Application.Features.Commands.Wishlist.CreateWishlist;
 using ELibraryAPI.Application.Features.Commands.WishlistItem.CreateWishlistItem;
 using ELibraryAPI.Application.Features.Commands.WishlistItem.UpdateWishlistItem;
-using ELibraryAPI.Application.Features.Commands.WishlistItem.MoveToBasket;
 using ELibraryAPI.Application.Features.Commands.Basket.MoveToBasket;
 
 

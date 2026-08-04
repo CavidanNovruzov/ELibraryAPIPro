@@ -1,18 +1,23 @@
 using ELibraryAPI.API.Extensions;
 using ELibraryAPI.API.Middlewares;
+using ELibraryAPI.API.Swagger;
 using ELibraryAPI.Application;
 using ELibraryAPI.Application.Options;
 using ELibraryAPI.Infrastructure;
 using ELibraryAPI.Infrastructure.Options;
 using ELibraryAPI.Persistance;
+using ELibraryAPI.Persistence.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -27,6 +32,7 @@ try
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
+        .WriteTo.Console()
         .Enrich.FromLogContext()
         .Enrich.WithMachineName()
         .Enrich.WithThreadId());
@@ -45,40 +51,42 @@ try
         opts.Providers.Add<GzipCompressionProvider>();
     });
 
-    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-    builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-        policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
-    string swaggerRoute = builder.Configuration["Swagger:RoutePrefix"]?.Trim('/') ?? "swagger";
-
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(opt =>
+    builder.Services.AddCors(options =>
     {
-        opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Elibrary API", Version = "v1" });
-        opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        options.AddDefaultPolicy(policy =>
         {
-            Name = "Authorization",
-            Type = SecuritySchemeType.Http,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            In = ParameterLocation.Header,
-            Description = "Tokeni bura daxil edin (Bearer sözünə ehtiyac yoxdur)"
-        });
-        opt.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
+            if (allowedOrigins.Length > 0)
             {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-                },
-                new string[] { }
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            }
+            else
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
             }
         });
     });
 
-    builder.Services.AddOptions<JwtOptions>().Bind(builder.Configuration.GetSection(JwtOptions.SectionName)).ValidateDataAnnotations().ValidateOnStart();
-    builder.Services.AddOptions<SmtpOptions>().Bind(builder.Configuration.GetSection(SmtpOptions.SectionName)).ValidateDataAnnotations().ValidateOnStart();
-    builder.Services.AddOptions<SeedOptions>().Bind(builder.Configuration.GetSection(SeedOptions.SectionName)).ValidateDataAnnotations().ValidateOnStart();
+    builder.Services.AddOptions<JwtOptions>()
+        .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
+
+    builder.Services.AddOptions<SmtpOptions>()
+        .Bind(builder.Configuration.GetSection(SmtpOptions.SectionName))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
+
+    builder.Services.AddOptions<SeedOptions>()
+        .Bind(builder.Configuration.GetSection(SeedOptions.SectionName))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
 
     var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
         ?? throw new InvalidOperationException("JwtOptions section is missing.");
@@ -107,30 +115,92 @@ try
 
     builder.Services.AddRateLimiter(options =>
     {
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 100,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
+
         options.AddFixedWindowLimiter("auth", opt =>
         {
             opt.PermitLimit = 5;
             opt.Window = TimeSpan.FromMinutes(1);
             opt.QueueLimit = 0;
         });
+
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    });
+
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(opt =>
+    {
+        opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Elibrary API", Version = "v1" });
+        opt.OperationFilter<SwaggerPermissionFilter>();
+        opt.OperationFilter<HideCacheablePropertiesOperationFilter>();
+        opt.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
+
+        opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Tokeni bura daxil edin (Bearer sözünə ehtiyac yoxdur)"
+        });
+
+        opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                },
+                Array.Empty<string>()
+            }
+        });
     });
 
     var app = builder.Build();
 
+    using (var scope = app.Services.CreateScope())
+    {
+        try
+        {
+            Log.Information("==> Verilənlər bazası miqrasiyası başlayır...");
+            var dbContext = scope.ServiceProvider.GetRequiredService<ELibraryDbContext>();
+            await dbContext.Database.MigrateAsync();
+            Log.Information("==> Verilənlər bazası miqrasiyası UĞURLA tamamlandı!");
+            await app.SeedDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "==> XƏTA: Verilənlər bazası miqrasiyası zamanı kritik problem yarandı!");
+        }
+    }
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    app.UseSerilogRequestLogging();
+    app.UseResponseCompression();
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+
+    string swaggerRoute = builder.Configuration["Swagger:RoutePrefix"]?.Trim('/') ?? "swagger";
     app.Use(async (context, next) =>
     {
         if (context.Request.Path == "/")
         {
             string targetRoute = string.IsNullOrEmpty(swaggerRoute) ? "/swagger" : $"/{swaggerRoute}";
             context.Response.Redirect(targetRoute);
-            return; 
+            return;
         }
         await next();
     });
-
-    app.UseMiddleware<ExceptionHandlingMiddleware>();
-    app.UseSerilogRequestLogging();
-    app.UseResponseCompression();
 
     app.UseSwagger(c =>
     {
@@ -144,12 +214,10 @@ try
         c.RoutePrefix = swaggerRoute;
     });
 
-    await app.SeedDataAsync();
-
-    app.UseHttpsRedirection();
-    app.UseStaticFiles();
     app.UseRouting();
     app.UseCors();
+
+    app.UseRateLimiter();
 
     app.UseAuthentication();
     app.UseAuthorization();

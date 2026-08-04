@@ -26,7 +26,7 @@ public sealed class UpdatePublisherCommandHandler : IRequestHandler<UpdatePublis
 
         if (publisher == null)
         {
-            return Result<UpdatePublisherCommandResponse>.Failure("Nəşriyyat tapılmadı..");
+            return Result<UpdatePublisherCommandResponse>.NotFound("Nəşriyyat tapılmadı..");
         }
 
         var normalizedName = request.Name.Trim().ToLower();

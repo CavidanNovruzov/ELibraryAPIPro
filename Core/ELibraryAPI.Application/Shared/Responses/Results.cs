@@ -1,4 +1,4 @@
-
+using System.Text.Json.Serialization;
 using ELibraryAPI.Domain.Enums;
 
 namespace ELibraryAPI.Application.Responses;
@@ -10,12 +10,13 @@ public class Result
     public List<string> Errors { get; init; } = new();
     public ErrorType ErrorType { get; init; }
 
-    protected Result(bool success, string? message, ErrorType errorType = ErrorType.None, List<string>? errors = null)
+    [JsonConstructor]
+    protected Result(bool isSuccess, string? message, ErrorType errorType = ErrorType.None, List<string>? errors = null)
     {
-        IsSuccess = success;
+        IsSuccess = isSuccess;
         Message = message;
         ErrorType = errorType;
-        Errors = errors ?? (!success && message is not null
+        Errors = errors ?? (!isSuccess && message is not null
             ? new List<string> { message }
             : new List<string>());
     }
@@ -45,8 +46,9 @@ public class Result<T> : Result
 {
     public T? Data { get; init; }
 
-    private Result(T? data, bool success, string? message, ErrorType errorType = ErrorType.None, List<string>? errors = null)
-        : base(success, message, errorType, errors)
+    [JsonConstructor]
+    private Result(T? data, bool isSuccess, string? message, ErrorType errorType = ErrorType.None, List<string>? errors = null)
+        : base(isSuccess, message, errorType, errors)
     {
         Data = data;
     }

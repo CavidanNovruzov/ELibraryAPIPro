@@ -3,7 +3,7 @@ using MediatR;
 using System.Text.Json.Serialization;
 
 
-namespace ELibraryAPI.Application.Features.Commands.Auth.Roles.AppRole.UpdateRole;
+namespace ELibraryAPI.Application.Features.Commands.Auth.Authorization.AppRole.UpdateRole;
 
 public sealed record UpdateRoleCommandRequest(
    [property:JsonIgnore] Guid Id,

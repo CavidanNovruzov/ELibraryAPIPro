@@ -24,7 +24,7 @@ public sealed class UpdateLanguageCommandHandler : IRequestHandler<UpdateLanguag
         var language = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (language == null)
-            return Result<UpdateLanguageCommandResponse>.Failure("Dil tapılmadı..");
+            return Result<UpdateLanguageCommandResponse>.NotFound("Dil tapılmadı..");
 
         if (language.Code.ToLower() != request.Code.Trim().ToLower() || language.Name.ToLower() != request.Name.Trim().ToLower())
         {

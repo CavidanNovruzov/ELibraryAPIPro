@@ -7,12 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+	<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
+	<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+	<PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageReference Include="MailKit" Version="4.16.0" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.3.3" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.6" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.8" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     <PackageReference Include="StackExchange.Redis" Version="2.13.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
 	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -20,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ELibraryAPI.Application\ELibraryAPI.Application.csproj" />
+    <ProjectReference Include="..\ELibraryAPI.Persistance\ELibraryAPI.Persistance.csproj" />
   </ItemGroup>
 
 </Project>

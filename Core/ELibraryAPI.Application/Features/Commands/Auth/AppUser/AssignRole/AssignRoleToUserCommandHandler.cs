@@ -28,7 +28,6 @@ public class AssignRoleToUserCommandHandler : IRequestHandler<AssignRoleToUserCo
         if (result.Succeeded)
             return Result.Success($"{request.RoleName} is assigned to the user.");
 
-        // Identity errors are combined and returned
         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
         return Result.Failure(errors);
     }

@@ -1,16 +1,19 @@
-﻿using ELibraryAPI.Application.Responses;
+﻿using ELibraryAPI.Application.Abstractions.Services.Caching;
+using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 
-namespace ELibraryAPI.Application.Features.Commands.Auth.Roles.AppRole.UpdateRole;
+namespace ELibraryAPI.Application.Features.Commands.Auth.Authorization.AppRole.UpdateRole;
 
 public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommandRequest, Result>
 {
     private readonly IUnitOfWork _uow;
+    private readonly ICacheService _cacheService;
 
-    public UpdateRoleCommandHandler(IUnitOfWork uow)
+    public UpdateRoleCommandHandler(IUnitOfWork uow, ICacheService cacheService)
     {
         _uow = uow;
+        _cacheService = cacheService;
     }
 
     public async Task<Result> Handle(UpdateRoleCommandRequest request, CancellationToken ct)
@@ -34,8 +37,15 @@ public sealed class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand
 
         _uow.WriteRepository<Domain.Entities.Concrete.Auth.AppRole, Guid>().Update(role);
 
-        return await _uow.SaveAsync(ct) > 0
-            ? Result.Success("Rol uğurla yeniləndi.")
-            : Result.Failure("Heç bir dəyişiklik yadda saxlanılmadı.");
+        var isSuccess = await _uow.SaveAsync(ct) > 0;
+        if (isSuccess)
+        {
+            await _cacheService.RemoveAsync("roles:all", ct);
+            await _cacheService.RemoveAsync($"role:detail:{request.Id}", ct);
+
+            return Result.Success("Rol uğurla yeniləndi.");
+        }
+
+        return Result.Failure("Heç bir dəyişiklik yadda saxlanılmadı.");
     }
 }

@@ -29,7 +29,7 @@ public sealed class UpdateAuthorCommandHandler : IRequestHandler<UpdateAuthorCom
         var author = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (author == null)
-            return Result<UpdateAuthorCommandResponse>.Failure("Müəllif tapılmadı.");
+            return Result<UpdateAuthorCommandResponse>.NotFound("Müəllif tapılmadı.");
 
         if (!author.FullName.Equals(request.FullName, StringComparison.OrdinalIgnoreCase))
         {

@@ -1,7 +1,8 @@
-﻿using ELibraryAPI.Application.Features.Commands.Auth.AppUser.AssignRole;
-using ELibraryAPI.Application.Features.Commands.Auth.Roles.AppRole.CreateRole;
-using ELibraryAPI.Application.Features.Commands.Auth.Roles.AppRole.DeleteRole;
-using ELibraryAPI.Application.Features.Commands.Auth.Roles.AppRole.UpdateRole;
+﻿using ELibraryAPI.API.Controllers;
+using ELibraryAPI.Application.Features.Commands.Auth.AppUser.AssignRole;
+using ELibraryAPI.Application.Features.Commands.Auth.Authorization.AppRole.CreateRole;
+using ELibraryAPI.Application.Features.Commands.Auth.Authorization.AppRole.DeleteRole;
+using ELibraryAPI.Application.Features.Commands.Auth.Authorization.AppRole.UpdateRole;
 using ELibraryAPI.Application.Features.Commands.Auth.Roles.AppUserPermission;
 using ELibraryAPI.Application.Features.Commands.Auth.Roles.Permission.CreatePermission;
 using ELibraryAPI.Application.Features.Commands.Auth.Roles.Permission.DeletePermission;
@@ -20,9 +21,7 @@ using ELibraryAPI.Infrastructure.Security.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-
-namespace ELibraryAPI.API.Controllers.Auth.Permissions;
+using Microsoft.AspNetCore.RateLimiting;
 
 [Route("api/[controller]")]
 [Authorize]
@@ -45,16 +44,19 @@ public sealed class SecurityController : ApiControllerBase
 
     [HttpPost("permissions")]
     [HasPermission(AuthorizePermissions.Administration.ManagePermissions)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpPut("permissions/{id:int}")]
     [HasPermission(AuthorizePermissions.Administration.ManagePermissions)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> UpdatePermission([FromRoute] int id, [FromBody] UpdatePermissionCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
     [HttpDelete("permissions/{id:int}")]
     [HasPermission(AuthorizePermissions.Administration.ManagePermissions)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> DeletePermission([FromRoute] int id, CancellationToken ct)
         => FromResult(await _mediator.Send(new DeletePermissionCommandRequest(id), ct));
 
@@ -63,7 +65,7 @@ public sealed class SecurityController : ApiControllerBase
     #region Role Management (Rollar)
 
     [HttpGet("roles")]
-    [HasPermission(AuthorizePermissions.Administration.ManageRoles)] 
+    [HasPermission(AuthorizePermissions.Administration.ManageRoles)]
     public async Task<IActionResult> GetAllRoles(CancellationToken ct)
     => FromResult(await _mediator.Send(new GetAllRolesQueryRequest(), ct));
 
@@ -74,16 +76,19 @@ public sealed class SecurityController : ApiControllerBase
 
     [HttpPost("roles")]
     [HasPermission(AuthorizePermissions.Administration.ManageRoles)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> CreateRole([FromBody] CreateRoleCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpPut("roles/{id:guid}")]
     [HasPermission(AuthorizePermissions.Administration.ManageRoles)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> UpdateRole([FromRoute] Guid id, [FromBody] UpdateRoleCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
     [HttpDelete("roles/{id:guid}")]
     [HasPermission(AuthorizePermissions.Administration.ManageRoles)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> DeleteRole([FromRoute] Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new DeleteRoleCommandRequest(id), ct));
 
@@ -103,6 +108,7 @@ public sealed class SecurityController : ApiControllerBase
 
     [HttpPost("roles/set-permissions")]
     [HasPermission(AuthorizePermissions.Administration.AssignPermissions)]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> SetRolePermissions([FromBody] SetRolePermissionsCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
@@ -112,11 +118,13 @@ public sealed class SecurityController : ApiControllerBase
 
     [HttpPost("users/assign-role")]
     [HasPermission(AuthorizePermissions.Administration.ManageRoles)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> AssignRoleToUser([FromBody] AssignRoleToUserCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpPost("users/set-custom-permission")]
     [HasPermission(AuthorizePermissions.Administration.AssignPermissions)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> SetUserCustomPermission([FromBody] SetUserPermissionCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 

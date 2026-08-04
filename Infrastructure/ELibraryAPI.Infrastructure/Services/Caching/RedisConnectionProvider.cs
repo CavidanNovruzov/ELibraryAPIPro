@@ -1,8 +1,8 @@
-﻿using ELibraryAPI.Application.Options; 
+﻿
+using ELibraryAPI.Application.Options;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options; 
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
-using System.Net;
 
 namespace ELibraryAPI.Infrastructure.Services.Caching;
 
@@ -10,83 +10,63 @@ public sealed class RedisConnectionProvider : IRedisConnectionProvider
 {
     private readonly RedisSettings _settings;
     private readonly ILogger<RedisConnectionProvider> _logger;
-    private readonly Lazy<IConnectionMultiplexer> _connection;
+    private IConnectionMultiplexer? _connection;
+    private readonly SemaphoreSlim _lock = new(1, 1);
 
     public RedisConnectionProvider(IOptions<RedisSettings> options, ILogger<RedisConnectionProvider> logger)
     {
-        _settings = options.Value; 
+        _settings = options.Value;
         _logger = logger;
-        _connection = new Lazy<IConnectionMultiplexer>(CreateConnection, LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
-    public IConnectionMultiplexer Connection => _connection.Value;
-
-    private IConnectionMultiplexer CreateConnection()
+    public async Task<IConnectionMultiplexer> GetConnectionAsync()
     {
-        _logger.LogInformation("Initializing Redis Sentinel connection...");
+        if (_connection is { IsConnected: true })
+            return _connection;
 
-        var sentinelEndpoints = _settings.SentinelEndpoints;
-
-        if (sentinelEndpoints == null || sentinelEndpoints.Count == 0)
-            throw new ArgumentNullException("SentinelEndpoints", "Redis Sentinel endpoints were not found in configuration.");
-
-        var masterName = _settings.MasterName ?? "mymaster";
-        var isLocalDockerDev = _settings.IsLocalDockerDev;
-
-        var sentinelOptions = new ConfigurationOptions
+        await _lock.WaitAsync();
+        try
         {
-            ServiceName = masterName,
-            CommandMap = CommandMap.Sentinel,
-            DefaultVersion = new Version(7, 0),
-            AbortOnConnectFail = false
-        };
+            if (_connection is { IsConnected: true })
+                return _connection;
 
-        foreach (var endpoint in sentinelEndpoints)
-        {
-            sentinelOptions.EndPoints.Add(endpoint);
-        }
+            _logger.LogInformation("Initializing Native Redis Sentinel connection asynchronously...");
 
-        using var sentinelConnection = ConnectionMultiplexer.SentinelConnect(sentinelOptions);
-        EndPoint? masterEndPoint = null;
+            var sentinelEndpoints = _settings.SentinelEndpoints;
+            if (sentinelEndpoints == null || sentinelEndpoints.Count == 0)
+                throw new ArgumentNullException(nameof(_settings.SentinelEndpoints), "Redis Sentinel endpoints are missing.");
 
-        foreach (var endpoint in sentinelConnection.GetEndPoints())
-        {
-            var server = sentinelConnection.GetServer(endpoint);
-            if (!server.IsConnected) continue;
+            var masterName = _settings.MasterName ?? "mymaster";
 
-            try
+            var options = new ConfigurationOptions
             {
-                masterEndPoint = server.SentinelGetMasterAddressByName(masterName);
-                break;
-            }
-            catch (Exception ex)
+                ServiceName = masterName,
+                AbortOnConnectFail = false,
+                ConnectTimeout = 10000,
+                SyncTimeout = 10000,
+                AllowAdmin = true
+            };
+
+            if (!string.IsNullOrWhiteSpace(_settings.Password))
             {
-                _logger.LogWarning(ex, "Failed to resolve Redis Master address from Sentinel on endpoint: {Endpoint}", endpoint);
+                options.Password = _settings.Password;
             }
-        }
 
-        if (masterEndPoint == null)
-        {
-            throw new RedisConnectionException(ConnectionFailureType.UnableToResolvePhysicalConnection,
-                "No active Redis Master could be resolved via Sentinel.");
-        }
-
-        string connectionString = masterEndPoint.ToString()!;
-
-        if (isLocalDockerDev)
-        {
-            if (_settings.IPTranslations != null && _settings.IPTranslations.TryGetValue(connectionString, out var translatedAddress))
+            foreach (var endpoint in sentinelEndpoints)
             {
-                connectionString = translatedAddress;
-                _logger.LogInformation("Local Docker IP translated successfully -> {Conn}", connectionString);
+                options.EndPoints.Add(endpoint);
+                _logger.LogInformation("Added Sentinel Endpoint: {Endpoint}", endpoint);
             }
+
+            _connection = await ConnectionMultiplexer.ConnectAsync(options);
+
+            _logger.LogInformation("Redis Multiplexer configured via Sentinel successfully.");
+
+            return _connection;
         }
-
-        var masterOptions = ConfigurationOptions.Parse(connectionString);
-        masterOptions.AbortOnConnectFail = false;
-        masterOptions.KeepAlive = 60;
-
-        _logger.LogInformation("Redis Master connection successfully established: {Conn}", connectionString);
-        return ConnectionMultiplexer.Connect(masterOptions);
+        finally
+        {
+            _lock.Release();
+        }
     }
 }

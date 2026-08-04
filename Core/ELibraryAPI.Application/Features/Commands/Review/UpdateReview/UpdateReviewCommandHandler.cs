@@ -24,7 +24,7 @@ public sealed class UpdateReviewCommandHandler : IRequestHandler<UpdateReviewCom
         var review = await reviewReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct); 
 
         if (review == null)
-            return Result<UpdateReviewCommandResponse>.Failure("Rəy tapılmadı.");
+            return Result<UpdateReviewCommandResponse>.NotFound("Rəy tapılmadı.");
 
         if (review.UserId != _currentUserService.UserGuid)
             return Result<UpdateReviewCommandResponse>.Failure("Yalnız öz rəyinizi redaktə edə bilərsiniz.", ErrorType.Forbidden);

@@ -307,6 +307,7 @@ namespace ELibraryAPI.Persistance.Migrations
                     UsageLimit = table.Column<int>(type: "int", nullable: false),
                     UsageCount = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValue: "System"),
@@ -890,6 +891,8 @@ namespace ELibraryAPI.Persistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaymentProvider = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     TransactionId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
@@ -955,7 +958,8 @@ namespace ELibraryAPI.Persistance.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FromBranchId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ToBranchId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ToBranchId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 3),
@@ -970,7 +974,7 @@ namespace ELibraryAPI.Persistance.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InventoryMovements", x => x.Id);
-                    table.CheckConstraint("CK_InventoryMovements_FromToBranchDifferent", "[FromBranchId] <> [ToBranchId]");
+                    table.CheckConstraint("CK_InventoryMovements_FromToBranchDifferent", "[ToBranchId] IS NULL OR [FromBranchId] <> [ToBranchId]");
                     table.CheckConstraint("CK_InventoryMovements_Quantity_Positive", "[Quantity] > 0");
                     table.ForeignKey(
                         name: "FK_InventoryMovements_Branches_FromBranchId",
@@ -984,6 +988,11 @@ namespace ELibraryAPI.Persistance.Migrations
                         principalTable: "Branches",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InventoryMovements_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_InventoryMovements_Products_ProductId",
                         column: x => x.ProductId,
@@ -1290,6 +1299,7 @@ namespace ELibraryAPI.Persistance.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     WishlistId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NotifyWhenAvailable = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValue: "System"),
@@ -1508,6 +1518,11 @@ namespace ELibraryAPI.Persistance.Migrations
                 table: "InventoryMovements",
                 column: "IsDeleted",
                 filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryMovements_OrderId",
+                table: "InventoryMovements",
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InventoryMovements_ProductId",

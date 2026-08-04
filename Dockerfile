@@ -1,54 +1,54 @@
-# =============================================================
-# Stage 1: Runtime Base (Yüngül və təhlükəsiz mühit)
-# =============================================================
+
+# STAGE 1: Base Runtime Environment
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-USER app
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+# High-Performance Server Garbage Collection (Enterprise/High-load APIs üçün)
+ENV DOTNET_gcServer=1
 
-USER app
+# Healthcheck üçün 'curl' paketinin minimal quraşdırılması
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
-# =============================================================
-# Stage 2: SDK Build (Kompilyasiya mərhələsi)
-# =============================================================
+# Təhlükəsizlik: Root hüquqlarından imtina edib non-root istifadəçiyə keçid
+USER $APP_UID
+
+# Docker Healthcheck mexanizmi 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+
+# STAGE 2: Build Stage (Nuget Cache Optimization)
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
+# Docker Build Cache optimization: Əvvəlcə yalnız .csproj fayllarını kopyalayırıq.
+# Bu addım sayəsində kod dəyişsə belə, 'dotnet restore' yenidən çalışmır, vaxta qənaət edilir.
+COPY ["Presentation/ELibraryAPI.API/ELibraryAPI.API.csproj", "Presentation/ELibraryAPI.API/"]
 COPY ["Core/ELibraryAPI.Application/ELibraryAPI.Application.csproj", "Core/ELibraryAPI.Application/"]
 COPY ["Core/ELibraryAPI.Domain/ELibraryAPI.Domain.csproj", "Core/ELibraryAPI.Domain/"]
 COPY ["Infrastructure/ELibraryAPI.Infrastructure/ELibraryAPI.Infrastructure.csproj", "Infrastructure/ELibraryAPI.Infrastructure/"]
 COPY ["Infrastructure/ELibraryAPI.Persistance/ELibraryAPI.Persistance.csproj", "Infrastructure/ELibraryAPI.Persistance/"]
-COPY ["Presentation/ELibraryAPI.API/ELibraryAPI.API.csproj", "Presentation/ELibraryAPI.API/"]
 
-# Paketlərin bərpası (Restore)
 RUN dotnet restore "Presentation/ELibraryAPI.API/ELibraryAPI.API.csproj"
 
-# Bütün layihə kodunu köçürürük
+# Bütün layihə kodunu kopyalayırıq və build edirik
 COPY . .
-
-# Presentation qatındakı əsas API layihəsini Release rejimində build edirik
 WORKDIR "/src/Presentation/ELibraryAPI.API"
-RUN dotnet build "ELibraryAPI.API.csproj" -c Release -o /app/build
+RUN dotnet build "ELibraryAPI.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# =============================================================
-# Stage 3: Publish (DLL-lərin optimallaşdırılmış çıxışı)
-# =============================================================
+
+# STAGE 3: Publish Stage
 FROM build AS publish
-RUN dotnet publish "ELibraryAPI.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "ELibraryAPI.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# =============================================================
-# Stage 4: Final Image (Canlı mühitdə işləyəcək minimal ölçülü imic)
-# =============================================================
+
+# STAGE 4: Final Runtime Stage
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-
-
-ENV ASPNETCORE_URLS=http://+:8080
-
-# Yüksək trafikli Libraff miqyası üçün Server Garbage Collector rejimini aktivləşdiririk
-ENV COMPlus_gcServer=1
-
 ENTRYPOINT ["dotnet", "ELibraryAPI.API.dll"]

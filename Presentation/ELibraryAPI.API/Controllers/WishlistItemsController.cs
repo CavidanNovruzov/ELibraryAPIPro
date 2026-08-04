@@ -1,7 +1,6 @@
 using ELibraryAPI.Application.Features.Commands.Basket.MoveToBasket;
 using ELibraryAPI.Application.Features.Commands.WishlistItem.CreateWishlistItem;
 using ELibraryAPI.Application.Features.Commands.WishlistItem.DeleteWishlistItem;
-using ELibraryAPI.Application.Features.Commands.WishlistItem.MoveToBasket;
 using ELibraryAPI.Application.Features.Commands.WishlistItem.UpdateWishlistItem;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

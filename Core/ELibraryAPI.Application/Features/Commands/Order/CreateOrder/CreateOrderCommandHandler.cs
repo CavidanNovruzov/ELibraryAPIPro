@@ -135,9 +135,6 @@ public sealed class CreateOrderCommandHandler
 
         var movementWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.InventoryMovement, Guid>();
 
-        // ÖNƏMLİ: order əvvəlcə context-ə əlavə olunur ki, order.Id (client-side Guid generator vasitəsilə)
-        // artıq generasiya olunsun. Əvvəllər bu sətir loop-dan SONRA idi və InventoryMovement.OrderId
-        // hər zaman Guid.Empty kimi yazılırdı — inventar hərəkətləri sifarişlə əlaqələndirilmirdi.
         await _unitOfWork.WriteRepository<Domain.Entities.Concrete.Order, Guid>().AddAsync(order, ct);
 
         foreach (var item in basket.BasketItems)
@@ -156,7 +153,7 @@ public sealed class CreateOrderCommandHandler
             {
                 if (remaining <= 0) break;
                 int deduction = Math.Min(stock.Quantity, remaining);
-                stock.Decrease(deduction); // invariant (mənfi stok yoxlaması) artıq entity daxilindədir
+                stock.Decrease(deduction); 
                 remaining -= deduction;
 
                 await movementWriteRepo.AddAsync(new Domain.Entities.Concrete.InventoryMovement
@@ -164,7 +161,7 @@ public sealed class CreateOrderCommandHandler
                     ProductId = item.ProductId,
                     FromBranchId = stock.BranchId,
                     ToBranchId = null,
-                    OrderId = order.Id, // artıq doğru dəyərdədir
+                    OrderId = order.Id, 
                     Quantity = deduction,
                     Type = InventoryMovementType.Sale,
                     Status = InventoryMovementStatus.Completed
@@ -180,7 +177,7 @@ public sealed class CreateOrderCommandHandler
             if (saved > 0)
             {
                 await _mediator.Publish(new EntityChangedEvent("order", order.Id), ct);
-
+                await _mediator.Publish(new OrderCreatedEvent(order.Id),ct);
                 foreach (var productId in basket.BasketItems.Select(i => i.ProductId).Distinct())
                 {
                     await _mediator.Publish(new EntityChangedEvent("product", productId), ct);

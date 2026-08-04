@@ -1,8 +1,8 @@
 ﻿using System.Threading.Channels;
-using ELibraryAPI.Application.Abstractions.Services;
+using ELibraryAPI.Application.Abstractions.Services.Email;
 using ELibraryAPI.Application.Shared.Models;
 
-namespace ELibraryAPI.Infrastructure.Services.Auth;
+namespace ELibraryAPI.Infrastructure.Services.Email;
 
 public class QueuedEmailSender : IEmailSender
 {

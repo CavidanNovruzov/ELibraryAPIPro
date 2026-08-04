@@ -1,4 +1,5 @@
-﻿using ELibraryAPI.Application.Abstractions.Services.Storage;
+﻿using ELibraryAPI.Application.Abstractions.Services.Image;
+using ELibraryAPI.Application.Abstractions.Services.Storage;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
@@ -11,12 +12,18 @@ public sealed class UploadProductImageCommandHandler : IRequestHandler<UploadPro
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IStorageService _storageService;
-    private readonly IMediator _mediator; 
+    private readonly IImageService _imageService;
+    private readonly IMediator _mediator;
 
-    public UploadProductImageCommandHandler(IUnitOfWork unitOfWork, IStorageService storageService, IMediator mediator)
+    public UploadProductImageCommandHandler(
+        IUnitOfWork unitOfWork,
+        IStorageService storageService,
+        IImageService imageService,
+        IMediator mediator)
     {
         _unitOfWork = unitOfWork;
         _storageService = storageService;
+        _imageService = imageService;
         _mediator = mediator;
     }
 
@@ -38,10 +45,16 @@ public sealed class UploadProductImageCommandHandler : IRequestHandler<UploadPro
 
         foreach (var file in request.Files)
         {
-            var extension = Path.GetExtension(file.FileName);
-            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+            using var processedImageStream = await _imageService.CompressAndConvertToWebpAsync(
+                inputStream: file.Content,
+                maxWidth: 1200,
+                maxHeight: 1200,
+                quality: 80,
+                ct: ct);
 
-            var pathOrUrl = await _storageService.UploadAsync(file.Content, uniqueFileName, "product-images");
+            var uniqueFileName = $"{Guid.NewGuid()}.webp";
+
+            var pathOrUrl = await _storageService.UploadAsync(processedImageStream, uniqueFileName, "product-images");
             urls.Add(pathOrUrl);
 
             product.Images.Add(new ProductImage

@@ -23,7 +23,7 @@ public sealed class BannersController : ApiControllerBase
     public async Task<IActionResult> GetAll([FromQuery] GetAllBannerQueryRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
-    [HttpGet]
+    [HttpGet("active")]
     [AllowAnonymous]
     public async Task<IActionResult> GetActive(CancellationToken ct)
         => FromResult(await _mediator.Send(new GetActiveBannersQueryRequest(), ct));

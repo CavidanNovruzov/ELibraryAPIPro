@@ -1,8 +1,9 @@
 ﻿using ELibraryAPI.Application.Options;
+using ELibraryAPI.Infrastructure.Services.Caching;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace ELibraryAPI.Infrastructure.Services.Caching.HealthChecks;
+namespace ELibraryAPI.Infrastructure.Services.HealthChecks;
 
 public class RedisHealthCheck : IHealthCheck
 {
@@ -15,19 +16,19 @@ public class RedisHealthCheck : IHealthCheck
         _connectionProvider = connectionProvider;
     }
 
-    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken ct = default)
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken ct = default)
     {
         try
         {
             var db = _connectionProvider.Connection.GetDatabase();
 
-            db.Ping();
+            await db.PingAsync();
 
-            return Task.FromResult(HealthCheckResult.Healthy("Redis Sentinel is running."));
+            return HealthCheckResult.Healthy("Redis Sentinel is running.");
         }
         catch (Exception ex)
         {
-            return Task.FromResult(HealthCheckResult.Unhealthy("Redis Sentinel is unreachable.", ex));
+            return HealthCheckResult.Unhealthy("Redis Sentinel is unreachable.", ex);
         }
     }
 }

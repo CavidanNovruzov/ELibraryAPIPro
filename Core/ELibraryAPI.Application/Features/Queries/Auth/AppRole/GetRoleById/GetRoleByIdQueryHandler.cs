@@ -11,7 +11,7 @@ public sealed class GetRoleByIdQueryHandler(IUnitOfWork uow)
     public async Task<Result<GetRoleByIdQueryResponse>> Handle(GetRoleByIdQueryRequest request, CancellationToken ct)
     {
         var role = await uow.ReadRepository<Domain.Entities.Concrete.Auth.AppRole, Guid>()
-            .GetByIdAsync(request.Id,
+            .GetByIdAsync(request.RoleId,
                 tracking: false,
                 ct: ct,
                 includes: r => r.RolePermissions);

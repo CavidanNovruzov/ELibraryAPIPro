@@ -1,4 +1,4 @@
-﻿using ELibraryAPI.Application.Abstractions.Services;
+﻿using ELibraryAPI.Application.Abstractions.Services.Email;
 using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;

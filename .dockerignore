@@ -1,8 +1,26 @@
+# Git və IDE faylları
 **/.git
 **/.gitignore
 **/.vs
 **/.vscode
+**/.idea
+
+# Build və output qovluqları
 **/bin
 **/obj
 **/Logs
 **/*.user
+**/*.userosscache
+**/*.sln.docstates
+
+# Həssas məlumatlar və host faylları
+.env
+.env.*
+
+# Media və yüklənmiş istifadəçi faylları (Volume ilə idarə olunur)
+uploads/
+**/uploads/
+**/wwwroot/uploads/
+
+# Sənədləşmə
+*.md

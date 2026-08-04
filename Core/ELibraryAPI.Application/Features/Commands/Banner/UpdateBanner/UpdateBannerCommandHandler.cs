@@ -28,7 +28,7 @@ public sealed class UpdateBannerCommandHandler : IRequestHandler<UpdateBannerCom
         var banner = await readRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
 
         if (banner == null)
-            return Result<UpdateBannerCommandResponse>.Failure("Banner tapılmadı.");
+            return Result<UpdateBannerCommandResponse>.NotFound("Banner tapılmadı.");
 
         if (!string.IsNullOrEmpty(request.Base64File) && !string.IsNullOrEmpty(request.FileName))
         {

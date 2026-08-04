@@ -27,6 +27,8 @@ public sealed class CachingBehavior<TRequest, TResponse>
         if (request is not ICacheable cacheable)
             return await next();
 
+        _logger.LogCritical("################ CACHING BEHAVIOR İŞƏ DÜŞDÜ: {Key} ################", cacheable.CacheKey);
+
         var cached = await _cache.GetAsync<TResponse>(cacheable.CacheKey, cancellationToken);
         if (cached is not null)
         {

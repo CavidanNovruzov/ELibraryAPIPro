@@ -1,5 +1,5 @@
-using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Abstractions.Services.Auth;
+using ELibraryAPI.Application.Abstractions.Services.Email;
 using ELibraryAPI.Application.Dtos.Auth;
 using ELibraryAPI.Application.Options;
 using ELibraryAPI.Application.Responses;
@@ -92,6 +92,7 @@ public class AuthService : IAuthService
             }
         }
 
+        await _unitOfWork.SaveAsync(ct);
         return Result<Guid>.Success(user.Id, "Qeydiyyat uğurla tamamlandı. Zəhmət olmasa, hesabınızı təsdiqləmək üçün email ünvanınızı yoxlayın.");
     }
 
@@ -111,7 +112,7 @@ public class AuthService : IAuthService
         if (!user.EmailConfirmed)
             return Result<TokenResponse>.Failure("Zəhmət olmasa, əvvəlcə email ünvanınızı təsdiqləyin.", ErrorType.Forbidden);
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);
 
         if (!result.Succeeded)
         {

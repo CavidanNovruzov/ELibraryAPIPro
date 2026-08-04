@@ -6,4 +6,5 @@ public class RedisSettings
     public string MasterName { get; set; }
     public bool IsLocalDockerDev { get; set; }
     public Dictionary<string, string> IPTranslations { get; set; } = new();
+    public string? Password { get; set; }
 }

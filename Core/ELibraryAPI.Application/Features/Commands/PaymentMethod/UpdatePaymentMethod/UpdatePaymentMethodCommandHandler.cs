@@ -25,7 +25,7 @@ public sealed class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePa
 
         if (paymentMethod == null)
         {
-            return Result<UpdatePaymentMethodCommandResponse>.Failure("Ödəniş metodu tapılmadı.");
+            return Result<UpdatePaymentMethodCommandResponse>.NotFound("Ödəniş metodu tapılmadı.");
         }
 
         if (paymentMethod.Name.ToLower() != request.Name.Trim().ToLower())

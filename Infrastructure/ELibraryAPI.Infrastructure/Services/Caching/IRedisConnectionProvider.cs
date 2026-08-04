@@ -1,8 +1,9 @@
-﻿using StackExchange.Redis;
+﻿
+using StackExchange.Redis;
 
-namespace ELibraryAPI.Infrastructure.Services.Caching; 
+namespace ELibraryAPI.Infrastructure.Services.Caching;
 
 public interface IRedisConnectionProvider
 {
-    IConnectionMultiplexer Connection { get; }
+    Task<IConnectionMultiplexer> GetConnectionAsync();
 }

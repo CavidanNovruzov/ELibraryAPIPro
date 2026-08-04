@@ -1,43 +1,48 @@
 using AutoMapper;
+using ELibraryAPI.Application.Abstractions.Services;
+using ELibraryAPI.Application.Features.Commands.UserAddress.CreateUserAddress;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
+using ELibraryAPI.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-
-namespace ELibraryAPI.Application.Features.Commands.UserAddress.CreateUserAddress;
 
 public sealed class CreateUserAddressCommandHandler : IRequestHandler<CreateUserAddressCommandRequest, Result<CreateUserAddressCommandResponse>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateUserAddressCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateUserAddressCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result<CreateUserAddressCommandResponse>> Handle(CreateUserAddressCommandRequest request, CancellationToken ct)
     {
-        var addressReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.UserAddress, Guid>();
-        var addressWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.UserAddress, Guid>();
-        var userReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Auth.AppUser, Guid>();
+        var userId = _currentUserService.UserGuid;
+        if (userId == Guid.Empty)
+            return Result<CreateUserAddressCommandResponse>.Failure("Sistemə daxil olunmamışdır.", ErrorType.Unauthorized);
 
-        if (!await userReadRepo.ExistsAsync(x => x.Id == request.UserId, false, ct))
-            return Result<CreateUserAddressCommandResponse>.Failure("İstifadəçi tapılmadı.");
+        var addressReadRepo = _unitOfWork.ReadRepository<ELibraryAPI.Domain.Entities.Concrete.UserAddress, Guid>();
+        var addressWriteRepo = _unitOfWork.WriteRepository<ELibraryAPI.Domain.Entities.Concrete.UserAddress, Guid>();
 
         if (request.IsDefault)
         {
             var oldDefaultAddresses = await addressReadRepo
-                .GetWhere(x => x.UserId == request.UserId && x.IsDefault, tracking: true)
+                .GetWhere(x => x.UserId == userId && x.IsDefault, tracking: true) 
                 .ToListAsync(ct);
 
             foreach (var oldAddr in oldDefaultAddresses)
                 oldAddr.IsDefault = false;
         }
 
-        var userAddress = _mapper.Map<Domain.Entities.Concrete.UserAddress>(request);
+        var userAddress = _mapper.Map<ELibraryAPI.Domain.Entities.Concrete.UserAddress>(request);
         userAddress.AddressLine = request.AddressLine.Trim();
+
+        userAddress.UserId = userId;
 
         await addressWriteRepo.AddAsync(userAddress, ct);
         await _unitOfWork.SaveAsync(ct);

@@ -1,12 +1,12 @@
-﻿using ELibraryAPI.Application.Abstractions.Services;
-using ELibraryAPI.Infrastructure.Options;
+﻿using ELibraryAPI.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;
+using ELibraryAPI.Application.Abstractions.Services.Email;
 
-namespace ELibraryAPI.Infrastructure.Services.Auth;
+namespace ELibraryAPI.Infrastructure.Services.Email;
 
 public class SmtpEmailSender : IEmailSender
 {

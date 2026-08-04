@@ -1,5 +1,6 @@
-using ELibraryAPI.Application.UnitOfWork;
+using ELibraryAPI.Application.Abstractions.Services.Caching;
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,8 +9,13 @@ namespace ELibraryAPI.Application.Features.Commands.Auth.Roles.RolePermission;
 public sealed class SetRolePermissionsCommandHandler : IRequestHandler<SetRolePermissionsCommandRequest, Result>
 {
     private readonly IUnitOfWork _uow;
+    private readonly ICacheService _cacheService;
 
-    public SetRolePermissionsCommandHandler(IUnitOfWork uow) => _uow = uow;
+    public SetRolePermissionsCommandHandler(IUnitOfWork uow, ICacheService cacheService)
+    {
+        _uow = uow;
+        _cacheService = cacheService;
+    }
 
     public async Task<Result> Handle(SetRolePermissionsCommandRequest request, CancellationToken ct)
     {
@@ -34,7 +40,12 @@ public sealed class SetRolePermissionsCommandHandler : IRequestHandler<SetRolePe
         var result = await _uow.SaveAsync(ct) > 0;
 
         if (result)
+        {
+            string roleCacheKey = $"role:detail:{request.RoleId}";
+            await _cacheService.RemoveAsync(roleCacheKey, ct);
+
             return Result.Success("Rol icazələri uğurla yeniləndi.");
+        }
 
         return Result.Failure("Heç bir dəyişiklik edilmədi və ya xəta baş verdi.");
     }

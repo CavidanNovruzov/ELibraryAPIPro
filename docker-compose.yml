@@ -1,6 +1,266 @@
-version: '3.8'
-
 services:
+  # 1. Reverse Proxy (Nginx)
+  nginx:
+    image: nginx:alpine
+    container_name: elibrary_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - elibrary_network
+    depends_on:
+      elibrary-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # 2. MS SQL Server (Database)
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: elibrary_mssql
+    user: root
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "127.0.0.1:1434:1433"
+    volumes:
+      - elibrary_mssql_data:/var/opt/mssql/data
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2000M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/1433'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+
+  # 3. RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: elibrary_rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    volumes:
+      - elibrary_rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'        
+          memory: 768M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+
+  # 4. Redis Master
+  redis-master:
+    image: redis:7-alpine
+    container_name: elibrary_redis_master
+    command: redis-server --requirepass ${REDIS_PASSWORD} --masterauth ${REDIS_PASSWORD} --appendonly yes
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - elibrary_redis_data:/data
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+
+  # 5. Redis Slaves
+  redis-slave-1:
+    image: redis:7-alpine
+    container_name: elibrary_redis_slave1
+    command: redis-server --replicaof redis-master 6379 --requirepass ${REDIS_PASSWORD} --masterauth ${REDIS_PASSWORD}
+    ports:
+      - "127.0.0.1:6380:6379"
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis-slave-2:
+    image: redis:7-alpine
+    container_name: elibrary_redis_slave2
+    command: redis-server --replicaof redis-master 6379 --requirepass ${REDIS_PASSWORD} --masterauth ${REDIS_PASSWORD}
+    ports:
+      - "127.0.0.1:6381:6379"
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis-slave-3:
+    image: redis:7-alpine
+    container_name: elibrary_redis_slave3
+    command: redis-server --replicaof redis-master 6379 --requirepass ${REDIS_PASSWORD} --masterauth ${REDIS_PASSWORD}
+    ports:
+      - "127.0.0.1:6382:6379"
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # 6. Redis Sentinels
+  redis-sentinel-1:
+    image: redis:7-alpine
+    container_name: elibrary_redis_sentinel1
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+    command:
+      - sh
+      - -c
+      - >
+        printf 'sentinel resolve-hostnames yes\nsentinel announce-hostnames yes\nport 26379\nsentinel monitor mymaster redis-master 6379 2\nsentinel auth-pass mymaster %s\nsentinel down-after-milliseconds mymaster 5000\nsentinel failover-timeout mymaster 60000\nsentinel parallel-syncs mymaster 1\n' "${REDIS_PASSWORD}" > /tmp/sentinel.conf &&
+        exec redis-server /tmp/sentinel.conf --sentinel
+    ports:
+      - "127.0.0.1:6383:26379"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis-sentinel-2:
+    image: redis:7-alpine
+    container_name: elibrary_redis_sentinel2
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+    command:
+      - sh
+      - -c
+      - >
+        printf 'sentinel resolve-hostnames yes\nsentinel announce-hostnames yes\nport 26379\nsentinel monitor mymaster redis-master 6379 2\nsentinel auth-pass mymaster %s\nsentinel down-after-milliseconds mymaster 5000\nsentinel failover-timeout mymaster 60000\nsentinel parallel-syncs mymaster 1\n' "${REDIS_PASSWORD}" > /tmp/sentinel.conf &&
+        exec redis-server /tmp/sentinel.conf --sentinel
+    ports:
+      - "127.0.0.1:6384:26379"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis-sentinel-3:
+    image: redis:7-alpine
+    container_name: elibrary_redis_sentinel3
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+    command:
+      - sh
+      - -c
+      - >
+        printf 'sentinel resolve-hostnames yes\nsentinel announce-hostnames yes\nport 26379\nsentinel monitor mymaster redis-master 6379 2\nsentinel auth-pass mymaster %s\nsentinel down-after-milliseconds mymaster 5000\nsentinel failover-timeout mymaster 60000\nsentinel parallel-syncs mymaster 1\n' "${REDIS_PASSWORD}" > /tmp/sentinel.conf &&
+        exec redis-server /tmp/sentinel.conf --sentinel
+    ports:
+      - "127.0.0.1:6385:26379"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    restart: unless-stopped
+
+
+  # 7. Seq Centralized Logging UI Server
+  seq:
+    image: datalust/seq:latest
+    container_name: elibrary_seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+    ports:
+      - "127.0.0.1:5341:80"
+    volumes:
+      - elibrary_seq_data:/data
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+    restart: unless-stopped
+
+
+  # 8. .NET Backend API Service
   elibrary-api:
     image: cavidan/elibraryapi:latest
     container_name: elibrary_backend_api
@@ -8,23 +268,79 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:8080" # localhost:5000/swagger
-    restart: always
+      - "127.0.0.1:5000:8080"
+    networks:
+      - elibrary_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      mssql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis-master:
+        condition: service_healthy
+      redis-sentinel-1:
+        condition: service_started
+      redis-sentinel-2:
+        condition: service_started
+      redis-sentinel-3:
+        condition: service_started
+      seq:
+        condition: service_started
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - AppSettings__BaseUrl=http://localhost
       - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
-      
-      # Mövcud redis-master konteynerinə Windows portu üzərindən keçid edirik:
       - RedisSettings__Password=${REDIS_PASSWORD}
-
-      
+      - RedisSettings__MasterName=mymaster
+      - RedisSettings__SentinelEndpoints__0=redis-sentinel-1:26379
+      - RedisSettings__SentinelEndpoints__1=redis-sentinel-2:26379
+      - RedisSettings__SentinelEndpoints__2=redis-sentinel-3:26379
+      - RedisSettings__IsLocalDockerDev=false
       - Jwt__SecretKey=${JWT_SECRET_KEY}
       - Email__UserName=${SMTP_USER}
       - Email__Password=${SMTP_PASSWORD}
       - Email__FromEmail=${SMTP_USER}
       - Email__FromName=E-Library Project Official
-      
+      - Email__ConfirmEmailBaseUrl=http://localhost/api/Auth/confirm-email
+      - Email__ResetPasswordBaseUrl=http://localhost/api/Auth/reset-password
+      - Seed__Admin__AdminEmail=${ADMIN_EMAIL}
+      - Seed__Admin__AdminPassword=${ADMIN_PASSWORD}
+      - Seed__Admin__AdminFullName=${ADMIN_FULLNAME}
+      - RabbitMqOptions__Host=rabbitmq
+      - RabbitMqOptions__Port=${RABBITMQ_PORT}
+      - RabbitMqOptions__Username=${RABBITMQ_USERNAME}
+      - RabbitMqOptions__Password=${RABBITMQ_PASSWORD}
+      - Serilog__WriteTo__2__Args__serverUrl=http://seq:80
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./uploads:/app/wwwroot/uploads
+      - ./logs:/app/Logs
+
+
+# Global Networks & Volumes
+networks:
+  elibrary_network:
+    driver: bridge
+
+volumes:
+  elibrary_mssql_data:
+  elibrary_rabbitmq_data:
+  elibrary_redis_data:
+  elibrary_seq_data:

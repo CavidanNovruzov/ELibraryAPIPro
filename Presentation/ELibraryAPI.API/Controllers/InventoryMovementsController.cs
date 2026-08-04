@@ -1,4 +1,5 @@
 
+using ELibraryAPI.Application.Features.Commands.InventoryMovement.AdjustStock;
 using ELibraryAPI.Application.Features.Queries.InventoryMovement.GetAllInventoryMovement;
 using ELibraryAPI.Application.Features.Queries.InventoryMovement.GetMovementsByProduct;
 using ELibraryAPI.Domain.Constants;
@@ -27,5 +28,11 @@ public class InventoryMovementsController : ApiControllerBase
     [HasPermission(AuthorizePermissions.Inventory.ViewMovements)]
     public async Task<IActionResult> GetByProduct([FromRoute] Guid productId, CancellationToken ct)
         => FromResult(await _mediator.Send(new GetMovementsByProductQueryRequest(productId), ct));
+
+    [HttpPost("adjust")]
+    [HasPermission(AuthorizePermissions.Inventory.ManageStock)]
+    public async Task<IActionResult> AdjustStock(
+    [FromBody] AdjustStockCommandRequest request, CancellationToken ct)
+    => FromResult(await _mediator.Send(request, ct));
 }
 

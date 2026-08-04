@@ -1,6 +1,4 @@
-﻿
-
-namespace ELibraryAPI.Application.Abstractions.Services;
+﻿namespace ELibraryAPI.Application.Abstractions.Services.Email;
 
 public interface IEmailSender
 {

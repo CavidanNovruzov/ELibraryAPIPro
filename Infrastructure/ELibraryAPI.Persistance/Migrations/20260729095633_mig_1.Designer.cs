@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ELibraryAPI.Persistance.Migrations
 {
     [DbContext(typeof(ELibraryDbContext))]
-    [Migration("20260525093231_mig_1")]
+    [Migration("20260729095633_mig_1")]
     partial class mig_1
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace ELibraryAPI.Persistance.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.6")
+                .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -1078,6 +1078,9 @@ namespace ELibraryAPI.Persistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1089,7 +1092,7 @@ namespace ELibraryAPI.Persistance.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(3);
 
-                    b.Property<Guid>("ToBranchId")
+                    b.Property<Guid?>("ToBranchId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type")
@@ -1109,6 +1112,8 @@ namespace ELibraryAPI.Persistance.Migrations
                     b.HasIndex("IsDeleted")
                         .HasFilter("[IsDeleted] = 0");
 
+                    b.HasIndex("OrderId");
+
                     b.HasIndex("ProductId");
 
                     b.HasIndex("Status");
@@ -1119,7 +1124,7 @@ namespace ELibraryAPI.Persistance.Migrations
 
                     b.ToTable("InventoryMovements", t =>
                         {
-                            t.HasCheckConstraint("CK_InventoryMovements_FromToBranchDifferent", "[FromBranchId] <> [ToBranchId]");
+                            t.HasCheckConstraint("CK_InventoryMovements_FromToBranchDifferent", "[ToBranchId] IS NULL OR [FromBranchId] <> [ToBranchId]");
 
                             t.HasCheckConstraint("CK_InventoryMovements_Quantity_Positive", "[Quantity] > 0");
                         });
@@ -1967,6 +1972,12 @@ namespace ELibraryAPI.Persistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -2390,6 +2401,10 @@ namespace ELibraryAPI.Persistance.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
@@ -2404,6 +2419,10 @@ namespace ELibraryAPI.Persistance.Migrations
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaymentProvider")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProviderResponse")
                         .HasColumnType("nvarchar(max)");
@@ -2639,6 +2658,9 @@ namespace ELibraryAPI.Persistance.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<bool>("NotifyWhenAvailable")
+                        .HasColumnType("bit");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -2882,6 +2904,10 @@ namespace ELibraryAPI.Persistance.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ELibraryAPI.Domain.Entities.Concrete.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId");
+
                     b.HasOne("ELibraryAPI.Domain.Entities.Concrete.Product", "Product")
                         .WithMany("InventoryMovements")
                         .HasForeignKey("ProductId")
@@ -2891,10 +2917,11 @@ namespace ELibraryAPI.Persistance.Migrations
                     b.HasOne("ELibraryAPI.Domain.Entities.Concrete.Branch", "ToBranch")
                         .WithMany("IncomingInventoryMovements")
                         .HasForeignKey("ToBranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("FromBranch");
+
+                    b.Navigation("Order");
 
                     b.Navigation("Product");
 

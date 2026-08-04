@@ -38,6 +38,8 @@ public static class PersistenceServiceRegistration
             options.User.RequireUniqueEmail = true;
             options.Password.RequireUppercase = false;
             options.Password.RequireNonAlphanumeric = false;
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
         }).AddEntityFrameworkStores<ELibraryDbContext>()
         .AddDefaultTokenProviders();
 

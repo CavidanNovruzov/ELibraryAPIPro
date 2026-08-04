@@ -1,4 +1,4 @@
-using ELibraryAPI.Application.Abstractions.Services;
+using ELibraryAPI.Application.Abstractions.Services.Email;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Infrastructure.Options;
 using MediatR;
@@ -24,7 +24,6 @@ public sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswor
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
 
-        // Güvənlik səbəbindən həmişə eyni cavabı qaytar (user enumeration-ın qarşısını al)
         if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
             return Result.Success("Əgər bu email mövcuddursa, sıfırlama linki göndərildi.");
 

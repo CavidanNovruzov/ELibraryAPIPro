@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ELibraryAPI.Application.Shared.Models;
 
-namespace ELibraryAPI.Infrastructure.Services.Auth;
+namespace ELibraryAPI.Infrastructure.Services.Email;
 
 public class EmailBackgroundWorker : BackgroundService
 {

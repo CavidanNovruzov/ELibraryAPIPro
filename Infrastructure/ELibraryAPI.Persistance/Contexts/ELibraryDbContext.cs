@@ -3,10 +3,12 @@ using ELibraryAPI.Domain.Constants;
 using ELibraryAPI.Domain.Entities.Common;
 using global::ELibraryAPI.Domain.Entities.Concrete;
 using global::ELibraryAPI.Domain.Entities.Concrete.Auth;
+using MassTransit;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace ELibraryAPI.Persistence.Contexts;
 
@@ -130,6 +132,10 @@ public class ELibraryDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.AddInboxStateEntity();
+        builder.AddOutboxMessageEntity();
+        builder.AddOutboxStateEntity();
 
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 

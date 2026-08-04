@@ -1,6 +1,6 @@
 ﻿using ELibraryAPI.Application.Dtos.Payment;
 
-namespace ELibraryAPI.Application.Abstractions.Services;
+namespace ELibraryAPI.Application.Abstractions.Services.Payment;
 
 public interface IPaymentService
 {

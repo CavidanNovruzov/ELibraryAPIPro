@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+
 namespace ELibraryAPI.API.Controllers.Auth;
 
 public sealed class AuthController : ApiControllerBase
@@ -29,18 +30,20 @@ public sealed class AuthController : ApiControllerBase
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpPost("refresh-token")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [AllowAnonymous]
     [HttpGet("confirm-email")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpPost("logout")]
     public async Task<IActionResult> Logout(CancellationToken ct)
     {
-        if (UserId == null) return Unauthorized(); 
+        if (UserId == null) return Unauthorized();
         return FromResult(await _mediator.Send(new LogoutUserCommandRequest(UserId.Value), ct));
     }
 
@@ -52,6 +55,7 @@ public sealed class AuthController : ApiControllerBase
 
     [AllowAnonymous]
     [HttpPost("reset-password")]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 }

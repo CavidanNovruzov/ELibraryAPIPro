@@ -12,7 +12,7 @@ using ELibraryAPI.Infrastructure.Security.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.RateLimiting;
 
 [Authorize]
 public sealed class UsersController : ApiControllerBase
@@ -25,11 +25,12 @@ public sealed class UsersController : ApiControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMyProfile(CancellationToken ct)
     {
-        if (UserId == null) return Unauthorized(); 
+        if (UserId == null) return Unauthorized();
         return FromResult(await _mediator.Send(new GetMyProfileQueryRequest(UserId.Value), ct));
     }
 
     [HttpPut("update-profile")]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommandRequest request, CancellationToken ct)
     {
         if (UserId == null) return Unauthorized();
@@ -37,6 +38,7 @@ public sealed class UsersController : ApiControllerBase
     }
 
     [HttpPut("change-password")]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommandRequest request, CancellationToken ct)
     {
         if (UserId == null) return Unauthorized();
@@ -48,7 +50,7 @@ public sealed class UsersController : ApiControllerBase
     #region Administrative Operations (Admin Əməliyyatları)
 
     [HttpGet]
-    [HasPermission(AuthorizePermissions.Administration.ManageUsers)] 
+    [HasPermission(AuthorizePermissions.Administration.ManageUsers)]
     public async Task<IActionResult> GetAllUsers(CancellationToken ct)
         => FromResult(await _mediator.Send(new GetAllUsersQueryRequest(), ct));
 
@@ -59,16 +61,19 @@ public sealed class UsersController : ApiControllerBase
 
     [HttpPut("{id:guid}")]
     [HasPermission(AuthorizePermissions.Administration.ManageUsers)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> UpdateUser([FromRoute] Guid id, [FromBody] UpdateUserByAdminCommandRequest request, CancellationToken ct)
     => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
     [HttpDelete("{id:guid}")]
     [HasPermission(AuthorizePermissions.Administration.ManageUsers)]
+    [EnableRateLimiting("auth")] 
     public async Task<IActionResult> DeleteUser([FromRoute] Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new DeleteUserCommandRequest(id), ct));
 
     [HttpPatch("{id:guid}/change-status")]
     [HasPermission(AuthorizePermissions.Administration.ManageUsers)]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> ChangeStatus([FromRoute] Guid id, CancellationToken ct)
        => FromResult(await _mediator.Send(new ChangeUserStatusCommandRequest(id), ct));
     #endregion
