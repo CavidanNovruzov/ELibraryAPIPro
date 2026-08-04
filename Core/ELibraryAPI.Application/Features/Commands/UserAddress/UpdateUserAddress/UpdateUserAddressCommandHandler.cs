@@ -1,4 +1,5 @@
 using AutoMapper;
+using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
@@ -10,19 +11,28 @@ public sealed class UpdateUserAddressCommandHandler : IRequestHandler<UpdateUser
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public UpdateUserAddressCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateUserAddressCommandHandler(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Result<UpdateUserAddressCommandResponse>> Handle(UpdateUserAddressCommandRequest request, CancellationToken ct)
     {
+        var userId = _currentUserService.UserGuid;
+        if (userId == Guid.Empty)
+            return Result<UpdateUserAddressCommandResponse>.Unauthorized("Sistemdə daxil edilməmisiniz. Zəhmət olmasa, daxil olun.");
+
         var addressReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.UserAddress, Guid>();
 
         var address = await addressReadRepo.GetByIdAsync(request.Id, tracking: true, ct: ct);
-        if (address == null) return Result<UpdateUserAddressCommandResponse>.Failure("Ünvan tapılmadı.");
+        if (address == null) return Result<UpdateUserAddressCommandResponse>.NotFound("Ünvan tapılmadı.");
+
+        if (address.UserId != userId && !_currentUserService.IsAdmin)
+            return Result<UpdateUserAddressCommandResponse>.Forbidden("Bu ünvana müdaxilə etmək üçün icazəniz yoxdur.");
 
         if (request.IsDefault && !address.IsDefault)
         {

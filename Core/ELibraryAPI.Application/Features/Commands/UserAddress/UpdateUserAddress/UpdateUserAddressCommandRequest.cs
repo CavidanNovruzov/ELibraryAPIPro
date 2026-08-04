@@ -6,6 +6,5 @@ namespace ELibraryAPI.Application.Features.Commands.UserAddress.UpdateUserAddres
 public sealed record UpdateUserAddressCommandRequest(
     Guid Id,
     string AddressLine,
-    Guid UserId,
     bool IsDefault
 ) : IRequest<Result<UpdateUserAddressCommandResponse>>;

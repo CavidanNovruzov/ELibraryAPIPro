@@ -3,4 +3,4 @@ using MediatR;
 
 namespace ELibraryAPI.Application.Features.Commands.UserAddress.DeleteUserAddress;
 
-public sealed record DeleteUserAddressCommandRequest(Guid Id,Guid UserId) : IRequest<Result>;
+public sealed record DeleteUserAddressCommandRequest(Guid Id) : IRequest<Result>;

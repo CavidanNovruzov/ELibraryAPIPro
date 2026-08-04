@@ -23,30 +23,28 @@ public class UserAddressesController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateUserAddressCommandRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateUserAddressCommandRequest request, CancellationToken ct)
     {
-        var command = request with { UserId = UserId.Value };
-        return FromResult(await _mediator.Send(command));
+        return FromResult(await _mediator.Send(request, ct));
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UpdateUserAddressCommandRequest request)
+    public async Task<IActionResult> Update([FromBody] UpdateUserAddressCommandRequest request, CancellationToken ct)
     {
-        var command = request with { UserId = UserId.Value };
-        return FromResult(await _mediator.Send(command));
+        return FromResult(await _mediator.Send(request, ct));
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
     {
-        var command = new DeleteUserAddressCommandRequest(id, UserId.Value);
-        return FromResult(await _mediator.Send(command));
+        var command = new DeleteUserAddressCommandRequest(id);
+        return FromResult(await _mediator.Send(command, ct));
     }
 
     [HttpPatch("set-default/{id}")]
-    public async Task<IActionResult> SetDefault([FromRoute] Guid id)
+    public async Task<IActionResult> SetDefault([FromRoute] Guid id, CancellationToken ct)
     {
-        var command = new SetDefaultAddressCommandRequest(id, UserId.Value);
-        return FromResult(await _mediator.Send(command));
+        var command = new SetDefaultAddressCommandRequest(id);
+        return FromResult(await _mediator.Send(command, ct));
     }
 }

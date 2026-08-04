@@ -3,4 +3,4 @@ using MediatR;
 
 namespace ELibraryAPI.Application.Features.Commands.UserAddress.SetDefaultAddress;
 
-public sealed record SetDefaultAddressCommandRequest(Guid Id, Guid UserId) : IRequest<Result>;
+public sealed record SetDefaultAddressCommandRequest(Guid Id) : IRequest<Result>;
