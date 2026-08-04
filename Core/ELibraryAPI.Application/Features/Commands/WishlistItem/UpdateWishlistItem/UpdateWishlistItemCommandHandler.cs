@@ -1,4 +1,5 @@
 using ELibraryAPI.Application.Abstractions.Services;
+using ELibraryAPI.Domain.Enums;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
@@ -20,7 +21,7 @@ public sealed class UpdateWishlistItemCommandHandler : IRequestHandler<UpdateWis
     {
         var userId = _currentUserService.UserGuid;
         if (userId == Guid.Empty)
-            return Result<UpdateWishlistItemCommandResponse>.Failure("Sistemdə daxil edilməmisiniz.", ErrorType.Unauthorized);
+            return Result<UpdateWishlistItemCommandResponse>.Failure("Sistemdə daxil edilməmisiniz.", ELibraryAPI.Domain.Enums.ErrorType.Unauthorized);
 
         var itemRead = _unitOfWork.ReadRepository<Domain.Entities.Concrete.WishlistItem, Guid>();
         var wishlistRead = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Wishlist, Guid>();

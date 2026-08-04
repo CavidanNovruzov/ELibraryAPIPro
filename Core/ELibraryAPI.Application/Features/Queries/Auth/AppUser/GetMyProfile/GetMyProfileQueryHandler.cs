@@ -1,5 +1,6 @@
 using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
+using ELibraryAPI.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using ELibraryAPI.Domain.Entities.Concrete.Auth;

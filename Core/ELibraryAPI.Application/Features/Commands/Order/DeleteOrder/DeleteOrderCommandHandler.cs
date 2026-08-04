@@ -17,7 +17,7 @@ public sealed class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderComma
     {
         var userId = _currentUserService.UserGuid;
         if (userId == Guid.Empty)
-            return Result.Failure("Sistemdə daxil edilməmisiniz.", ErrorType.Unauthorized);
+            return Result.Failure("Sistemdə daxil edilməmisiniz.", ELibraryAPI.Domain.Enums.ErrorType.Unauthorized);
 
         var order = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Order, Guid>()
             .GetAll()

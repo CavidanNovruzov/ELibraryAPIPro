@@ -10,6 +10,5 @@ public sealed class UpdateUserAddressCommandValidator : AbstractValidator<Update
         RuleFor(x => x.Id).NotEmpty().WithMessage("ID-si boş ola bilməz.");
 
         RuleFor(x => x.AddressLine).NotEmpty().WithMessage("Ünvan Line boş ola bilməz.").MaximumLength(1000).WithMessage("Ünvan Line maksimum {MaxLength} simvol ola bilər.");
-        RuleFor(x => x.UserId).NotEmpty().WithMessage("İstifadəçi ID-si boş ola bilməz.");
     }
 }

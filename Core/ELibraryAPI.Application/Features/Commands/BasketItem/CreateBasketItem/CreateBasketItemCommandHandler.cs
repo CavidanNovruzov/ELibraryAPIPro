@@ -24,7 +24,7 @@ public sealed class CreateBasketItemCommandHandler : IRequestHandler<CreateBaske
     {
         var userId = _currentUserService.UserGuid;
         if (userId == Guid.Empty)
-            return Result<CreateBasketItemCommandResponse>.Failure("Sistemdə daxil olunmamısınız.", ErrorType.Unauthorized);
+            return Result<CreateBasketItemCommandResponse>.Failure("Sistemdə daxil olunmamısınız.", ELibraryAPI.Domain.Enums.ErrorType.Unauthorized);
 
         var basketItemReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.BasketItem, Guid>();
         var basketItemWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.BasketItem, Guid>();
@@ -40,7 +40,7 @@ public sealed class CreateBasketItemCommandHandler : IRequestHandler<CreateBaske
             .FirstOrDefaultAsync(ct);
 
         if (productInfo == null)
-            return Result<CreateBasketItemCommandResponse>.Failure("Məhsul tapılmadı..");
+            return Result<CreateBasketItemCommandResponse>.Failure("Məhsul tapılmadı..", ELibraryAPI.Domain.Enums.ErrorType.NotFound);
 
         var basket = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Basket, Guid>()
             .GetSingleAsync(b => b.UserId == userId, tracking: false, ct: ct);
