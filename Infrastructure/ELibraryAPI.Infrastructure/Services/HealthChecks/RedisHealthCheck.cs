@@ -20,7 +20,9 @@ public class RedisHealthCheck : IHealthCheck
     {
         try
         {
-            var db = _connectionProvider.Connection.GetDatabase();
+            var connection = await _connectionProvider.GetConnectionAsync();
+
+            var db = connection.GetDatabase();
 
             await db.PingAsync();
 

@@ -5,7 +5,7 @@ using ELibraryAPI.Application.Features.Commands.Banner.UpdateBanner;
 using ELibraryAPI.Application.Features.Queries.Banner.GetActiveBanners;
 using ELibraryAPI.Application.Features.Queries.Banner.GetAllBanner;
 using ELibraryAPI.Domain.Constants;
-using ELibraryAPI.Infrastructure.Security.Attributes; 
+using ELibraryAPI.Infrastructure.Security.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

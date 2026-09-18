@@ -7,6 +7,6 @@ public sealed class CreateWishlistCommandValidator : AbstractValidator<CreateWis
 {
     public CreateWishlistCommandValidator()
     {
-        // UserId is provided by ICurrentUserService in handlers; do not validate here
+       
     }
 }

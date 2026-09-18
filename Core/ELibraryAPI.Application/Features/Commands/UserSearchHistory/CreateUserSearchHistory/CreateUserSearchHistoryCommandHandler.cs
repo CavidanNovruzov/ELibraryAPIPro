@@ -26,7 +26,7 @@ public sealed class CreateUserSearchHistoryCommandHandler : IRequestHandler<Crea
     public async Task<Result<CreateUserSearchHistoryCommandResponse>> Handle(CreateUserSearchHistoryCommandRequest request, CancellationToken ct)
     {
         var userId = _currentUserService.UserGuid;
-        if (userId == Guid.Empty)
+        if (!userId.HasValue)
             return Result<CreateUserSearchHistoryCommandResponse>.Failure("Sistemə daxil olunmamışdır.", ErrorType.Unauthorized);
 
         var normalizedQuery = request.SearchQuery?.Trim();
@@ -40,7 +40,7 @@ public sealed class CreateUserSearchHistoryCommandHandler : IRequestHandler<Crea
         var searchHistory = _mapper.Map<Domain.Entities.Concrete.UserSearchHistory>(request);
         searchHistory.SearchQuery = normalizedQuery;
 
-        searchHistory.UserId = userId;
+        searchHistory.UserId = userId.Value;
 
         await historyWriteRepository.AddAsync(searchHistory, ct);
         await _unitOfWork.SaveAsync(ct);

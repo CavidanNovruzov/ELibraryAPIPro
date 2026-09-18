@@ -1,7 +1,9 @@
+using ELibraryAPI.API.Swagger;
 using ELibraryAPI.Application.Exceptions;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Domain.Enums;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace ELibraryAPI.API.Middlewares;
 
@@ -9,16 +11,20 @@ public sealed class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+    private readonly SwaggerOptions _swaggerOptions;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger, IOptions<SwaggerOptions> swaggerOptions)
     {
         _next = next;
         _logger = logger;
+        _swaggerOptions = swaggerOptions.Value;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Path.StartsWithSegments("/swagger"))
+        string routePrefix = string.IsNullOrWhiteSpace(_swaggerOptions.RoutePrefix) ? "swagger" : _swaggerOptions.RoutePrefix.Trim('/');
+
+        if (context.Request.Path.StartsWithSegments($"/{routePrefix}", StringComparison.OrdinalIgnoreCase))
         {
             await _next(context);
             return;
@@ -35,12 +41,6 @@ public sealed class ExceptionHandlingMiddleware
                 "Validasiya xətası baş verdi.",
                 ErrorType.ValidationError);
             await WriteResponse(context, 422, result);
-        }
-        catch (NotFoundException)
-        {
-            _logger.LogWarning("Resource not found");
-            var result = Result.Failure("Axtarılan məlumat tapılmadı.", ErrorType.NotFound);
-            await WriteResponse(context, 404, result);
         }
         catch (UnauthorizedAccessException)
         {

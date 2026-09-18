@@ -8,7 +8,6 @@ using ELibraryAPI.Domain.Constants;
 using ELibraryAPI.Domain.Entities.Concrete;
 using ELibraryAPI.Domain.Entities.Concrete.Auth;
 using ELibraryAPI.Domain.Enums;
-using ELibraryAPI.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

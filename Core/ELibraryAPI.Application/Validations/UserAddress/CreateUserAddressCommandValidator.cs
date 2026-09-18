@@ -8,8 +8,5 @@ public sealed class CreateUserAddressCommandValidator : AbstractValidator<Create
         RuleFor(x => x.AddressLine)
             .NotEmpty().WithMessage("Ünvan xətti boş ola bilməz.")
             .MaximumLength(1000).WithMessage("Ünvan xətti çox uzundur.");
-
-        RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("İstifadəçi ID-si mütləqdir.");
     }
 }

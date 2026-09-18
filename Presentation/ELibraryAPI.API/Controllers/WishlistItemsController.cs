@@ -9,24 +9,25 @@ using Microsoft.AspNetCore.Mvc;
 namespace ELibraryAPI.API.Controllers;
 
 [Authorize]
+[Route("api/wishlist-items")]
 public class WishlistItemsController : ApiControllerBase
 {
     private readonly IMediator _mediator;
     public WishlistItemsController(IMediator mediator) => _mediator = mediator;
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateWishlistItemCommandRequest request)
-        => FromResult(await _mediator.Send(request));
+    public async Task<IActionResult> Create([FromBody] CreateWishlistItemCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request, ct));
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
-        => FromResult(await _mediator.Send(new DeleteWishlistItemCommandRequest(id)));
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWishlistItemCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UpdateWishlistItemCommandRequest request)
-        => FromResult(await _mediator.Send(request));
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
+        => FromResult(await _mediator.Send(new DeleteWishlistItemCommandRequest(id), ct));
 
     [HttpPost("move-to-basket")]
-    public async Task<IActionResult> MoveToBasket([FromBody] MoveToBasketCommandRequest request)
-        => FromResult(await _mediator.Send(request));
+    public async Task<IActionResult> MoveToBasket([FromBody] MoveToBasketCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request, ct));
 }

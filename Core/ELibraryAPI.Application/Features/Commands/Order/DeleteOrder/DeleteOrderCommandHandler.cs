@@ -1,6 +1,7 @@
 using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
+using ELibraryAPI.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,7 @@ public sealed class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderComma
     {
         var userId = _currentUserService.UserGuid;
         if (userId == Guid.Empty)
-            return Result.Failure("Sistemdə daxil edilməmisiniz.", ELibraryAPI.Domain.Enums.ErrorType.Unauthorized);
+            return Result.Failure("Sistemdə daxil edilməmisiniz.", ErrorType.Unauthorized);
 
         var order = await _unitOfWork.ReadRepository<Domain.Entities.Concrete.Order, Guid>()
             .GetAll()

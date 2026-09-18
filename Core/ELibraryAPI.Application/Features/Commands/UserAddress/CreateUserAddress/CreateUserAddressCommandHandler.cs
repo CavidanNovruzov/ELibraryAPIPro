@@ -23,7 +23,7 @@ public sealed class CreateUserAddressCommandHandler : IRequestHandler<CreateUser
     public async Task<Result<CreateUserAddressCommandResponse>> Handle(CreateUserAddressCommandRequest request, CancellationToken ct)
     {
         var userId = _currentUserService.UserGuid;
-        if (userId == Guid.Empty)
+        if (!userId.HasValue)
             return Result<CreateUserAddressCommandResponse>.Failure("Sistemə daxil olunmamışdır.", ErrorType.Unauthorized);
 
         var addressReadRepo = _unitOfWork.ReadRepository<ELibraryAPI.Domain.Entities.Concrete.UserAddress, Guid>();
@@ -42,7 +42,7 @@ public sealed class CreateUserAddressCommandHandler : IRequestHandler<CreateUser
         var userAddress = _mapper.Map<ELibraryAPI.Domain.Entities.Concrete.UserAddress>(request);
         userAddress.AddressLine = request.AddressLine.Trim();
 
-        userAddress.UserId = userId;
+        userAddress.UserId = userId.Value;
 
         await addressWriteRepo.AddAsync(userAddress, ct);
         await _unitOfWork.SaveAsync(ct);

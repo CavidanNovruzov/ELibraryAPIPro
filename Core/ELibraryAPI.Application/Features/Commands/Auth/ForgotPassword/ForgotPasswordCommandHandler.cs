@@ -1,6 +1,7 @@
 using ELibraryAPI.Application.Abstractions.Services.Email;
+using ELibraryAPI.Application.Options;
 using ELibraryAPI.Application.Responses;
-using ELibraryAPI.Infrastructure.Options;
+
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;

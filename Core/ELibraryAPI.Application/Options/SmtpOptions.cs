@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ELibraryAPI.Infrastructure.Options;
+﻿
+namespace ELibraryAPI.Application.Options;
 
 public class SmtpOptions
 {

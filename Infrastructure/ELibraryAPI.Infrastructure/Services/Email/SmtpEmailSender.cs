@@ -1,10 +1,11 @@
-﻿using ELibraryAPI.Infrastructure.Options;
+﻿
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;
 using ELibraryAPI.Application.Abstractions.Services.Email;
+using ELibraryAPI.Application.Options;
 
 namespace ELibraryAPI.Infrastructure.Services.Email;
 

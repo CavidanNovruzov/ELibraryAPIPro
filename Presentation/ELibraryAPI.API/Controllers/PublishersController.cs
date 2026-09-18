@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ELibraryAPI.API.Controllers;
 
+[Route("api/publishers")]
 public class PublishersController : ApiControllerBase
 {
     private readonly IMediator _mediator;
@@ -22,7 +23,7 @@ public class PublishersController : ApiControllerBase
     public async Task<IActionResult> GetAll([FromQuery] GetAllPublisherQueryRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new GetByIdPublisherQueryRequest (id), ct));
@@ -37,7 +38,7 @@ public class PublishersController : ApiControllerBase
     public async Task<IActionResult> Update([FromBody] UpdatePublisherCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     [HasPermission(AuthorizePermissions.Catalog.ManagePublishers)]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new DeletePublisherCommandRequest (id), ct));

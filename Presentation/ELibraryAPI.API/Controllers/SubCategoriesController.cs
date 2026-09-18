@@ -7,40 +7,44 @@ using ELibraryAPI.Application.Features.Queries.SubCategory.GetByIdSubCategory;
 using ELibraryAPI.Domain.Constants;
 using ELibraryAPI.Infrastructure.Security.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ELibraryAPI.API.Controllers;
 
+[Route("api/sub-categories")]
 public class SubCategoriesController : ApiControllerBase
 {
     private readonly IMediator _mediator;
     public SubCategoriesController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] GetAllSubCategoryQueryRequest request)
-        => FromResult(await _mediator.Send(request));
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAll([FromQuery] GetAllSubCategoryQueryRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request, ct));
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById([FromRoute] GetByIdSubCategoryQueryRequest request)
-        => FromResult(await _mediator.Send(request));
+    [HttpGet("{id:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
+        => FromResult(await _mediator.Send(new GetByIdSubCategoryQueryRequest(id), ct));
 
     [HttpPost]
     [HasPermission(AuthorizePermissions.Catalog.ManageCategories)]
-    public async Task<IActionResult> Create([FromBody] CreateSubCategoryCommandRequest request)
-        => FromResult(await _mediator.Send(request));
+    public async Task<IActionResult> Create([FromBody] CreateSubCategoryCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request, ct));
 
-    [HttpPut]
+    [HttpPut("{id:guid}")]
     [HasPermission(AuthorizePermissions.Catalog.ManageCategories)]
-    public async Task<IActionResult> Update([FromBody] UpdateSubCategoryCommandRequest request)
-        => FromResult(await _mediator.Send(request));
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSubCategoryCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     [HasPermission(AuthorizePermissions.Catalog.ManageCategories)]
-    public async Task<IActionResult> Delete([FromRoute] DeleteSubCategoryCommandRequest request)
-        => FromResult(await _mediator.Send(request));
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
+        => FromResult(await _mediator.Send(new DeleteSubCategoryCommandRequest(id), ct));
 
     [HttpPost("merge")]
     [HasPermission(AuthorizePermissions.Catalog.ManageCategories)]
-    public async Task<IActionResult> Merge([FromBody] MergeSubCategoriesCommandRequest request)
-        => FromResult(await _mediator.Send(request));
+    public async Task<IActionResult> Merge([FromBody] MergeSubCategoriesCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request, ct));
 }

@@ -28,6 +28,9 @@ public sealed class CheckPromoCodeQueryHandler : IRequestHandler<CheckPromoCodeQ
         if (!promo.IsActive)
             return Result<CheckPromoCodeQueryResponse>.Failure("Bu promo kod artıq aktiv deyil.", ErrorType.ValidationError);
 
+        if (promo.StartDate > DateTime.UtcNow)
+            return Result<CheckPromoCodeQueryResponse>.Failure("Bu promo kodun istifadə müddəti hələ başlamayıb.", ErrorType.ValidationError);
+
         if (promo.EndDate < DateTime.UtcNow)
             return Result<CheckPromoCodeQueryResponse>.Failure("Bu promo kodun vaxtı bitib.", ErrorType.ValidationError);
 

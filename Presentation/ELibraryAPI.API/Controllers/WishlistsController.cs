@@ -8,16 +8,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace ELibraryAPI.API.Controllers;
 
 [Authorize]
+[Route("api/wishlists")]
 public class WishlistsController : ApiControllerBase
 {
     private readonly IMediator _mediator;
     public WishlistsController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetByUserId()
-        => FromResult(await _mediator.Send(new GetCustomerWishlistQueryRequest()));
+    public async Task<IActionResult> GetByUserId(CancellationToken ct)
+        => FromResult(await _mediator.Send(new GetCustomerWishlistQueryRequest(), ct));
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new DeleteWishlistCommandRequest(id), ct));
 }

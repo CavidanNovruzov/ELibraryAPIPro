@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ELibraryAPI.API.Controllers;
 
+[Route("api/reviews")]
 public class ReviewsController : ApiControllerBase
 {
     private readonly IMediator _mediator;
@@ -22,28 +23,28 @@ public class ReviewsController : ApiControllerBase
     public async Task<IActionResult> GetAll([FromQuery] GetAllReviewQueryRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken ct)
-        => FromResult(await _mediator.Send(new GetByIdReviewQueryRequest (id), ct));
+        => FromResult(await _mediator.Send(new GetByIdReviewQueryRequest(id), ct));
 
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateReviewCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
-    [HttpPut]
+    [HttpPut("{id:guid}")]
     [Authorize]
-    public async Task<IActionResult> Update([FromBody] UpdateReviewCommandRequest request, CancellationToken ct)
-        => FromResult(await _mediator.Send(request, ct));
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateReviewCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
-        => FromResult(await _mediator.Send(new DeleteReviewCommandRequest (id), ct));
+        => FromResult(await _mediator.Send(new DeleteReviewCommandRequest(id), ct));
 
-    [HttpPatch("approve/{id}")]
+    [HttpPatch("{id:guid}/approve")]
     [HasPermission(AuthorizePermissions.Reviews.Moderate)]
     public async Task<IActionResult> Approve([FromRoute] Guid id, CancellationToken ct)
-        => FromResult(await _mediator.Send(new ApproveReviewCommandRequest (id), ct));
+        => FromResult(await _mediator.Send(new ApproveReviewCommandRequest(id), ct));
 }

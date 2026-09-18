@@ -7,7 +7,7 @@ public sealed record ReviewListDto(
     Guid ProductId,
     string ProductTitle,
     string ProductImageUrl,
-    string UserEmail,
+    string FullName,
     string Comment,
     int Rating,
     DateTime CreatedDate

@@ -15,14 +15,14 @@ public class CurrentUserService : ICurrentUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? SystemConstants.SystemUserName;
+    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    public Guid UserGuid
+    public Guid? UserGuid
     {
         get
         {
             var userId = UserId;
-            return Guid.TryParse(userId, out var guid) ? guid : SystemConstants.SystemUserId;
+            return Guid.TryParse(userId, out var guid) ? guid : null;
         }
     }
 

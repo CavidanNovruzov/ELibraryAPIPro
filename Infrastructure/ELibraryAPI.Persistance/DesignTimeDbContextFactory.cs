@@ -43,7 +43,7 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ELi
 public sealed class DesignTimeCurrentUserService : ICurrentUserService
 {
     public string? UserId => "Migration-System";
-    public Guid UserGuid => Guid.Empty;
+    public Guid? UserGuid => Guid.Empty;
     public bool IsAuthenticated => true;
     public bool IsAdmin => false;
     public bool IsInRole(string role) => false;

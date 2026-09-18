@@ -4,7 +4,6 @@ using ELibraryAPI.API.Swagger;
 using ELibraryAPI.Application;
 using ELibraryAPI.Application.Options;
 using ELibraryAPI.Infrastructure;
-using ELibraryAPI.Infrastructure.Options;
 using ELibraryAPI.Persistance;
 using ELibraryAPI.Persistence.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -58,18 +57,11 @@ try
         options.AddDefaultPolicy(policy =>
         {
             if (allowedOrigins.Length > 0)
-            {
-                policy.WithOrigins(allowedOrigins)
-                      .AllowAnyHeader()
-                      .AllowAnyMethod()
-                      .AllowCredentials();
-            }
+                policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+            else if (builder.Environment.IsDevelopment())
+                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
             else
-            {
-                policy.AllowAnyOrigin()
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
-            }
+                throw new InvalidOperationException("Cors:AllowedOrigins appoint is required for production environment.");
         });
     });
 
@@ -85,6 +77,10 @@ try
 
     builder.Services.AddOptions<SeedOptions>()
         .Bind(builder.Configuration.GetSection(SeedOptions.SectionName))
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
+    builder.Services.AddOptions<SwaggerOptions>()
+        .Bind(builder.Configuration.GetSection(SwaggerOptions.SectionName))
         .ValidateDataAnnotations()
         .ValidateOnStart();
 
@@ -190,7 +186,9 @@ try
     app.UseHttpsRedirection();
     app.UseStaticFiles();
 
-    string swaggerRoute = builder.Configuration["Swagger:RoutePrefix"]?.Trim('/') ?? "swagger";
+    var swaggerOptions = builder.Configuration.GetSection(SwaggerOptions.SectionName).Get<SwaggerOptions>() ?? new SwaggerOptions();
+    string swaggerRoute = swaggerOptions.RoutePrefix?.Trim('/') ?? "swagger";
+
     app.Use(async (context, next) =>
     {
         if (context.Request.Path == "/")
@@ -250,6 +248,7 @@ try
 catch (Exception ex)
 {
     Log.Fatal(ex, "The application failed to start correctly.");
+    throw;
 }
 finally
 {

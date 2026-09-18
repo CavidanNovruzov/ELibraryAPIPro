@@ -5,31 +5,34 @@ using ELibraryAPI.Application.Features.Queries.Transaction.GetAllTransaction;
 using ELibraryAPI.Domain.Constants;
 using ELibraryAPI.Infrastructure.Security.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ELibraryAPI.API.Controllers;
 
+[Route("api/transactions")]
 public class TransactionsController : ApiControllerBase
 {
     private readonly IMediator _mediator;
-
     public TransactionsController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
     [HasPermission(AuthorizePermissions.Finance.ViewTransactions)]
-    public async Task<IActionResult> GetAll([FromQuery] GetAllTransactionQueryRequest request)
-        => FromResult(await _mediator.Send(request));
+    public async Task<IActionResult> GetAll([FromQuery] GetAllTransactionQueryRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request, ct));
 
- 
     [HttpPost("initialize")]
+    [Authorize]
     public async Task<IActionResult> Initialize([FromBody] InitializeTransactionCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpPost("callback")]
+    [AllowAnonymous]
     public async Task<IActionResult> Callback([FromBody] CompleteTransactionCallbackCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpPost("sync/{id:guid}")]
+    [HasPermission(AuthorizePermissions.Finance.ViewTransactions)]
     public async Task<IActionResult> Sync([FromRoute] Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new SyncTransactionStatusCommandRequest(id), ct));
 }

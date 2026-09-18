@@ -4,7 +4,7 @@ namespace ELibraryAPI.Application.Options;
 
 public class RabbitMqOptions
 {
-    public const string SectionName = "RabbitMQ";
+    public const string SectionName = "RabbitMqOptions";
 
     public string Host { get; set; } = "localhost";
     public ushort Port { get; set; } = 5672;

@@ -2,7 +2,6 @@ using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.Shared.Events;
 using ELibraryAPI.Application.UnitOfWork;
-using ELibraryAPI.Domain.Constants;
 using ELibraryAPI.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -15,12 +14,18 @@ public sealed class CreateOrderCommandHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMediator _mediator;
+    private readonly IEventBus _eventBus;
 
-    public CreateOrderCommandHandler(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMediator mediator)
+    public CreateOrderCommandHandler(
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUserService,
+        IMediator mediator,
+        IEventBus eventBus)
     {
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
         _mediator = mediator;
+        _eventBus = eventBus;
     }
 
     public async Task<Result<CreateOrderCommandResponse>> Handle(
@@ -28,12 +33,13 @@ public sealed class CreateOrderCommandHandler
         CancellationToken ct)
     {
         var userId = _currentUserService.UserGuid;
-        if (userId == Guid.Empty)
+
+        if (!userId.HasValue)
             return Result<CreateOrderCommandResponse>.Failure("Sistemə daxil olmamısınız.", ErrorType.Unauthorized);
 
         var pendingStatus = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.OrderStatus, Guid>()
-            .GetSingleAsync(s => s.Name == OrderStatusNames.Pending, tracking: false, ct: ct);
+            .GetSingleAsync(s => s.Code == "PENDING", tracking: false, ct: ct);
 
         if (pendingStatus == null)
             return Result<CreateOrderCommandResponse>.Failure(
@@ -60,14 +66,14 @@ public sealed class CreateOrderCommandHandler
             .Include(b => b.BasketItems)
                 .ThenInclude(bi => bi.Product)
                     .ThenInclude(p => p.Stocks)
-            .FirstOrDefaultAsync(b => b.UserId == userId, ct);
+            .FirstOrDefaultAsync(b => b.UserId == userId.Value, ct);
 
         if (basket == null || !basket.BasketItems.Any())
             return Result<CreateOrderCommandResponse>.Failure("Səbətiniz boşdur.", ErrorType.ValidationError);
 
         var address = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.UserAddress, Guid>()
-            .GetSingleAsync(a => a.Id == request.UserAddressId && a.UserId == userId, false, ct);
+            .GetSingleAsync(a => a.Id == request.UserAddressId && a.UserId == userId.Value, false, ct);
 
         if (address == null)
             return Result<CreateOrderCommandResponse>.Failure("Çatdırılma ünvanı tapılmadı.", ErrorType.NotFound);
@@ -93,7 +99,7 @@ public sealed class CreateOrderCommandHandler
             var alreadyUsed = await _unitOfWork
                 .ReadRepository<Domain.Entities.Concrete.Order, Guid>()
                 .GetAll(tracking: false)
-                .AnyAsync(o => o.UserId == userId && o.PromoCodeId == promoCode.Id, ct);
+                .AnyAsync(o => o.UserId == userId.Value && o.PromoCodeId == promoCode.Id, ct);
 
             if (alreadyUsed)
                 return Result<CreateOrderCommandResponse>.Failure("Bu promo kodu artıq istifadə etmisiniz.", ErrorType.ValidationError);
@@ -120,7 +126,7 @@ public sealed class CreateOrderCommandHandler
 
         var order = new Domain.Entities.Concrete.Order
         {
-            UserId = userId,
+            UserId = userId.Value,
             OrderStatusId = pendingStatus.Id,
             PaymentMethodId = request.PaymentMethodId,
             ShippingMethodId = request.ShippingMethodId,
@@ -153,7 +159,7 @@ public sealed class CreateOrderCommandHandler
             {
                 if (remaining <= 0) break;
                 int deduction = Math.Min(stock.Quantity, remaining);
-                stock.Decrease(deduction); 
+                stock.Decrease(deduction);
                 remaining -= deduction;
 
                 await movementWriteRepo.AddAsync(new Domain.Entities.Concrete.InventoryMovement
@@ -161,7 +167,7 @@ public sealed class CreateOrderCommandHandler
                     ProductId = item.ProductId,
                     FromBranchId = stock.BranchId,
                     ToBranchId = null,
-                    OrderId = order.Id, 
+                    OrderId = order.Id,
                     Quantity = deduction,
                     Type = InventoryMovementType.Sale,
                     Status = InventoryMovementStatus.Completed
@@ -171,13 +177,15 @@ public sealed class CreateOrderCommandHandler
 
         _unitOfWork.WriteRepository<Domain.Entities.Concrete.Basket, Guid>().Remove(basket);
 
+        await _eventBus.PublishAsync(new OrderCreatedEvent(order.Id), ct);
+
         try
         {
             var saved = await _unitOfWork.SaveAsync(ct);
             if (saved > 0)
             {
                 await _mediator.Publish(new EntityChangedEvent("order", order.Id), ct);
-                await _mediator.Publish(new OrderCreatedEvent(order.Id),ct);
+
                 foreach (var productId in basket.BasketItems.Select(i => i.ProductId).Distinct())
                 {
                     await _mediator.Publish(new EntityChangedEvent("product", productId), ct);
@@ -195,6 +203,12 @@ public sealed class CreateOrderCommandHandler
             return Result<CreateOrderCommandResponse>.Failure(
                 "Stok və ya promo kodun mövcudluğu ödəniş zamanı dəyişdi. Zəhmət olmasa yenidən cəhd edin.",
                 ErrorType.Conflict);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<CreateOrderCommandResponse>.Failure(
+                "Sifariş yaradılarkən verilənlər bazası xətası baş verdi. Yenidən cəhd edin.",
+                ErrorType.ServerError);
         }
     }
 }

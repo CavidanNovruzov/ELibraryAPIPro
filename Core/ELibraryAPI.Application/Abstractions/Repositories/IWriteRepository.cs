@@ -10,4 +10,6 @@ public interface IWriteRepository<T, TKey> : IRepository<T, TKey> where T : clas
     Task<bool> RemoveAsync(TKey id, CancellationToken ct = default);
     void RemoveRange(IEnumerable<T> datas); 
     bool Update(T model);
+
+    Task<bool> HardDeleteAsync(TKey id,CancellationToken ct = default);         
 }

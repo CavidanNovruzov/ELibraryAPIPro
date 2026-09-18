@@ -29,7 +29,6 @@ public sealed class DeleteWishlistCommandHandler : IRequestHandler<DeleteWishlis
         if (wishlist == null)
             return Result.NotFound("İstək siyahısı tapılmadı.");
 
-        // Ownership check: only owner or admin can delete
         if (wishlist.UserId != userId && !_currentUserService.IsAdmin)
             return Result.Forbidden("Bu resursa müdaxilə etmək üçün icazəniz yoxdur.");
 

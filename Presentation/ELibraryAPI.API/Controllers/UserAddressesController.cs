@@ -10,41 +10,29 @@ using Microsoft.AspNetCore.Mvc;
 namespace ELibraryAPI.API.Controllers;
 
 [Authorize]
+[Route("api/user-addresses")]
 public class UserAddressesController : ApiControllerBase
 {
     private readonly IMediator _mediator;
     public UserAddressesController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var request = new GetAllUserAddressQueryRequest();
-        return FromResult(await _mediator.Send(request));
-    }
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+        => FromResult(await _mediator.Send(new GetAllUserAddressQueryRequest(), ct));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserAddressCommandRequest request, CancellationToken ct)
-    {
-        return FromResult(await _mediator.Send(request, ct));
-    }
+        => FromResult(await _mediator.Send(request, ct));
 
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UpdateUserAddressCommandRequest request, CancellationToken ct)
-    {
-        return FromResult(await _mediator.Send(request, ct));
-    }
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateUserAddressCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
-    {
-        var command = new DeleteUserAddressCommandRequest(id);
-        return FromResult(await _mediator.Send(command, ct));
-    }
+        => FromResult(await _mediator.Send(new DeleteUserAddressCommandRequest(id), ct));
 
-    [HttpPatch("set-default/{id}")]
+    [HttpPatch("{id:guid}/set-default")]
     public async Task<IActionResult> SetDefault([FromRoute] Guid id, CancellationToken ct)
-    {
-        var command = new SetDefaultAddressCommandRequest(id);
-        return FromResult(await _mediator.Send(command, ct));
-    }
+        => FromResult(await _mediator.Send(new SetDefaultAddressCommandRequest(id), ct));
 }

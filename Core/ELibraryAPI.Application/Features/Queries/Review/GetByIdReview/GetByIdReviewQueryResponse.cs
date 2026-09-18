@@ -8,7 +8,7 @@ public sealed record ReviewDetailDto(
     Guid Id,
     Guid ProductId,
     string ProductTitle,
-    string UserEmail,
+    string FullName,
     string Comment,
     int Rating,
     DateTime CreatedDate,

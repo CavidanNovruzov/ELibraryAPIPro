@@ -10,10 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ELibraryAPI.API.Controllers;
 
+[Route("api/payment-methods")]
 public class PaymentMethodsController : ApiControllerBase
 {
     private readonly IMediator _mediator;
-
     public PaymentMethodsController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
@@ -26,12 +26,12 @@ public class PaymentMethodsController : ApiControllerBase
     public async Task<IActionResult> Create([FromBody] CreatePaymentMethodCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
-    [HttpPut]
+    [HttpPut("{id:guid}")]
     [HasPermission(AuthorizePermissions.Finance.ManagePaymentMethods)]
-    public async Task<IActionResult> Update([FromBody] UpdatePaymentMethodCommandRequest request, CancellationToken ct)
-        => FromResult(await _mediator.Send(request, ct));
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdatePaymentMethodCommandRequest request, CancellationToken ct)
+        => FromResult(await _mediator.Send(request with { Id = id }, ct));
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     [HasPermission(AuthorizePermissions.Finance.ManagePaymentMethods)]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new DeletePaymentMethodCommandRequest(id), ct));

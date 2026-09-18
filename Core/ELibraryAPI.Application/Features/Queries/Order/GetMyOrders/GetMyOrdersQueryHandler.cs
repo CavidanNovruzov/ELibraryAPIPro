@@ -20,19 +20,21 @@ public sealed class GetMyOrdersQueryHandler : IRequestHandler<GetMyOrdersQueryRe
     public async Task<Result<GetMyOrdersQueryResponse>> Handle(GetMyOrdersQueryRequest request, CancellationToken ct)
     {
         var userId = _currentUserService.UserGuid;
+        if (userId == Guid.Empty)
+            return Result<GetMyOrdersQueryResponse>.Unauthorized("Sistemə daxil olunmamışdır.");
 
         var query = _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Order, Guid>()
             .GetAll(tracking: false)
+            .Where(o => o.UserId == userId) 
             .Include(o => o.OrderStatus)
             .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-            .OrderByDescending(o => o.CreatedDate);
+                .ThenInclude(oi => oi.Product);
 
         var totalCount = await query.CountAsync(ct);
 
-
         var orders = await query
+            .OrderByDescending(o => o.CreatedDate)
             .Skip((request.Page - 1) * request.Size)
             .Take(request.Size)
             .Select(o => new MyOrderDto(

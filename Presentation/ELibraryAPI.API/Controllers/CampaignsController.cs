@@ -15,31 +15,28 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ELibraryAPI.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/campaigns")]
 public sealed class CampaignsController : ApiControllerBase
 {
     private readonly IMediator _mediator;
     public CampaignsController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] GetAllCampaignQueryRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
     [HttpGet("{id:guid}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
         => FromResult(await _mediator.Send(new GetByIdCampaignQueryRequest(id), ct));
 
-    [HttpGet("{campaignId}/products")]
+    [HttpGet("{campaignId:guid}/products")]
     [AllowAnonymous]
     public async Task<IActionResult> GetProductsByCampaign(
-    [FromRoute] Guid campaignId,
-    [FromQuery] int page = 1,
-    [FromQuery] int size = 20,
-    CancellationToken ct = default)
-    {
-        var request = new GetProductsByCampaignQueryRequest(campaignId, page, size);
-        return FromResult(await _mediator.Send(request, ct));
-    }
+        [AsParameters] GetProductsByCampaignQueryRequest request,
+        CancellationToken ct = default)
+        => FromResult(await _mediator.Send(request, ct));
 
     [HttpPost]
     [HasPermission(AuthorizePermissions.Marketing.ManageCampaigns)]

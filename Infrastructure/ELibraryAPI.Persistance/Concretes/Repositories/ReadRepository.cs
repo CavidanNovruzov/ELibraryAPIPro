@@ -91,7 +91,7 @@ public class ReadRepository<T, TKey> : IReadRepository<T, TKey>
         if (!tracking) query = query.AsNoTracking();
 
         return query
-            .OrderBy(e => e.Id)     
+            .OrderBy(e => e.Id)
             .Skip((page - 1) * size)
             .Take(size);
     }

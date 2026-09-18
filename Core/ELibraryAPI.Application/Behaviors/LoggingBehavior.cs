@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -36,6 +37,18 @@ public sealed class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
                 stopwatch.ElapsedMilliseconds);
 
             return response;
+        }
+        catch (ValidationException vex)
+        {
+            stopwatch.Stop();
+
+            _logger.LogWarning(
+                "Validation failed for {RequestName} in {ElapsedMilliseconds}ms: {Errors}",
+                requestName,
+                stopwatch.ElapsedMilliseconds,
+                string.Join("; ", vex.Errors.Select(e => e.ErrorMessage)));
+
+            throw;
         }
         catch (Exception ex)
         {

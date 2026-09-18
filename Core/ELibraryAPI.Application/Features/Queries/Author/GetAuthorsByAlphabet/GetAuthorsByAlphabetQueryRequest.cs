@@ -5,10 +5,10 @@ using MediatR;
 
 namespace ELibraryAPI.Application.Features.Queries.Author.GetAuthorsByAlphabet;
 
-public sealed record GetAuthorsByAlphabetQueryRequest(char Letter)
+public sealed record GetAuthorsByAlphabetQueryRequest(string Letter)
     : IRequest<Result<GetAuthorsByAlphabetQueryResponse>>, ICacheable
 {
-    public string CacheKey => CacheKeyHelper.Create("author", "alphabet", char.ToLower(Letter));
+    public string CacheKey => CacheKeyHelper.Create("author", "alphabet", Letter.ToLower());
 
     public TimeSpan? AbsoluteExpiration => TimeSpan.FromHours(1);
     public TimeSpan? SlidingExpiration => TimeSpan.FromMinutes(15);

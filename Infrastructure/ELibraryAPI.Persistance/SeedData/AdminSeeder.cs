@@ -17,7 +17,7 @@ public static class AdminSeeder
         IOptions<SeedOptions> seedOptions)
     {
         var seed = seedOptions.Value.Admin;
-        if (string.IsNullOrWhiteSpace(seed.AdminEmail)) return;
+        if (string.IsNullOrWhiteSpace(seed?.AdminEmail)) return;
 
         string[] roles = { RoleNames.Admin, RoleNames.User, RoleNames.Moderator };
         foreach (var roleName in roles)
@@ -28,6 +28,7 @@ public static class AdminSeeder
             }
         }
 
+        // Admin roluna bütün permission-ların verilməsi
         var adminRole = await roleManager.FindByNameAsync(RoleNames.Admin);
         if (adminRole != null)
         {
@@ -35,6 +36,7 @@ public static class AdminSeeder
             await AssignPermissionsToRoleAsync(context, adminRole.Id, allPermissionIds);
         }
 
+        // Moderator roluna xüsusi permission-ların verilməsi
         var moderatorRole = await roleManager.FindByNameAsync(RoleNames.Moderator);
         if (moderatorRole != null)
         {
@@ -48,6 +50,23 @@ public static class AdminSeeder
             await AssignPermissionsToRoleAsync(context, moderatorRole.Id, moderatorPermissions);
         }
 
+        // User (Müştəri) roluna əsas istifadəçi permission-larının verilməsi
+        var userRole = await roleManager.FindByNameAsync(RoleNames.User);
+        if (userRole != null)
+        {
+            var userPermissions = await context.Permissions
+                .Where(p => p.Key == AuthorizePermissions.Books.View ||
+                            p.Key == AuthorizePermissions.Authors.View ||
+                            p.Key == AuthorizePermissions.Orders.View ||
+                            p.Key == AuthorizePermissions.Orders.Cancel ||
+                            p.Key == AuthorizePermissions.Reviews.View)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            await AssignPermissionsToRoleAsync(context, userRole.Id, userPermissions);
+        }
+
+        // Super Admin istifadəçisinin yaradılması
         var adminUser = await userManager.FindByEmailAsync(seed.AdminEmail);
         if (adminUser == null)
         {

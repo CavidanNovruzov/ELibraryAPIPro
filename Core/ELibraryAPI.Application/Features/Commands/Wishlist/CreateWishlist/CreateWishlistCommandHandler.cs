@@ -20,7 +20,7 @@ public sealed class CreateWishlistCommandHandler : IRequestHandler<CreateWishlis
     public async Task<Result<CreateWishlistCommandResponse>> Handle(CreateWishlistCommandRequest request, CancellationToken ct)
     {
         var userId = _currentUserService.UserGuid;
-        if (userId == Guid.Empty)
+        if (!userId.HasValue)
             return Result<CreateWishlistCommandResponse>.Failure("Sistemə daxil olunmamışdır.", ErrorType.Unauthorized);
 
         var wishlistReadRepo = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Wishlist, Guid>();
@@ -32,7 +32,7 @@ public sealed class CreateWishlistCommandHandler : IRequestHandler<CreateWishlis
 
         var wishlist = new Domain.Entities.Concrete.Wishlist
         {
-            UserId = userId
+            UserId = userId.Value
         };
 
         await wishlistWriteRepo.AddAsync(wishlist, ct);

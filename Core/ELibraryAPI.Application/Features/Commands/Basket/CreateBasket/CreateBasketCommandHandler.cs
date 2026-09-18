@@ -1,4 +1,4 @@
-using AutoMapper;
+
 using ELibraryAPI.Application.Abstractions.Services;
 using ELibraryAPI.Application.Responses;
 using ELibraryAPI.Application.UnitOfWork;
@@ -26,7 +26,7 @@ public sealed class CreateBasketCommandHandler
     {
         var userId = _currentUserService.UserGuid;
 
-        if (userId == Guid.Empty)
+        if (!userId.HasValue)
             return Result<CreateBasketCommandResponse>.Failure(
                 "Sistemə daxil olmuş istifadəçi tapılmadı.", ErrorType.Unauthorized);
 
@@ -34,7 +34,7 @@ public sealed class CreateBasketCommandHandler
         var basketWriteRepo = _unitOfWork.WriteRepository<Domain.Entities.Concrete.Basket, Guid>();
 
         var hasActiveBasket = await basketReadRepo.ExistsAsync(
-            x => x.UserId == userId, ct: ct);
+            x => x.UserId == userId.Value, ct: ct);
 
         if (hasActiveBasket)
             return Result<CreateBasketCommandResponse>.Failure(
@@ -42,7 +42,7 @@ public sealed class CreateBasketCommandHandler
 
         var basket = new Domain.Entities.Concrete.Basket
         {
-            UserId = userId
+            UserId = userId.Value 
         };
 
         await basketWriteRepo.AddAsync(basket, ct);

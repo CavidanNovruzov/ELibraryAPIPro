@@ -5,6 +5,7 @@ using ELibraryAPI.Application.Features.Queries.BranchWorkHours.GetAllBranchWorkH
 using ELibraryAPI.Domain.Constants;
 using ELibraryAPI.Infrastructure.Security.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ELibraryAPI.API.Controllers;
@@ -15,6 +16,9 @@ public sealed class BranchWorkHoursController : ApiControllerBase
 {
     private readonly IMediator _mediator;
     public BranchWorkHoursController(IMediator mediator) => _mediator = mediator;
+
+    [Authorize]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetByBranchId(Guid branchId, CancellationToken ct)
     {

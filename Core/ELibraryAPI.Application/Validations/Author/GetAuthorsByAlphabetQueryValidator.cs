@@ -10,7 +10,7 @@ public sealed class GetAuthorsByAlphabetQueryValidator : AbstractValidator<GetAu
         RuleFor(x => x.Letter)
             .NotEmpty()
             .WithMessage("Hərf boş ola bilməz.")
-            .Must(char.IsLetter)
-            .WithMessage("Zəhmət olmasa, düzgün bir hərf daxil edin.");
+            .MaximumLength(1)
+            .WithMessage("Hərf yalnız bir simvol olmalıdır.");
     }
 }

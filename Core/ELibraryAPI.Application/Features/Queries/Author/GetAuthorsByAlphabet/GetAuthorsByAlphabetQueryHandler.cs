@@ -16,8 +16,7 @@ public sealed class GetAuthorsByAlphabetQueryHandler : IRequestHandler<GetAuthor
 
     public async Task<Result<GetAuthorsByAlphabetQueryResponse>> Handle(GetAuthorsByAlphabetQueryRequest request, CancellationToken ct)
     {
-        var letter = char.ToUpper(request.Letter).ToString();
-
+        var letter = request.Letter.ToUpper();
         var authors = await _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Author, Guid>()
             .GetAll(tracking: false)

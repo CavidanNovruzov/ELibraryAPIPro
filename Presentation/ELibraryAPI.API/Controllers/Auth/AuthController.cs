@@ -29,6 +29,7 @@ public sealed class AuthController : ApiControllerBase
     public async Task<IActionResult> Login([FromBody] LoginUserCommandRequest request, CancellationToken ct)
         => FromResult(await _mediator.Send(request, ct));
 
+    [AllowAnonymous]
     [HttpPost("refresh-token")]
     [EnableRateLimiting("auth")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommandRequest request, CancellationToken ct)

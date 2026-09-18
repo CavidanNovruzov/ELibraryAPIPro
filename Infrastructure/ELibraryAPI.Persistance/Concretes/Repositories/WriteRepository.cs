@@ -29,6 +29,13 @@ public class WriteRepository<T, TKey> : IWriteRepository<T, TKey> where T : clas
         return true;
     }
 
+    public async Task<bool> HardDeleteAsync(TKey id, CancellationToken ct = default)
+    {
+       int affectedRows = await Table.Where(x=>x.Id!.Equals(id))
+            .ExecuteDeleteAsync(ct);
+        return affectedRows > 0;
+    }
+
     public void Remove(T model) 
     {
         Table.Remove(model);

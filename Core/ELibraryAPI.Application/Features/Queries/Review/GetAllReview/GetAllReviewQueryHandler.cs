@@ -18,7 +18,8 @@ public sealed class GetAllReviewQueryHandler : IRequestHandler<GetAllReviewQuery
     {
         var query = _unitOfWork
             .ReadRepository<Domain.Entities.Concrete.Review, Guid>()
-            .GetAll(tracking: false);
+            .GetAll(tracking: false)
+            .Where(r => r.IsApproved);
 
 
         var reviews = await query
@@ -30,7 +31,7 @@ public sealed class GetAllReviewQueryHandler : IRequestHandler<GetAllReviewQuery
                 r.ProductId,
                 r.Product.Title,
                 r.Product.Images.Where(i => i.IsMain).Select(i => i.ImageUrl).FirstOrDefault() ?? "",
-                r.User.Email,
+                r.User.FirstName + " " + r.User.LastName.Substring(0, 1) + ".",
                 r.Comment,
                 r.Rating,
                 r.CreatedDate

@@ -5,6 +5,7 @@ namespace ELibraryAPI.Domain.Entities.Concrete;
 public class OrderStatus : BaseEntity
 {
     public string Name { get; set; } = null!;
+    public string Code { get; set; } = null!;
 
 
     public virtual ICollection<Order> Orders { get; set; } = new HashSet<Order>();

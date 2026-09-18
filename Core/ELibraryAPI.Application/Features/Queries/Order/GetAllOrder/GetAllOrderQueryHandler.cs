@@ -4,7 +4,6 @@ using ELibraryAPI.Application.UnitOfWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace ELibraryAPI.Application.Features.Queries.Order.GetAllOrder;
 
 public sealed class GetAllOrderQueryHandler : IRequestHandler<GetAllOrderQueryRequest, Result<GetAllOrderQueryResponse>>
@@ -20,13 +19,12 @@ public sealed class GetAllOrderQueryHandler : IRequestHandler<GetAllOrderQueryRe
 
     public async Task<Result<GetAllOrderQueryResponse>> Handle(GetAllOrderQueryRequest request, CancellationToken cancellationToken)
     {
-        var isAdmin = _currentUserService.IsInRole("Admin");
-        var query = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Order, Guid>().GetAll(tracking: false);
+        if (!_currentUserService.IsAdmin)
+            return Result<GetAllOrderQueryResponse>.Forbidden("Bu məlumatları baxmaq üçün inzibatçı hüququnuz olmalıdır.");
 
-        if (isAdmin)
-        {
-            query = query.IgnoreQueryFilters();
-        }
+        var query = _unitOfWork.ReadRepository<Domain.Entities.Concrete.Order, Guid>()
+            .GetAll(tracking: false)
+            .IgnoreQueryFilters();
 
         var totalCount = await query.CountAsync(cancellationToken);
 

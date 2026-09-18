@@ -12,7 +12,6 @@ namespace ELibraryAPI.API.Controllers;
 
 [Route("api/inventory-movements")]
 [Authorize] 
-[HasPermission(AuthorizePermissions.Inventory.ViewStock)]
 public class InventoryMovementsController : ApiControllerBase
 {
     private readonly IMediator _mediator;

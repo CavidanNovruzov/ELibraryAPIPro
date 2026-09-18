@@ -1,4 +1,4 @@
-﻿using ELibraryAPI.API.Controllers;
+﻿
 using ELibraryAPI.Application.Features.Commands.Auth.AppUser.ChangePassword;
 using ELibraryAPI.Application.Features.Commands.Auth.AppUser.ChangeUserStatus;
 using ELibraryAPI.Application.Features.Commands.Auth.AppUser.DeleteUser;
@@ -13,6 +13,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+
+
+
+namespace ELibraryAPI.API.Controllers.Auth;
 
 [Authorize]
 public sealed class UsersController : ApiControllerBase
